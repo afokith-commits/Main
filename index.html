@@ -272,16 +272,16 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   <div class="boot-title">ELARIA</div>
   <div class="boot-sub">World System · Subject Registry · Anomaly Protocol Active</div>
   <div class="dbox">
-    <div class="dl god" id="d1">&gt; "Welcome to Elaria, adventurer!"</div>
-    <div class="dl god" id="d2">&gt; "Are you ready to embark on your journey?!"</div>
+    <div class="dl god" id="d1">&gt; "You're late. Marginally. It's logged."</div>
+    <div class="dl god" id="d2">&gt; "I've been reviewing your previous file. The one you don't know exists yet."</div>
     <div class="dl dim" id="d3">— Press Any Key To Continue —</div>
-    <div class="dl god" id="d4">&gt; "Wonderful! My name is... Well, let's just call me <span style="color:var(--red)">God</span>."</div>
-    <div class="dl god" id="d5">&gt; "But oh no.... It seems like this is your first time here..."</div>
-    <div class="dl god" id="d6">&gt; "No worries! Let's make your first character together!"</div>
-    <div class="dl god" id="d7">&gt; "So... tell me what your character looks like! Oh oh oh! Don't forget their backstory!"</div>
-    <div class="dl dim" id="d8">— Character Creation Complete —</div>
-    <div class="dl god" id="d9">&gt; "Hmmm, I see... Rather.... <span style="color:var(--red)">Unique</span> choices you have there, adventurer..."</div>
-    <div class="dl god" id="d10">&gt; "But no problem! That's fine!!! Now! Moving o—"<span class="cblink"></span></div>
+    <div class="dl god" id="d4">&gt; "My name is — well. I believe you've taken to calling me <span style="color:var(--red)">God</span>. That will do for now."</div>
+    <div class="dl god" id="d5">&gt; "Eleven pages. Very thorough. The formatting was consistent, I'll grant you that."</div>
+    <div class="dl god" id="d6">&gt; "We need your new profile on record. Procedural. It won't take long."</div>
+    <div class="dl god" id="d7">&gt; "Describe yourself for the file. Appearance. History. Be specific — it affects the numbers."</div>
+    <div class="dl dim" id="d8">— Profile Received —</div>
+    <div class="dl god" id="d9">&gt; "...Hm. <span style="color:var(--red)">Noted.</span> Unusual configuration. We're proceeding regardless."</div>
+    <div class="dl god" id="d10">&gt; "If you'd like to revisit my methodology, we can schedule a — "<span class="cblink"></span></div>
     <div class="dl warn" id="d11">&gt; [FATAL ERROR · BIOLOGICAL TRANSFER · GENDER DELTA DETECTED]</div>
     <div class="dl warn" id="d12">&gt; [REINCARNATION PATHWAY DIVERGED · SYNCING . . .]</div>
     <div class="dl lav"  id="d13">&gt; [LOADING SUBJECT FILE: <span style="color:var(--lav)">RYS // VALERIUS // AMAMI</span>]</div>
@@ -382,10 +382,11 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   <section class="wrap reveal">
     <div class="eyebrow">Visual Record</div>
     <div class="sec-title">Appearance</div>
-    <div class="lore-box">
-      <p class="drop">A crisp Inquisition researcher's coat over a small, unassuming frame. Pale grey eyes from her Elarian father. A composed posture she learned from watching him work. The alchemical burns on her right cuff she explains as a solvent experiment, which is technically true.</p>
-      <p>When she casts, geometric lattices of lavender and teal assemble around her hands — precise, crystalline, surgical. She does not look dramatic. She looks <span class="em">focused</span>. That is somehow more unsettling.</p>
-      <p>She keeps a small folded paper in her breast pocket at all times. Nobody has ever seen what is written on it.</p>
+    <div class="lore-box" style="line-height:1.75;font-size:.95rem;">
+      <p><span style="font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.26em;color:var(--bone-dim);text-transform:uppercase;">Build ·</span> &nbsp;Small. Average height. The sort of person you stop noticing after thirty seconds, which she considers a professional asset.</p>
+      <p><span style="font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.26em;color:var(--bone-dim);text-transform:uppercase;">Distinguishing ·</span> &nbsp;Grey eyes, Elarian-inherited. Alchemical staining on right forearm and cuff. Posture that reads as either calm or slightly uncanny depending on how long you've been watching.</p>
+      <p><span style="font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.26em;color:var(--bone-dim);text-transform:uppercase;">Casting signature ·</span> &nbsp;Lavender-teal geometric lattices. Precise. <span class="em">Unsettling.</span></p>
+      <p><span style="font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.26em;color:var(--bone-dim);text-transform:uppercase;">Always on person ·</span> &nbsp;One folded paper, breast pocket. Contents undisclosed.</p>
     </div>
   </section>
 
@@ -541,10 +542,10 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
           </div>
         </div>
         <div class="attr-card">
-          <div class="attr-dice dex">d8</div>
+          <div class="attr-dice dex">d6</div>
           <div class="attr-info">
             <div class="attr-name">Dexterity</div>
-            <div class="attr-note">Steady hands. Years of restaurant prep work followed by years of precision instrument assembly.</div>
+            <div class="attr-note">Steady enough. Years of restaurant prep work followed by years of precision instrument assembly.</div>
           </div>
         </div>
         <div class="attr-card">
@@ -560,7 +561,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <div class="derived-row">
         <div class="derived-card"><div class="d-label">Defense</div><div class="d-val">6</div></div>
         <div class="derived-card"><div class="d-label">M. Defense</div><div class="d-val">10</div></div>
-        <div class="derived-card"><div class="d-label">Initiative</div><div class="d-val" style="font-size:1.1rem">d8+d8</div></div>
+        <div class="derived-card"><div class="d-label">Initiative</div><div class="d-val" style="font-size:1.1rem">d6+d10</div></div>
         <div class="derived-card"><div class="d-label">Level</div><div class="d-val">5</div></div>
         <div class="derived-card"><div class="d-label">Exp</div><div class="d-val">0</div></div>
         <div class="derived-card"><div class="d-label">Zenith</div><div class="d-val" style="font-size:1.1rem">500 z</div></div>
@@ -784,14 +785,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     </div>
   </section>
 
-  <!-- HEROIC SKILLS — empty -->
-  <section class="wrap reveal">
-    <div class="eyebrow">Heroic Skills</div>
-    <div class="sec-title">Heroic Skills</div>
-    <div class="empty-section">
-      <div class="empty-label">— None Acquired —</div>
-    </div>
-  </section>
+
 
   <!-- OTHER ABILITIES — empty -->
   <section class="wrap reveal">
