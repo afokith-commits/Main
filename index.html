@@ -1,989 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ELARIA // SUBJECT FILE: RYS VALERIUS</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=EB+Garamond:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-<style>
-:root{
-  --void:#07070f;--panel:#0c0c1c;--panel2:#111128;--panel3:#16163a;
-  --border:#1e1e3e;--border-hi:#2e2e5e;
-  --gold:#c8a84b;--gold-dim:#7a6020;--gold-glow:rgba(200,168,75,.35);
-  --teal:#4dc8e0;--teal-dim:#1b5a6a;--teal-glow:rgba(77,200,224,.25);
-  --lav:#b094d8;--lav-dim:#4a2e7a;--lav-glow:rgba(176,148,216,.3);
-  --bone:#e9e3d8;--bone-dim:#8a7f70;
-  --red:#e05252;--red-dim:#6a1a1a;
-  --green:#4dd8a8;
-  --glow-gold:0 0 24px var(--gold-glow),0 0 60px rgba(200,168,75,.12);
-  --glow-teal:0 0 20px var(--teal-glow);
-  --glow-lav:0 0 24px var(--lav-glow),0 0 60px rgba(176,148,216,.1);
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;}
-body{background:var(--void);color:var(--bone);font-family:'Crimson Text',serif;overflow-x:hidden;min-height:100vh;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crystalline Resonance // Labra</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@200;300;400&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0b10;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(234, 179, 8, 0.05) 0%, transparent 50%);
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        .font-anime { font-family: 'Cinzel', serif; }
+        .font-poetic { font-family: 'Cormorant Garamond', serif; }
+        
+        /* Labradorite Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .iridescent-border {
+            position: relative;
+        }
+        .iridescent-border::before {
+            content: "";
+            position: absolute;
+            inset: -1px;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(120deg, rgba(56,189,248,0.5), rgba(168,85,247,0.2), rgba(234,179,8,0.5));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
 
-body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.05) 2px,rgba(0,0,0,.05) 4px);pointer-events:none;z-index:9998;}
+        .iridescent-text {
+            background: linear-gradient(120deg, #7dd3fc, #c084fc, #fef08a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: shine 5s linear infinite;
+        }
 
-#stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.6;}
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
 
-/* ═══ BOOT ═══ */
-#boot{
-  position:fixed;inset:0;background:var(--void);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  z-index:1000;padding:2rem;transition:opacity 1.1s ease;
-}
-#boot.out{opacity:0;pointer-events:none;}
-.boot-title{font-family:'Cinzel Decorative',serif;font-size:clamp(2rem,6vw,4rem);color:var(--gold);text-shadow:var(--glow-gold);letter-spacing:.2em;margin-bottom:.15em;opacity:0;animation:fadeUp .9s .15s ease forwards;}
-.boot-sub{font-family:'Share Tech Mono',monospace;font-size:clamp(.55rem,1.2vw,.75rem);color:var(--teal-dim);letter-spacing:.55em;text-transform:uppercase;margin-bottom:2.5rem;opacity:0;animation:fadeUp .9s .45s ease forwards;}
-.dbox{border:1px solid var(--border);background:var(--panel);border-radius:4px;padding:1.8rem 2.2rem;max-width:700px;width:100%;position:relative;opacity:0;animation:fadeUp .9s .75s ease forwards;}
-.dbox::before{content:'[ SYSTEM DIALOGUE · ELARIA.OS v2.4 ]';position:absolute;top:-.6em;left:1.4rem;background:var(--void);padding:0 .55rem;font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--teal);letter-spacing:.22em;}
-.dl{font-family:'Share Tech Mono',monospace;font-size:clamp(.68rem,1.5vw,.84rem);line-height:1.9;display:none;}
-.dl.god{color:var(--gold);}.dl.sys{color:var(--teal);}.dl.warn{color:var(--red);}.dl.dim{color:var(--bone-dim);}.dl.lav{color:var(--lav);}.dl.on{display:block;}
-.cblink{display:inline-block;width:.45em;height:.95em;background:var(--teal);vertical-align:text-bottom;animation:blink .85s step-end infinite;margin-left:2px;}
-.prog-wrap{margin-top:1.4rem;width:100%;height:2px;background:var(--border);border-radius:2px;overflow:hidden;display:none;}
-.prog-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--lav-dim),var(--lav));box-shadow:0 0 12px var(--lav);transition:width .04s linear;}
-.keyhint{margin-top:1.4rem;font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--bone-dim);text-align:center;letter-spacing:.3em;animation:blink 1.2s step-end infinite;display:none;}
+        .nav-btn {
+            transition: all 0.4s ease;
+            position: relative;
+        }
+        .nav-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            width: 0;
+            height: 1px;
+            background: #7dd3fc;
+            transition: all 0.4s ease;
+            transform: translateX(-50%);
+        }
+        .nav-btn.active { color: #7dd3fc; }
+        .nav-btn.active::after { width: 100%; }
 
-/* ═══ MAIN SHEET ═══ */
-#sheet{opacity:0;transition:opacity 1.2s ease;position:relative;z-index:1;}
-#sheet.on{opacity:1;}
+        .fade-in { animation: fadeIn 0.6s ease-in-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-/* HERO */
-.hero{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:5rem 2rem 6rem;overflow:hidden;}
-.hero-aura{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 55% 45% at 50% 60%,rgba(176,148,216,.08),transparent 70%),radial-gradient(ellipse 38% 30% at 50% 15%,rgba(200,168,75,.07),transparent 65%),radial-gradient(ellipse 70% 60% at 50% 100%,rgba(77,200,224,.04),transparent 65%);}
-.hero-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:52px 52px;opacity:.15;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 30%,transparent 100%);}
-
-.tag-row{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-bottom:1.4rem;}
-.chip{display:inline-block;font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;padding:.22em .8em;border-radius:2px;border:1px solid;}
-.chip.lav{color:var(--lav);border-color:var(--lav-dim);background:rgba(176,148,216,.06);}
-.chip.teal{color:var(--teal);border-color:var(--teal-dim);background:rgba(77,200,224,.05);}
-.chip.warn{color:var(--red);border-color:var(--red-dim);background:rgba(224,82,82,.06);}
-.chip.gold{color:var(--gold);border-color:var(--gold-dim);background:rgba(200,168,75,.05);}
-
-.name-wrap{position:relative;display:inline-block;margin-bottom:.25em;cursor:crosshair;}
-.name-main{font-family:'Cinzel Decorative',serif;font-size:clamp(1.9rem,7vw,5.2rem);font-weight:700;line-height:1.05;letter-spacing:.055em;color:var(--bone);position:relative;user-select:none;}
-.name-main .lav{color:var(--lav);}.name-main .gold{color:var(--gold);}
-.name-ghost{position:absolute;inset:0;font-family:'Cinzel Decorative',serif;font-size:clamp(1.9rem,7vw,5.2rem);font-weight:700;line-height:1.05;letter-spacing:.055em;color:var(--teal);opacity:0;pointer-events:none;transition:opacity .15s;}
-.name-wrap:hover .name-ghost{opacity:.6;animation:glitch .22s steps(1) infinite;}
-
-.epithet{font-family:'Cinzel',serif;font-size:clamp(.75rem,1.6vw,.95rem);color:var(--bone-dim);letter-spacing:.32em;text-transform:uppercase;margin:1rem 0 .5rem;font-style:italic;}
-.transfer-note{font-family:'Share Tech Mono',monospace;font-size:clamp(.6rem,1.2vw,.72rem);color:var(--teal-dim);letter-spacing:.22em;margin-bottom:2rem;}
-.divider-gold{width:100%;max-width:460px;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),var(--gold),var(--gold-dim),transparent);margin:0 auto 2rem;position:relative;}
-.divider-gold::before{content:'✦';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--void);color:var(--gold);padding:0 .55rem;font-size:.82rem;}
-.hero-quote{font-family:'EB Garamond',serif;font-style:italic;font-size:clamp(.95rem,2.1vw,1.18rem);color:var(--bone-dim);max-width:560px;line-height:1.8;border-left:2px solid var(--lav-dim);padding-left:1.3rem;text-align:left;}
-.scroll-arrow{position:absolute;bottom:2.2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.4rem;font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--bone-dim);letter-spacing:.32em;animation:floatY 2.2s ease-in-out infinite;}
-.scroll-line{width:1px;height:34px;background:linear-gradient(180deg,var(--gold-dim),transparent);}
-
-/* LAYOUT */
-.wrap{max-width:1120px;margin:0 auto;padding:5.5rem 2rem 0;}
-.eyebrow{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--teal);letter-spacing:.42em;text-transform:uppercase;margin-bottom:.65rem;display:flex;align-items:center;gap:1rem;}
-.eyebrow::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--teal-dim),transparent);}
-.sec-title{font-family:'Cinzel',serif;font-size:clamp(1.25rem,2.8vw,1.8rem);color:var(--gold);margin-bottom:2rem;font-weight:600;}
-.reveal{opacity:0;transform:translateY(20px);transition:opacity .75s ease,transform .75s ease;}
-.reveal.in{opacity:1;transform:translateY(0);}
-
-/* DUAL IDENTITY */
-.dual-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.6rem;}
-@media(max-width:640px){.dual-grid{grid-template-columns:1fr;}}
-.id-panel{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:1.9rem;position:relative;overflow:hidden;transition:border-color .3s,box-shadow .3s;}
-.id-panel:hover{box-shadow:0 8px 32px rgba(0,0,0,.4);}
-.id-panel.earth{border-top:2px solid var(--teal);}.id-panel.earth:hover{border-color:var(--teal);box-shadow:var(--glow-teal);}
-.id-panel.elaria{border-top:2px solid var(--lav);}.id-panel.elaria:hover{border-color:var(--lav-dim);box-shadow:var(--glow-lav);}
-.panel-header{font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.36em;text-transform:uppercase;margin-bottom:1.25rem;}
-.panel-header.earth{color:var(--teal);}.panel-header.elaria{color:var(--lav);}
-.field{margin-bottom:1rem;}.field:last-child{margin-bottom:0;}
-.field-label{font-family:'Share Tech Mono',monospace;font-size:.58rem;letter-spacing:.28em;color:var(--bone-dim);text-transform:uppercase;margin-bottom:.28rem;}
-.field-value{font-family:'Cinzel',serif;font-size:.98rem;color:var(--bone);font-weight:600;}
-.field-value.gold{color:var(--gold);}.field-value.lav{color:var(--lav);}.field-value.teal{color:var(--teal);}.field-value.red{color:var(--red);}
-.field-value.sm{font-size:.9rem;font-family:'Crimson Text',serif;font-style:italic;line-height:1.6;font-weight:400;}
-
-/* PSYCH */
-.psych-box{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:2.2rem;}
-.psych-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.6rem;}
-@media(max-width:640px){.psych-grid{grid-template-columns:1fr;}}
-.psych-item{position:relative;padding-left:1.3rem;}
-.psych-item::before{content:'';position:absolute;left:0;top:.45em;width:5px;height:5px;border-radius:50%;background:var(--lav);box-shadow:0 0 8px var(--lav);}
-.psych-label{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--lav);letter-spacing:.26em;text-transform:uppercase;margin-bottom:.4rem;}
-.psych-text{font-size:.96rem;color:var(--bone-dim);line-height:1.68;}
-.psych-text .em{color:var(--bone);font-style:normal;}.psych-text .teal{color:var(--teal);}.psych-text .warn{color:var(--red);}
-
-.contra-list{margin-top:1.6rem;display:flex;flex-direction:column;gap:.7rem;}
-.contra-item{padding:.85rem 1.1rem;background:var(--panel2);border-radius:4px;border:1px solid var(--border);display:grid;grid-template-columns:auto 1fr;gap:.8rem;align-items:start;}
-.contra-icon{font-size:.9rem;padding-top:.1rem;}
-.contra-text{font-family:'Crimson Text',serif;font-size:.92rem;color:var(--bone-dim);line-height:1.6;}
-.contra-text strong{color:var(--bone);font-weight:600;}
-
-/* LORE */
-.lore-box{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:2.6rem;line-height:1.88;font-size:1.06rem;}
-.lore-box p+p{margin-top:1.15em;}
-.lore-box .drop::first-letter{font-family:'Cinzel Decorative',serif;font-size:3.8em;line-height:.78;float:left;margin-right:.08em;color:var(--gold);text-shadow:var(--glow-gold);}
-.em{color:var(--lav);font-style:italic;}.teal-em{color:var(--teal);font-style:italic;}.warn-inline{color:var(--red);}
-
-/* ═══ INTERACTIVE STATS ═══ */
-.stats-wrap{display:flex;flex-direction:column;gap:1.6rem;}
-
-/* resource bars — clickable HP/MP/IP */
-.resource-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;}
-@media(max-width:560px){.resource-row{grid-template-columns:1fr;}}
-
-.res-card{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:1.3rem 1.5rem;transition:border-color .25s;}
-.res-card:hover{border-color:var(--border-hi);}
-.res-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.75rem;}
-.res-name{font-family:'Cinzel',serif;font-size:.85rem;color:var(--bone-dim);text-transform:uppercase;letter-spacing:.1em;}
-.res-fraction{font-family:'Share Tech Mono',monospace;font-size:1.05rem;}
-.res-track{width:100%;height:6px;background:var(--border);border-radius:3px;overflow:hidden;cursor:pointer;position:relative;}
-.res-track:hover{opacity:.85;}
-.res-fill{height:100%;border-radius:3px;transition:width .4s cubic-bezier(.22,1,.36,1);}
-.res-fill.hp{background:linear-gradient(90deg,#6a1818,var(--red));box-shadow:0 0 10px rgba(224,82,82,.4);}
-.res-fill.mp{background:linear-gradient(90deg,var(--lav-dim),var(--lav));box-shadow:0 0 10px var(--lav-glow);}
-.res-fill.ip{background:linear-gradient(90deg,var(--gold-dim),var(--gold));box-shadow:0 0 10px var(--gold-glow);}
-.res-controls{display:flex;gap:.4rem;margin-top:.6rem;}
-.res-btn{font-family:'Share Tech Mono',monospace;font-size:.7rem;padding:.2em .55em;border:1px solid var(--border);background:var(--panel2);color:var(--bone-dim);border-radius:3px;cursor:pointer;transition:all .18s;user-select:none;}
-.res-btn:hover{border-color:var(--bone-dim);color:var(--bone);}
-.res-btn.minus{color:var(--red);border-color:var(--red-dim);}
-.res-btn.minus:hover{background:rgba(224,82,82,.1);border-color:var(--red);}
-.res-btn.plus{color:var(--green);border-color:#1a5a3a;}
-.res-btn.plus:hover{background:rgba(77,216,168,.08);border-color:var(--green);}
-.res-input{font-family:'Share Tech Mono',monospace;font-size:.78rem;background:var(--panel2);border:1px solid var(--border);color:var(--bone);border-radius:3px;width:3.2rem;text-align:center;padding:.18em .3em;outline:none;}
-.res-input:focus{border-color:var(--teal);}
-
-/* dice attributes */
-.attr-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.2rem;}
-@media(max-width:480px){.attr-grid{grid-template-columns:1fr;}}
-.attr-card{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:1.25rem 1.45rem;display:flex;align-items:center;gap:1rem;transition:border-color .25s,box-shadow .25s;cursor:default;}
-.attr-card:hover{border-color:var(--border-hi);box-shadow:0 4px 20px rgba(0,0,0,.3);}
-.attr-dice{font-family:'Share Tech Mono',monospace;font-size:1.8rem;font-weight:700;width:3.2rem;text-align:center;flex-shrink:0;}
-.attr-dice.ins{color:var(--gold);text-shadow:var(--glow-gold);}
-.attr-dice.dex{color:var(--teal);text-shadow:var(--glow-teal);}
-.attr-dice.mig{color:var(--red);}
-.attr-dice.wlp{color:var(--lav);text-shadow:var(--glow-lav);}
-.attr-info{flex:1;}
-.attr-name{font-family:'Cinzel',serif;font-size:.88rem;color:var(--bone);font-weight:600;letter-spacing:.05em;}
-.attr-note{font-family:'Crimson Text',serif;font-size:.84rem;color:var(--bone-dim);font-style:italic;margin-top:.18rem;line-height:1.45;}
-
-/* derived row */
-.derived-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;}
-@media(max-width:540px){.derived-row{grid-template-columns:1fr 1fr;}}
-.derived-card{background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:.9rem 1.1rem;text-align:center;}
-.d-label{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--bone-dim);letter-spacing:.25em;text-transform:uppercase;margin-bottom:.35rem;}
-.d-val{font-family:'Cinzel',serif;font-size:1.55rem;color:var(--gold);font-weight:700;line-height:1;}
-
-/* fabula points — clickable pips */
-.fabula-row{display:flex;align-items:center;gap:1rem;margin-top:1.2rem;}
-.fabula-label{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--lav);letter-spacing:.3em;text-transform:uppercase;}
-.pip-row{display:flex;gap:.55rem;}
-.pip{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--lav-dim);background:transparent;cursor:pointer;transition:all .2s;position:relative;}
-.pip.filled{background:var(--lav);box-shadow:0 0 10px var(--lav-glow);border-color:var(--lav);}
-.pip:hover{border-color:var(--lav);transform:scale(1.15);}
-.fabula-val{font-family:'Share Tech Mono',monospace;font-size:.9rem;color:var(--lav);margin-left:.3rem;}
-
-/* STATUS TOGGLE */
-.status-row{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:1.2rem;}
-.status-chip{font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;padding:.3em .8em;border-radius:3px;border:1px solid var(--border);background:var(--panel2);color:var(--bone-dim);cursor:pointer;transition:all .22s;user-select:none;}
-.status-chip:hover{border-color:var(--bone-dim);}
-.status-chip.active.slow{background:rgba(77,200,224,.12);border-color:var(--teal);color:var(--teal);}
-.status-chip.active.enraged{background:rgba(224,82,82,.12);border-color:var(--red);color:var(--red);}
-.status-chip.active.dazed{background:rgba(200,168,75,.12);border-color:var(--gold);color:var(--gold);}
-.status-chip.active.weaken{background:rgba(224,82,82,.1);border-color:#c86060;color:#c86060;}
-.status-chip.active.shaken{background:rgba(176,148,216,.12);border-color:var(--lav);color:var(--lav);}
-.status-chip.active.poisoned{background:rgba(77,216,168,.1);border-color:var(--green);color:var(--green);}
-
-/* CLASSES */
-.classes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(305px,1fr));gap:1.45rem;}
-.class-card{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:1.7rem;position:relative;overflow:hidden;transition:border-color .28s,transform .28s,box-shadow .28s;}
-.class-card:hover{border-color:var(--lav-dim);transform:translateY(-5px);box-shadow:0 12px 38px rgba(176,148,216,.14);}
-.class-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--lav),transparent);opacity:0;transition:opacity .28s;}
-.class-card:hover::before{opacity:1;}
-.class-badge{display:inline-flex;align-items:center;gap:.55rem;margin-bottom:1rem;}
-.class-name{font-family:'Cinzel',serif;font-size:1.08rem;color:var(--bone);font-weight:700;}
-.class-lv{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--lav);letter-spacing:.2em;padding:.14em .52em;border:1px solid var(--lav-dim);border-radius:2px;}
-.class-free{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--gold);letter-spacing:.15em;padding:.14em .52em;border:1px solid var(--gold-dim);border-radius:2px;}
-.skill-list{display:flex;flex-direction:column;gap:.8rem;}
-.skill-item{padding:.75rem 1rem;background:var(--panel2);border-radius:4px;border:1px solid var(--border);}
-.skill-header{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;margin-bottom:.3rem;}
-.skill-name{font-family:'Cinzel',serif;font-size:.84rem;color:var(--gold);font-weight:600;}
-.skill-sl{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--teal);border:1px solid var(--teal-dim);padding:.1em .4em;border-radius:2px;white-space:nowrap;flex-shrink:0;}
-.skill-desc{font-size:.86rem;color:var(--bone-dim);line-height:1.58;}
-
-/* EQUIPMENT — empty state */
-.equip-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.3rem;}
-@media(max-width:560px){.equip-grid{grid-template-columns:1fr;}}
-.equip-card{background:var(--panel);border:1px dashed var(--border);border-radius:6px;padding:1.5rem;position:relative;opacity:.6;transition:opacity .25s;}
-.equip-card:hover{opacity:1;}
-.equip-type{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--bone-dim);letter-spacing:.32em;text-transform:uppercase;margin-bottom:.4rem;}
-.equip-name{font-family:'Cinzel',serif;font-size:.95rem;color:var(--bone-dim);font-weight:600;margin-bottom:.5rem;}
-.equip-empty{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--border-hi);letter-spacing:.2em;text-transform:uppercase;margin-top:.4rem;}
-
-/* CONNECTIONS */
-.conn-list{display:flex;flex-direction:column;gap:1.1rem;}
-.conn-item{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:1.4rem 1.6rem;display:flex;gap:1.4rem;align-items:flex-start;transition:border-color .25s;}
-.conn-item:hover{border-color:var(--border-hi);}
-.conn-icon{width:44px;height:44px;border-radius:50%;background:var(--panel2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;}
-.conn-name{font-family:'Cinzel',serif;font-size:.97rem;color:var(--bone);font-weight:600;}
-.conn-rel{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--lav);letter-spacing:.16em;text-transform:uppercase;margin-top:.17rem;}
-.conn-desc{font-family:'Crimson Text',serif;font-size:.92rem;color:var(--bone-dim);margin-top:.42rem;line-height:1.62;}
-
-/* WARNING */
-.warning-band{max-width:1120px;margin:5.5rem auto 0;padding:0 2rem;}
-.warning-inner{border:1px solid var(--red);border-radius:6px;padding:1.3rem 1.9rem;background:rgba(224,82,82,.04);display:flex;align-items:flex-start;gap:1.1rem;}
-.warn-icon{font-size:.9rem;color:var(--red);flex-shrink:0;padding-top:.1rem;animation:pulseWarn 1.4s ease infinite;}
-.warn-title{font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--red);letter-spacing:.32em;text-transform:uppercase;margin-bottom:.38rem;}
-.warn-body{font-family:'Crimson Text',serif;font-size:.97rem;color:var(--bone-dim);line-height:1.68;}
-
-/* FOOTER */
-.sheet-footer{max-width:1120px;margin:5rem auto 0;padding:2rem 2rem 5rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;}
-.foot-id{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--bone-dim);letter-spacing:.2em;}
-.foot-logo{font-family:'Cinzel Decorative',serif;font-size:.82rem;color:var(--gold-dim);letter-spacing:.14em;text-shadow:var(--glow-gold);}
-
-/* spell / heroic / other — empty placeholders */
-.empty-section{background:var(--panel);border:1px dashed var(--border);border-radius:6px;padding:2rem;text-align:center;}
-.empty-label{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--border-hi);letter-spacing:.35em;text-transform:uppercase;}
-
-/* invocation */
-.invo-card{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:1.5rem 1.8rem;display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem;}
-.invo-label{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--teal);letter-spacing:.3em;text-transform:uppercase;margin-bottom:.3rem;}
-.invo-val{font-family:'Cinzel',serif;font-size:1rem;color:var(--bone-dim);}
-.invo-level{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--lav);letter-spacing:.2em;text-align:right;}
-
-/* ANIMATIONS */
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
-@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
-@keyframes floatY{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(9px);}}
-@keyframes glitch{
-  0%  {clip-path:inset(38% 0 58% 0);transform:translate(-5px,1px);}
-  14% {clip-path:inset(68% 0 12% 0);transform:translate(5px,-1px);}
-  28% {clip-path:inset(12% 0 80% 0);transform:translate(-3px,0);}
-  42% {clip-path:inset(55% 0 30% 0);transform:translate(4px,2px);}
-  58% {clip-path:inset(22% 0 68% 0);transform:translate(-4px,0);}
-  78% {clip-path:inset(82% 0 5%  0);transform:translate(3px,-2px);}
-  100%{clip-path:inset(38% 0 58% 0);transform:translate(-5px,1px);}
-}
-@keyframes pulseWarn{0%,100%{opacity:1;}50%{opacity:.4;}}
-@media(prefers-reduced-motion:reduce){.reveal{transition:none;}*{animation-duration:.01ms!important;}}
-</style>
+        /* Ambient floating dust */
+        .dust {
+            position: fixed;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 0 10px #fff;
+            animation: float 10s infinite linear;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            50% { opacity: 0.3; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+    </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col justify-center py-12 relative selection:bg-sky-500/30">
 
-<canvas id="stars"></canvas>
+    <!-- Ambient Dust Particles -->
+    <div id="dust-container"></div>
 
-<!-- BOOT -->
-<div id="boot">
-  <div class="boot-title">ELARIA</div>
-  <div class="boot-sub">World System · Subject Registry · Anomaly Protocol Active</div>
-  <div class="dbox">
-    <div class="dl god" id="d1">&gt; "You're late. Marginally. It's logged."</div>
-    <div class="dl god" id="d2">&gt; "I've been reviewing your previous file. The one you don't know exists yet."</div>
-    <div class="dl dim" id="d3">— Press Any Key To Continue —</div>
-    <div class="dl god" id="d4">&gt; "My name is — well. I believe you've taken to calling me <span style="color:var(--red)">God</span>. That will do for now."</div>
-    <div class="dl god" id="d5">&gt; "Eleven pages. Very thorough. The formatting was consistent, I'll grant you that."</div>
-    <div class="dl god" id="d6">&gt; "We need your new profile on record. Procedural. It won't take long."</div>
-    <div class="dl god" id="d7">&gt; "Describe yourself for the file. Appearance. History. Be specific — it affects the numbers."</div>
-    <div class="dl dim" id="d8">— Profile Received —</div>
-    <div class="dl god" id="d9">&gt; "...Hm. <span style="color:var(--red)">Noted.</span> Unusual configuration. We're proceeding regardless."</div>
-    <div class="dl god" id="d10">&gt; "If you'd like to revisit my methodology, we can schedule a — "<span class="cblink"></span></div>
-    <div class="dl warn" id="d11">&gt; [FATAL ERROR · BIOLOGICAL TRANSFER · GENDER DELTA DETECTED]</div>
-    <div class="dl warn" id="d12">&gt; [REINCARNATION PATHWAY DIVERGED · SYNCING . . .]</div>
-    <div class="dl lav"  id="d13">&gt; [LOADING SUBJECT FILE: <span style="color:var(--lav)">RYS // VALERIUS // AMAMI</span>]</div>
-    <div class="dl sys"  id="d14">&gt; [COVER IDENTITY: INTACT · THREAT LEVEL: EXTREME]<span class="cblink"></span></div>
-    <div class="prog-wrap" id="pw"><div class="prog-fill" id="pf"></div></div>
-    <div class="keyhint" id="kh">[ PRESS ANY KEY ]</div>
-  </div>
-</div>
-
-<!-- MAIN SHEET -->
-<div id="sheet">
-
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-aura"></div>
-    <div class="hero-grid"></div>
-    <div class="tag-row">
-      <span class="chip lav">Spiritist Lv.2</span>
-      <span class="chip lav">Entropist Lv.2</span>
-      <span class="chip lav">Tinkerer Lv.1</span>
-      <span class="chip teal">Transmigrator — Reborn</span>
-      <span class="chip gold">♂ → ♀ Gender Transfer</span>
-      <span class="chip warn">⚠ Identity Concealed</span>
-    </div>
-    <div class="name-wrap" title="Hover to reveal true identity">
-      <div class="name-main"><span class="lav">Aethelryth</span><br><span class="gold">"Rys"</span> Valerius</div>
-      <div class="name-ghost" aria-hidden="true">Renjiro<br>"Ren" Amami</div>
-    </div>
-    <p class="epithet">She / They · Junior Researcher, Inquisition R&D Division</p>
-    <p class="transfer-note">[ Reborn · Holy Kingdom of Aethelgard · Status: Operational ]</p>
-    <div class="divider-gold"></div>
-    <blockquote class="hero-quote">
-      "First I lose my body. Then my gender. Then I get reborn into a world with no video games whatsoever.<br>
-      I am conducting research into dimensional physics out of spite."
-    </blockquote>
-    <div class="scroll-arrow"><span>SCROLL</span><div class="scroll-line"></div></div>
-  </section>
-
-  <!-- DUAL IDENTITY -->
-  <section class="wrap reveal">
-    <div class="eyebrow">Dual Identity Matrix</div>
-    <div class="sec-title">Subject Profile</div>
-    <div class="dual-grid">
-      <div class="id-panel earth">
-        <div class="panel-header earth">[ Earth Origin — CLASSIFIED ]</div>
-        <div class="field">
-          <div class="field-label">True Name</div>
-          <div class="field-value teal">Renjiro "Ren" Amami</div>
-        </div>
-        <div class="field">
-          <div class="field-label">Gender at Transfer</div>
-          <div class="field-value teal">Male</div>
-        </div>
-        <div class="field">
-          <div class="field-label">Occupation</div>
-          <div class="field-value sm">Ordinary citizen. Part-time help at family restaurant in Japan. Dedicated gamer — approximately eight hours per day, condition: chronic.</div>
-        </div>
-        <div class="field">
-          <div class="field-label">Primary Grievance</div>
-          <div class="field-value sm" style="color:var(--red)">Elaria has no video games. Not a single one. He has checked.</div>
-        </div>
-        <div class="field">
-          <div class="field-label">Core Drive</div>
-          <div class="field-value sm" style="color:var(--bone-dim)">Kenji and Reiko Amami. The smell of dashi at 6am. The creak of the restaurant's third stair. She needs them to know she didn't just disappear.</div>
-        </div>
-      </div>
-      <div class="id-panel elaria">
-        <div class="panel-header elaria">[ Elaria Identity — ACTIVE COVER ]</div>
-        <div class="field">
-          <div class="field-label">Registered Name</div>
-          <div class="field-value lav">Aethelryth "Rys" Valerius</div>
-        </div>
-        <div class="field">
-          <div class="field-label">Gender</div>
-          <div class="field-value lav">Female — Reborn as daughter</div>
-        </div>
-        <div class="field">
-          <div class="field-label">Pronouns</div>
-          <div class="field-value">She / They</div>
-        </div>
-        <div class="field">
-          <div class="field-label">Origin</div>
-          <div class="field-value sm">Holy Kingdom of Aethelgard. Daughter of Dr. Silas Valerius (royal physician) and Elara Valerius (homemaker).</div>
-        </div>
-        <div class="field">
-          <div class="field-label">Public Role</div>
-          <div class="field-value sm" style="color:var(--bone-dim)">Youngest-ever Junior Researcher, Inquisition Arcane R&D Division. Brilliant, compliant on paper. Dangerous in practice.</div>
-        </div>
-        <div class="field">
-          <div class="field-label">Defining Theme</div>
-          <div class="field-value gold">Belonging — To Whom, Exactly?</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- APPEARANCE -->
-  <section class="wrap reveal">
-    <div class="eyebrow">Visual Record</div>
-    <div class="sec-title">Appearance</div>
-    <div class="lore-box" style="line-height:1.75;font-size:.95rem;">
-      <p><span style="font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.26em;color:var(--bone-dim);text-transform:uppercase;">Build ·</span> &nbsp;Small. Average height. The sort of person you stop noticing after thirty seconds, which she considers a professional asset.</p>
-      <p><span style="font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.26em;color:var(--bone-dim);text-transform:uppercase;">Distinguishing ·</span> &nbsp;Grey eyes, Elarian-inherited. Alchemical staining on right forearm and cuff. Posture that reads as either calm or slightly uncanny depending on how long you've been watching.</p>
-      <p><span style="font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.26em;color:var(--bone-dim);text-transform:uppercase;">Casting signature ·</span> &nbsp;Lavender-teal geometric lattices. Precise. <span class="em">Unsettling.</span></p>
-      <p><span style="font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.26em;color:var(--bone-dim);text-transform:uppercase;">Always on person ·</span> &nbsp;One folded paper, breast pocket. Contents undisclosed.</p>
-    </div>
-  </section>
-
-  <!-- PSYCH PROFILE -->
-  <section class="wrap reveal">
-    <div class="eyebrow">Psychological Assessment</div>
-    <div class="sec-title">Cognitive Profile</div>
-    <div class="psych-box">
-      <div class="psych-grid">
-        <div class="psych-item">
-          <div class="psych-label">Archetype</div>
-          <div class="psych-text"><span class="em">INFP 4w5.</span> A rich internal world hidden behind clinical language and deliberate competence. Processes enormous grief through the vocabulary of research because research has parameters and grief does not.</div>
-        </div>
-        <div class="psych-item">
-          <div class="psych-label">Surface Presentation</div>
-          <div class="psych-text">Polite. Slightly formal. Gives the impression of someone who has read more books than she has spoken to people. <span class="teal">Composed, curious, and just slightly odd.</span> None of her colleagues have ever seen her angry.</div>
-        </div>
-        <div class="psych-item">
-          <div class="psych-label">Actual State</div>
-          <div class="psych-text">Actively siphoning Inquisition funding to build a dimensional bridge. Deeply, quietly furious at a god she cannot file a formal complaint against. Finds this <span class="warn">acceptable for now.</span></div>
-        </div>
-        <div class="psych-item">
-          <div class="psych-label">Development Goal</div>
-          <div class="psych-text">Find a "Third Option" — exist in both worlds, or at minimum push a letter through the gap. Failing that, find the god responsible and have a very pointed academic discussion with them.</div>
-        </div>
-      </div>
-
-      <div class="contra-list">
-        <div class="contra-item">
-          <div class="contra-icon">🪞</div>
-          <div class="contra-text"><strong>The gender question is one she has never properly sat with.</strong> She was male before. She is female now. She has filed this under "acknowledged variable" and moved on, which is a decision that is neither healthy nor unusual given that she had rather larger problems as a child. Something about it still catches her off-guard, sometimes, in mirrors.</div>
-        </div>
-        <div class="contra-item">
-          <div class="contra-icon">🤝</div>
-          <div class="contra-text"><strong>She is deeply empathetic</strong> and keeps exhaustive mental notes on what every person around her actually needs — then uses this information to manage them rather than connect with them. She is simultaneously one of the most caring and most emotionally avoidant people in the room.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- BACKSTORY -->
-  <section class="wrap reveal">
-    <div class="eyebrow">Lore Entry</div>
-    <div class="sec-title">Backstory</div>
-    <div class="lore-box">
-      <p class="drop">Before the light, he was Ren. An ordinary person with an extraordinary gaming habit, a restaurant to help run, and no particular interest in the structural integrity of dimensional space. He was playing a game. He pressed a button. The world went white.</p>
-      <p>He was reborn as <span class="em">Aethelryth Valerius</span> in the Holy Kingdom of Aethelgard — daughter of a royal physician and his wife — and the first thing she noticed, once she was old enough to notice anything coherently, was that this world had magic, wars, political intrigue, and a fascinating ecosystem of dangerous creatures. The second thing she noticed was that it had <span class="warn-inline">absolutely no video games.</span> She has not forgiven this. She may never forgive this. She has added "find or invent interactive entertainment" to her research agenda below "dimensional bridge" and above "sleep more."</p>
-      <p>Her resentment toward whatever god executed this transfer is specific, well-documented in her private notes, and entirely unproductive. She knows this. She maintains the resentment anyway on principle.</p>
-      <p>Her father Dr. Silas gave her unrestricted access to his medical library. Her mother Elara shielded her from military recruiters with the serene force of someone who has decided her daughter will live on her own terms. Rys loves them both with a ferocity that frightens her — and feels, distantly, guilty about this, as though it is somehow a betrayal of the parents she left behind in Japan.</p>
-      <p>She enrolled at the Arcane Academy to access restricted dimensional research archives, graduated top of her class, and accepted a junior researcher position in the <span class="warn-inline">Inquisition's Arcane R&D Division</span> — the kingdom's foremost authority on hunting anomalies — with the specific expression of someone who has just been handed keys to the building she intended to rob. She has been there two years. She has not been caught. She does not intend to be.</p>
-    </div>
-  </section>
-
-  <!-- INTERACTIVE STATS -->
-  <section class="wrap reveal">
-    <div class="eyebrow">Fabula Ultima · Live Tracker</div>
-    <div class="sec-title">Attributes & Resources</div>
-    <div class="stats-wrap">
-
-      <!-- HP / MP / IP resource bars -->
-      <div class="resource-row">
-        <div class="res-card">
-          <div class="res-head">
-            <span class="res-name">Hit Points</span>
-            <span class="res-fraction" id="hp-frac" style="color:var(--red)">22 / 45</span>
-          </div>
-          <div class="res-track" id="hp-track" title="Click to set HP">
-            <div class="res-fill hp" id="hp-fill" style="width:48.9%"></div>
-          </div>
-          <div class="res-controls">
-            <button class="res-btn minus" onclick="changeRes('hp',-1)">−1</button>
-            <button class="res-btn minus" onclick="changeRes('hp',-5)">−5</button>
-            <input class="res-input" id="hp-in" type="number" value="22" min="0" max="45" onchange="setRes('hp',+this.value)">
-            <button class="res-btn plus" onclick="changeRes('hp',+5)">+5</button>
-            <button class="res-btn plus" onclick="changeRes('hp',+1)">+1</button>
-          </div>
-        </div>
-
-        <div class="res-card">
-          <div class="res-head">
-            <span class="res-name">Mind Points</span>
-            <span class="res-fraction" id="mp-frac" style="color:var(--lav)">40 / 55</span>
-          </div>
-          <div class="res-track" id="mp-track" title="Click to set MP">
-            <div class="res-fill mp" id="mp-fill" style="width:72.7%"></div>
-          </div>
-          <div class="res-controls">
-            <button class="res-btn minus" onclick="changeRes('mp',-1)">−1</button>
-            <button class="res-btn minus" onclick="changeRes('mp',-5)">−5</button>
-            <input class="res-input" id="mp-in" type="number" value="40" min="0" max="55" onchange="setRes('mp',+this.value)">
-            <button class="res-btn plus" onclick="changeRes('mp',+5)">+5</button>
-            <button class="res-btn plus" onclick="changeRes('mp',+1)">+1</button>
-          </div>
-        </div>
-
-        <div class="res-card">
-          <div class="res-head">
-            <span class="res-name">Inventory Points</span>
-            <span class="res-fraction" id="ip-frac" style="color:var(--gold)">6 / 8</span>
-          </div>
-          <div class="res-track" id="ip-track" title="Click to set IP">
-            <div class="res-fill ip" id="ip-fill" style="width:75%"></div>
-          </div>
-          <div class="res-controls">
-            <button class="res-btn minus" onclick="changeRes('ip',-1)">−1</button>
-            <button class="res-btn minus" onclick="changeRes('ip',-2)">−2</button>
-            <input class="res-input" id="ip-in" type="number" value="6" min="0" max="8" onchange="setRes('ip',+this.value)">
-            <button class="res-btn plus" onclick="changeRes('ip',+2)">+2</button>
-            <button class="res-btn plus" onclick="changeRes('ip',+1)">+1</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Fabula Points pips + Zenith -->
-      <div style="display:flex;flex-wrap:wrap;gap:1.5rem;align-items:center;">
-        <div class="fabula-row">
-          <span class="fabula-label">Fabula Points</span>
-          <div class="pip-row" id="pip-row"></div>
-          <span class="fabula-val" id="pip-count">3</span>
-        </div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--bone-dim);letter-spacing:.2em;">
-          ZENITH &nbsp;<span style="color:var(--gold);font-size:.9rem;">500 z</span>
-        </div>
-      </div>
-
-      <!-- Status toggles -->
-      <div>
-        <div class="eyebrow" style="margin-bottom:.6rem;">Status Conditions</div>
-        <div class="status-row">
-          <div class="status-chip slow" onclick="toggleStatus(this,'slow')">Slow</div>
-          <div class="status-chip enraged" onclick="toggleStatus(this,'enraged')">Enraged</div>
-          <div class="status-chip dazed" onclick="toggleStatus(this,'dazed')">Dazed</div>
-          <div class="status-chip weaken" onclick="toggleStatus(this,'weaken')">Weaken</div>
-          <div class="status-chip shaken" onclick="toggleStatus(this,'shaken')">Shaken</div>
-          <div class="status-chip poisoned" onclick="toggleStatus(this,'poisoned')">Poisoned</div>
-        </div>
-      </div>
-
-      <!-- Dice attributes -->
-      <div class="attr-grid">
-        <div class="attr-card">
-          <div class="attr-dice ins">d10</div>
-          <div class="attr-info">
-            <div class="attr-name">Insight</div>
-            <div class="attr-note">Her highest attribute. Foundation of dimensional research and medical diagnosis alike.</div>
-          </div>
-        </div>
-        <div class="attr-card">
-          <div class="attr-dice wlp">d8</div>
-          <div class="attr-info">
-            <div class="attr-name">Willpower</div>
-            <div class="attr-note">Driven by devotion to both families — and a stubborn refusal to let a god's poor planning be the end of the story.</div>
-          </div>
-        </div>
-        <div class="attr-card">
-          <div class="attr-dice dex">d6</div>
-          <div class="attr-info">
-            <div class="attr-name">Dexterity</div>
-            <div class="attr-note">Steady enough. Years of restaurant prep work followed by years of precision instrument assembly.</div>
-          </div>
-        </div>
-        <div class="attr-card">
-          <div class="attr-dice mig">d8</div>
-          <div class="attr-info">
-            <div class="attr-name">Might</div>
-            <div class="attr-note">Adequate. She relies on positioning and geometry rather than brute force, and she is fine with this.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Derived stats -->
-      <div class="derived-row">
-        <div class="derived-card"><div class="d-label">Defense</div><div class="d-val">6</div></div>
-        <div class="derived-card"><div class="d-label">M. Defense</div><div class="d-val">10</div></div>
-        <div class="derived-card"><div class="d-label">Initiative</div><div class="d-val" style="font-size:1.1rem">d6+d10</div></div>
-        <div class="derived-card"><div class="d-label">Level</div><div class="d-val">5</div></div>
-        <div class="derived-card"><div class="d-label">Exp</div><div class="d-val">0</div></div>
-        <div class="derived-card"><div class="d-label">Zenith</div><div class="d-val" style="font-size:1.1rem">500 z</div></div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- CLASS BUILD — exact PDF skills -->
-  <section class="wrap reveal">
-    <div class="eyebrow">Fabula Ultima · Class Build</div>
-    <div class="sec-title">Classes & Skills</div>
-    <div class="classes-grid">
-
-      <!-- ENTROPIST -->
-      <div class="class-card">
-        <div class="class-badge">
-          <span class="class-name">Entropist</span>
-          <span class="class-lv">LV 2</span>
-          <span class="class-free">FREE: MP +5</span>
-        </div>
-        <div class="skill-list">
-          <div class="skill-item">
-            <div class="skill-header">
-              <div class="skill-name">Entropic Magic</div>
-              <div class="skill-sl">SL 1 · ◆10</div>
+    <main class="max-w-6xl w-full mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-10 relative z-10">
+        
+        <!-- Left Panel: Visual Identity & Concept -->
+        <section class="lg:col-span-5 flex flex-col gap-6">
+            <div class="glass rounded-2xl p-4 iridescent-border group relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-tr from-sky-500/10 via-transparent to-yellow-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 z-10 pointer-events-none"></div>
+                <img src="image.png" alt="Labra" class="w-full aspect-[4/5] object-cover rounded-xl filter contrast-[1.05] brightness-95" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000';">
+                
+                <div class="absolute bottom-6 left-6 right-6 z-20">
+                    <div class="glass p-4 rounded-xl border border-white/10 backdrop-blur-md">
+                        <p class="font-poetic italic text-lg text-slate-300 leading-snug">
+                            "From afar, just a cloudy grey stone. But when the light hits at the perfect angle..."
+                        </p>
+                    </div>
+                </div>
             </div>
-            <div class="skill-desc">Each time you acquire this Skill, learn one Entropist spell. Offensive Entropist spells use 【INS + WLP】 for the Magic Check.</div>
-          </div>
-          <div class="skill-item">
-            <div class="skill-header">
-              <div class="skill-name">Lucky Seven</div>
-              <div class="skill-sl">SL 1 · ◆1</div>
+
+            <!-- Hook/Vulnerability -->
+            <div class="glass rounded-xl p-5 border-l-4 border-l-sky-400">
+                <h3 class="text-[10px] uppercase tracking-[0.2em] text-slate-500 mb-2">Psychological Hook // Hardness 6</h3>
+                <p class="text-sm text-slate-300 font-light leading-relaxed">
+                    Overthinks during critical tactical moments. Easily distracted and emotionally immobilized by beautifully tragic phenomena.
+                </p>
             </div>
-            <div class="skill-desc">You have a lucky number; at the beginning of each session, that number is 7. Once per scene after you perform a Check, you may replace the value shown on one of the dice you rolled with your lucky number (even if this would give an impossible result, such as a value of 7 on a d6). If you do, the replaced value becomes your new lucky number.</div>
-          </div>
-          <div class="skill-item">
-            <div class="skill-header">
-              <div class="skill-name">Ritual Entropism</div>
-              <div class="skill-sl">SL 1 · ◆1</div>
+        </section>
+
+        <!-- Right Panel: Interactive Psyche Dossier -->
+        <section class="lg:col-span-7 flex flex-col">
+            
+            <!-- Header -->
+            <header class="mb-8">
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="h-1.5 w-1.5 bg-sky-400 rounded-full animate-pulse shadow-[0_0_8px_#38bdf8]"></span>
+                    <span class="text-[10px] uppercase tracking-[0.3em] text-slate-400">Mother Crystal: Nethica</span>
+                </div>
+                <h1 class="font-anime text-5xl md:text-6xl text-white tracking-wider mb-2">LABRA</h1>
+                <h2 class="iridescent-text font-anime text-xl tracking-widest uppercase">Labradorite Component</h2>
+            </header>
+
+            <!-- Navigation Tabs -->
+            <nav class="flex gap-8 border-b border-white/5 mb-8 pb-2">
+                <button onclick="switchTab('psyche')" id="btn-psyche" class="nav-btn active text-xs uppercase tracking-widest pb-2 font-medium text-slate-400 hover:text-white">The Psyche (4w5)</button>
+                <button onclick="switchTab('archive')" id="btn-archive" class="nav-btn text-xs uppercase tracking-widest pb-2 font-medium text-slate-400 hover:text-white">Human Archive</button>
+                <button onclick="switchTab('cliches')" id="btn-cliches" class="nav-btn text-xs uppercase tracking-widest pb-2 font-medium text-slate-400 hover:text-white">Prismatic Clichés</button>
+            </nav>
+
+            <!-- Content Area -->
+            <div class="flex-grow relative h-[400px]">
+                
+                <!-- Tab 1: INFP 4w5 Psyche -->
+                <div id="content-psyche" class="absolute inset-0 fade-in space-y-6">
+                    <div class="glass rounded-xl p-6">
+                        <h3 class="font-anime text-xl text-sky-200 mb-4 border-b border-white/5 pb-2">The Melancholic Observer</h3>
+                        <p class="text-sm text-slate-300 font-light leading-loose mb-4">
+                            Labra fundamentally rejects the monolithic hatred their kin hold for humanity. Driven by an <span class="text-sky-400">INFP 4w5</span> cognitive framework, they are deeply individualistic and introspective, viewing the war not as a crusade, but as an existential tragedy.
+                        </p>
+                        <p class="text-sm text-slate-300 font-light leading-loose">
+                            They distance themselves from aggressive gems, preferring the silence of the ruins. Their empathetic core demands they understand *why* the world is cruel, rather than simply destroying the source of that cruelty. They fight out of poetic necessity, guarding their overwhelming emotions beneath a cloudy, quiet exterior.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Interactive Human Archive -->
+                <div id="content-archive" class="absolute inset-0 hidden space-y-4">
+                    <p class="text-xs text-slate-400 tracking-wider uppercase mb-2">Select a relic to project its emotional residue:</p>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button onclick="projectRelic('musicbox')" class="glass p-3 rounded-lg text-left hover:border-sky-400/30 transition-colors group">
+                            <span class="block text-sky-300 font-anime text-sm">Broken Music Box</span>
+                        </button>
+                        <button onclick="projectRelic('diary')" class="glass p-3 rounded-lg text-left hover:border-purple-400/30 transition-colors group">
+                            <span class="block text-purple-300 font-anime text-sm">Charred Diary</span>
+                        </button>
+                        <button onclick="projectRelic('ribbon')" class="glass p-3 rounded-lg text-left hover:border-yellow-400/30 transition-colors group">
+                            <span class="block text-yellow-300 font-anime text-sm">Faded Ribbon</span>
+                        </button>
+                    </div>
+                    
+                    <div class="glass rounded-xl p-6 mt-4 min-h-[180px] flex items-center justify-center relative overflow-hidden iridescent-border">
+                        <div id="relic-display" class="font-poetic text-xl md:text-2xl text-center text-slate-300 italic px-4 transition-opacity duration-500">
+                            "The ruins are silent, but the things they left behind never stop crying."
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Prismatic Clichés -->
+                <div id="content-cliches" class="absolute inset-0 hidden">
+                    <div class="grid grid-cols-1 gap-3 overflow-y-auto pr-2 pb-4 max-h-[400px]">
+                        
+                        <div class="glass rounded-xl p-5 border-l-2 border-l-sky-400 hover:bg-white/5 transition">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-anime text-lg text-white">Phantom Aegis</h4>
+                                <span class="font-anime text-sky-400 text-xl font-bold">4</span>
+                            </div>
+                            <p class="text-xs text-slate-400 font-light leading-relaxed">
+                                <strong class="text-slate-300">Defense & Cloaking.</strong> Solidifying reflected light into melancholic glass barriers to protect allies, or absorbing all light to achieve total internal reflection (invisibility).
+                            </p>
+                        </div>
+
+                        <div class="glass rounded-xl p-5 border-l-2 border-l-purple-400 hover:bg-white/5 transition">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-anime text-lg text-white">Genesis Weaver</h4>
+                                <span class="font-anime text-purple-400 text-xl font-bold">3</span>
+                            </div>
+                            <p class="text-xs text-slate-400 font-light leading-relaxed">
+                                <strong class="text-slate-300">Restoration.</strong> Channeling profound empathy through iridescent facets to laser-stitch shattered crystalline shards back together, leaving beautiful, glowing scars.
+                            </p>
+                        </div>
+
+                        <div class="glass rounded-xl p-5 border-l-2 border-l-yellow-400 hover:bg-white/5 transition">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-anime text-lg text-white">Relic Echo</h4>
+                                <span class="font-anime text-yellow-400 text-xl font-bold">2</span>
+                            </div>
+                            <p class="text-xs text-slate-400 font-light leading-relaxed">
+                                <strong class="text-slate-300">Analysis & Lore.</strong> Projecting light through collected human artifacts to cast holographic memories, uncovering the emotional truths and secrets of the past.
+                            </p>
+                        </div>
+
+                        <div class="glass rounded-xl p-5 border-l-2 border-l-emerald-400 hover:bg-white/5 transition">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-anime text-lg text-white">Stardust Flash</h4>
+                                <span class="font-anime text-emerald-400 text-xl font-bold">1</span>
+                            </div>
+                            <p class="text-xs text-slate-400 font-light leading-relaxed">
+                                <strong class="text-slate-300">Mobility.</strong> Briefly converting their physical grief into a photon pulse, instantly bouncing off reflective surfaces to reposition or save a falling comrade.
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
             </div>
-            <div class="skill-desc">You may perform Rituals whose effects fall within the Entropism discipline. Entropism Rituals use 【INS + WLP】 for the Magic Check.</div>
-          </div>
-          <div class="skill-item">
-            <div class="skill-header">
-              <div class="skill-name">Stolen Time</div>
-              <div class="skill-sl">SL 4 · ◆4</div>
-            </div>
-            <div class="skill-desc">During a conflict, you may use an action to interfere with the flow of time by spending up to 【SL × 5】 Mind Points. For every 5 Mind Points you spend this way, choose one option (each option can only be chosen once per use):<br><br>
-              · One creature you can see suffers <em>slow</em><br>
-              · One creature you can see recovers from <em>slow</em><br>
-              · One enemy suffering <em>slow</em> loses 【10 + (SL × 5)】 HP<br>
-              · One creature you can see may immediately perform the Equipment action for free<br>
-              · Choose one ally who has yet to take a turn: that ally may take their turn immediately after yours
-            </div>
-          </div>
-          <div class="skill-item">
-            <div class="skill-header">
-              <div class="skill-name">Absorb MP</div>
-              <div class="skill-sl">SL 0 · ◆5</div>
-            </div>
-            <div class="skill-desc">After you suffer damage, you may immediately recover 【SL × 2】 Mind Points.</div>
-          </div>
-        </div>
-      </div>
+        </section>
+    </main>
 
-      <!-- SPIRITIST -->
-      <div class="class-card">
-        <div class="class-badge">
-          <span class="class-name">Spiritist</span>
-          <span class="class-lv">LV 2</span>
-          <span class="class-free">FREE: MP +5</span>
-        </div>
-        <div class="skill-list">
-          <div class="skill-item">
-            <div class="skill-header">
-              <div class="skill-name">Spiritual Magic</div>
-              <div class="skill-sl">SL 1 · ◆10</div>
-            </div>
-            <div class="skill-desc">Each time you acquire this Skill, learn one Spiritist spell. Offensive Spiritist spells use 【INS + WLP】 for the Magic Check.</div>
-          </div>
-          <div class="skill-item">
-            <div class="skill-header">
-              <div class="skill-name">Healing Power</div>
-              <div class="skill-sl">SL 2 · ◆2</div>
-            </div>
-            <div class="skill-desc">When you cast a spell that targets one or more allies, if you have an arcane weapon equipped, you may have each of those allies recover an amount of HP equal to 【3 + (SL, multiplied by the number of Bonds you have towards your target)】. This healing is separate from any healing caused by the spell's effects.</div>
-          </div>
-          <div class="skill-item">
-            <div class="skill-header">
-              <div class="skill-name">Ritual Spiritism</div>
-              <div class="skill-sl">SL 1 · ◆1</div>
-            </div>
-            <div class="skill-desc">You may perform Rituals whose effects fall within the Spiritism discipline. Spiritism Rituals use 【INS + WLP】 for the Magic Check.</div>
-          </div>
-          <div class="skill-item">
-            <div class="skill-header">
-              <div class="skill-name">Support Magic</div>
-              <div class="skill-sl">SL 1 · ◆1</div>
-            </div>
-            <div class="skill-desc">When you cast a spell targeting one or more allies and have an arcane weapon equipped, you may choose one ally you have a Bond towards. That ally gains a bonus to the next Check they perform during the current scene equal to the strength of your Bond towards them.</div>
-          </div>
-          <div class="skill-item">
-            <div class="skill-header">
-              <div class="skill-name">Vismagus</div>
-              <div class="skill-sl">SL 1 · ◆1</div>
-            </div>
-            <div class="skill-desc">When you cast a spell, if you don't have enough Mind Points to pay for its total cost, you may choose to spend an amount of HP equal to (10 + the spell's total MP cost) instead. If a spell cast this way would cause you to recover HP, you instead recover no HP.</div>
-          </div>
-        </div>
-      </div>
+    <script>
+        // Generate ambient dust
+        const dustContainer = document.getElementById('dust-container');
+        for(let i = 0; i < 30; i++) {
+            let dust = document.createElement('div');
+            dust.className = 'dust';
+            dust.style.width = Math.random() * 3 + 'px';
+            dust.style.height = dust.style.width;
+            dust.style.left = Math.random() * 100 + 'vw';
+            dust.style.top = Math.random() * 100 + 'vh';
+            dust.style.animationDelay = Math.random() * 10 + 's';
+            dust.style.animationDuration = 10 + Math.random() * 20 + 's';
+            dustContainer.appendChild(dust);
+        }
 
-      <!-- TINKERER -->
-      <div class="class-card">
-        <div class="class-badge">
-          <span class="class-name">Tinkerer</span>
-          <span class="class-lv">LV 1</span>
-          <span class="class-free">FREE: IP +2</span>
-        </div>
-        <div class="skill-list">
-          <div class="skill-item">
-            <div class="skill-header">
-              <div class="skill-name">Gadgets</div>
-              <div class="skill-sl">SL 5 · ◆5</div>
-            </div>
-            <div class="skill-desc">When you first acquire this Skill, choose a gadget type: alchemy, infusions, magiarmament, magisphere, or magitech. You gain its basic benefits. Whenever you take this Skill again, choose one option: gain the basic benefits of a new gadget type; or gain the advanced benefits of a gadget type whose basic benefits you already have; or gain the superior benefits of a gadget type whose advanced benefits you already have.</div>
-          </div>
-          <div class="skill-item">
-            <div class="skill-header">
-              <div class="skill-name">Emergency Item</div>
-              <div class="skill-sl">SL 1 · ◆1</div>
-            </div>
-            <div class="skill-desc">Once per conflict scene, if you are in Crisis, you may perform an additional action on your turn. This action must be the Inventory action.</div>
-          </div>
-          <div class="skill-item">
-            <div class="skill-header">
-              <div class="skill-name">Potion Rain</div>
-              <div class="skill-sl">SL 2 · ◆2</div>
-            </div>
-            <div class="skill-desc">When you create a potion that restores a single creature's HP and/or MP, you may have it affect up to 【SL】 additional creatures. If you do, the potion only restores half the normal amount to each creature.</div>
-          </div>
-          <div class="skill-item">
-            <div class="skill-header">
-              <div class="skill-name">Secret Formula</div>
-              <div class="skill-sl">SL 5 · ◆5</div>
-            </div>
-            <div class="skill-desc">When you create a potion or magisphere whose effects restore HP and/or MP, each restored amount is increased by 【SL × 5】. When you create an elemental shard, potion, or magisphere that deals damage, that item deals 【SL】 extra damage.</div>
-          </div>
-          <div class="skill-item">
-            <div class="skill-header">
-              <div class="skill-name">Visionary</div>
-              <div class="skill-sl">SL 5 · ◆5</div>
-            </div>
-            <div class="skill-desc">When you work on a Project, up to 【SL × 100】 zenit of material costs are automatically paid; additionally, you generate an additional 【SL】 progress every day. If multiple characters with this Skill work on the same Project, the effects are cumulative.</div>
-          </div>
-        </div>
-      </div>
+        // Tab Switching Logic
+        const tabs = ['psyche', 'archive', 'cliches'];
+        function switchTab(activeTab) {
+            tabs.forEach(tab => {
+                document.getElementById('btn-' + tab).classList.remove('active');
+                document.getElementById('content-' + tab).classList.add('hidden');
+                document.getElementById('content-' + tab).classList.remove('fade-in');
+            });
+            document.getElementById('btn-' + activeTab).classList.add('active');
+            document.getElementById('content-' + activeTab).classList.remove('hidden');
+            // Trigger reflow for animation
+            void document.getElementById('content-' + activeTab).offsetWidth;
+            document.getElementById('content-' + activeTab).classList.add('fade-in');
+        }
 
-    </div>
-  </section>
+        // Relic Projection Logic
+        const relics = {
+            'musicbox': `"A tiny metal drum plucking a melody. It sounds like someone trying not to cry. Did humanity build these because they couldn't sing their own sorrow?"`,
+            'diary': `"The paper crumbles, but the ink holds fear. 'They are coming,' it says. My kin were monsters to them. Am I a monster simply by reflection?"`,
+            'ribbon': `"Torn silk. Woven purely for aesthetics, with no practical use. How beautiful... to craft something solely to be adored, even as the world burned."`
+        };
 
-  <!-- EQUIPMENT — empty as per PDF -->
-  <section class="wrap reveal">
-    <div class="eyebrow">Inventory</div>
-    <div class="sec-title">Equipment</div>
-    <div class="equip-grid">
-      <div class="equip-card">
-        <div class="equip-type">Weapon · Main Hand</div>
-        <div class="equip-name">— Empty Weapon Slot —</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--border-hi);display:flex;flex-direction:column;gap:.28rem;margin-top:.4rem;">
-          <div>ACC &nbsp;<span style="color:var(--bone-dim)">DEX + MIG</span></div>
-          <div>DMG &nbsp;<span style="color:var(--bone-dim)">HR + 0 · Physical</span></div>
-        </div>
-        <div class="equip-empty" style="margin-top:.75rem;">[ Unarmed Attack — Unequipped ]</div>
-      </div>
-      <div class="equip-card">
-        <div class="equip-type">Armor Slot</div>
-        <div class="equip-name">— Empty Armor Slot —</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--border-hi);display:flex;flex-direction:column;gap:.28rem;margin-top:.4rem;">
-          <div>DEF &nbsp;<span style="color:var(--bone-dim)">+0</span></div>
-          <div>M.DEF &nbsp;<span style="color:var(--bone-dim)">+0</span></div>
-        </div>
-        <div class="equip-empty" style="margin-top:.75rem;">[ Unequipped ]</div>
-      </div>
-      <div class="equip-card">
-        <div class="equip-type">Weapon · Off-Hand</div>
-        <div class="equip-name">— Empty Off-Hand Slot —</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--border-hi);display:flex;flex-direction:column;gap:.28rem;margin-top:.4rem;">
-          <div>ACC &nbsp;<span style="color:var(--bone-dim)">DEX + MIG</span></div>
-          <div>DMG &nbsp;<span style="color:var(--bone-dim)">HR + 0 · Physical</span></div>
-        </div>
-        <div class="equip-empty" style="margin-top:.75rem;">[ Unarmed Attack — Unequipped ]</div>
-      </div>
-      <div class="equip-card">
-        <div class="equip-type">Shield Slot</div>
-        <div class="equip-name">— Empty Shield Slot —</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--border-hi);display:flex;flex-direction:column;gap:.28rem;margin-top:.4rem;">
-          <div>DEF &nbsp;<span style="color:var(--bone-dim)">+0</span></div>
-          <div>M.DEF &nbsp;<span style="color:var(--bone-dim)">+0</span></div>
-        </div>
-        <div class="equip-empty" style="margin-top:.75rem;">[ Unequipped ]</div>
-      </div>
-    </div>
-
-    <!-- Accessory -->
-    <div style="margin-top:1.2rem;">
-      <div class="equip-card" style="max-width:50%;">
-        <div class="equip-type">Accessory</div>
-        <div class="equip-name">— Empty —</div>
-        <div class="equip-empty">[ Unequipped ]</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SPELL LIST — empty -->
-  <section class="wrap reveal">
-    <div class="eyebrow">Spell List</div>
-    <div class="sec-title">Known Spells</div>
-    <div class="empty-section">
-      <div class="empty-label">— No Spells Recorded —</div>
-    </div>
-  </section>
-
-
-
-  <!-- OTHER ABILITIES — empty -->
-  <section class="wrap reveal">
-    <div class="eyebrow">Other Abilities</div>
-    <div class="sec-title">Other Abilities</div>
-    <div class="empty-section">
-      <div class="empty-label">— None Recorded —</div>
-    </div>
-  </section>
-
-  <!-- INVOCATION'S WELLSPRING -->
-  <section class="wrap reveal">
-    <div class="eyebrow">Invocation's Wellspring</div>
-    <div class="sec-title">Arcanum</div>
-    <div class="invo-card">
-      <div>
-        <div class="invo-label">Element</div>
-        <div class="invo-val">— Choose Element —</div>
-      </div>
-      <div>
-        <div class="invo-level">UPDATED LEVEL</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:1.4rem;color:var(--lav);text-align:right;">5</div>
-      </div>
-    </div>
-    <div style="margin-top:1rem;">
-      <div class="equip-card" style="opacity:.5;">
-        <div class="equip-type">Arcanum Name</div>
-        <div class="equip-name">— Not Named —</div>
-        <div class="equip-empty">[ Domains: — ]</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CONNECTIONS -->
-  <section class="wrap reveal">
-    <div class="eyebrow">Social Graph</div>
-    <div class="sec-title">Notable Connections</div>
-    <div class="conn-list">
-      <div class="conn-item">
-        <div class="conn-icon">⚗</div>
-        <div>
-          <div class="conn-name">Dr. Silas & Elara Valerius</div>
-          <div class="conn-rel">Anchor — Elarian Family (Active)</div>
-          <div class="conn-desc">Her reborn parents in Aethelgard. A physician who gave her his library without restriction, and a mother who shielded her from every institution that wanted to claim her. Rys loves them both with a ferocity that frightens her, and has not told either of them a single true thing about herself.</div>
-        </div>
-      </div>
-      <div class="conn-item">
-        <div class="conn-icon">🍜</div>
-        <div>
-          <div class="conn-name">Kenji & Reiko Amami</div>
-          <div class="conn-rel">Anchor — Earth Family (Unreachable)</div>
-          <div class="conn-desc">Her original parents in Japan, who ran a small family restaurant and are, by this point, long past wondering where their child went. The memory of them is her primary research motivation and her most significant fracture point. She keeps a folded recreation of their menu in her breast pocket and updates it when she realizes she has forgotten a dish.</div>
-        </div>
-      </div>
-      <div class="conn-item">
-        <div class="conn-icon">⚖</div>
-        <div>
-          <div class="conn-name">Inquisition Arcane R&D Division</div>
-          <div class="conn-rel">Threat / Employer — Extreme Risk</div>
-          <div class="conn-desc">The kingdom's foremost authority on magical anomalies. The primary institution tasked with hunting transmigrators. Her employer. She siphons their budget, their archives, and their equipment to fund research that would constitute a capital crime if discovered. She attends every meeting. She files every report on time. She has not been caught.</div>
-        </div>
-      </div>
-      <div class="conn-item">
-        <div class="conn-icon" style="font-size:.9rem;font-family:'Share Tech Mono',monospace;color:var(--red);">GOD</div>
-        <div>
-          <div class="conn-name">The Transferring God — Unnamed</div>
-          <div class="conn-rel" style="color:var(--red);">Target — Grievance Pending</div>
-          <div class="conn-desc">Whoever or whatever is responsible for the transfer. Rys has a private document titled "Points of Formal Contention" that is currently eleven pages long and growing. Primary complaints: no game world, incorrect gender, no warning, no manual. She acknowledges this entity may be unkillable. She has not removed it from the agenda.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- WARNING -->
-  <div class="warning-band reveal">
-    <div class="warning-inner">
-      <div class="warn-icon">⚠</div>
-      <div>
-        <div class="warn-title">System Warning — Concealment Protocol Active</div>
-        <div class="warn-body">Subject's origin as a transmigrator constitutes an active capital offense under the Inquisition's Anomaly Classification Act. Discovery is an immediate <strong style="color:var(--red)">GAME OVER CONDITION</strong>. Subject must maintain cover as a devoted Aethelgard-born researcher at all times — including to other party members, whose status as transmigrators is entirely unknown. This is not a game. There are also no games. She is very aware of this.</div>
-      </div>
-    </div>
-  </div>
-
-  <footer class="sheet-footer">
-    <div class="foot-id">FILE: ELARIA-PC · RYS-VALERIUS · LVL 5 · FABULA ULTIMA</div>
-    <div class="foot-logo">✦ ELARIA ✦</div>
-    <div class="foot-id">THEME: BELONGING · SYSTEM: COREBOOK + HIGH / NATURAL / TECHNO FANTASY · COVER: INTACT</div>
-  </footer>
-
-</div><!-- end #sheet -->
-
-<script>
-/* ═══ STARFIELD ═══ */
-(function(){
-  const c=document.getElementById('stars'),ctx=c.getContext('2d');
-  let W,H,stars=[];
-  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
-  function init(){
-    stars=[];
-    const n=Math.floor(W*H/5200);
-    const cols=['#c8a84b','#4dc8e0','#b094d8','#e9e3d8'];
-    for(let i=0;i<n;i++) stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.1+.15,a:Math.random(),da:(Math.random()*.004+.001)*(Math.random()<.5?1:-1),vx:(Math.random()-.5)*.07,vy:(Math.random()-.5)*.07,col:cols[Math.floor(Math.random()*4)]});
-  }
-  function frame(){
-    ctx.clearRect(0,0,W,H);
-    for(const s of stars){
-      s.a+=s.da;if(s.a>1){s.a=1;s.da=-Math.abs(s.da);}if(s.a<0){s.a=0;s.da=Math.abs(s.da);}
-      s.x+=s.vx;s.y+=s.vy;
-      if(s.x<0)s.x=W;if(s.x>W)s.x=0;if(s.y<0)s.y=H;if(s.y>H)s.y=0;
-      ctx.globalAlpha=s.a*.8;ctx.fillStyle=s.col;
-      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
-    }
-    ctx.globalAlpha=1;requestAnimationFrame(frame);
-  }
-  window.addEventListener('resize',()=>{resize();init();});
-  resize();init();frame();
-})();
-
-/* ═══ BOOT SEQUENCE ═══ */
-const lineIds=['d1','d2','d3','d4','d5','d6','d7','d8','d9','d10','d11','d12','d13','d14'];
-const delays =[700,1350,2100,2950,3750,4550,5300,6000,6750,7550,8400,9200,9950,10700];
-let waiting=false;
-lineIds.forEach((id,i)=>{
-  setTimeout(()=>{
-    const el=document.getElementById(id);
-    if(el)el.classList.add('on');
-    if(id==='d3'){waiting=true;document.getElementById('kh').style.display='block';}
-    if(id==='d14'){
-      setTimeout(()=>{
-        const pw=document.getElementById('pw'),pf=document.getElementById('pf');
-        pw.style.display='block';let p=0;
-        const iv=setInterval(()=>{p+=Math.random()*2.2+.6;if(p>=100){p=100;clearInterval(iv);setTimeout(launch,550);}pf.style.width=p+'%';},42);
-      },400);
-    }
-  },delays[i]);
-});
-function ack(){if(!waiting)return;waiting=false;document.getElementById('kh').style.display='none';}
-document.addEventListener('keydown',ack);
-document.addEventListener('click',ack);
-document.addEventListener('touchstart',ack,{passive:true});
-function launch(){
-  document.getElementById('boot').classList.add('out');
-  setTimeout(()=>{
-    document.getElementById('boot').style.display='none';
-    document.getElementById('sheet').classList.add('on');
-    initReveal();buildPips();
-  },1150);
-}
-
-/* ═══ SCROLL REVEAL ═══ */
-function initReveal(){
-  const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');obs.unobserve(e.target);}});},{threshold:.08});
-  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
-}
-
-/* ═══ RESOURCE TRACKER ═══ */
-const RES={
-  hp:{cur:22,max:45,fill:'hp-fill',frac:'hp-frac',inp:'hp-in',col:'var(--red)'},
-  mp:{cur:40,max:55,fill:'mp-fill',frac:'mp-frac',inp:'mp-in',col:'var(--lav)'},
-  ip:{cur:6, max:8, fill:'ip-fill',frac:'ip-frac',inp:'ip-in',col:'var(--gold)'}
-};
-function updateRes(k){
-  const r=RES[k];
-  r.cur=Math.max(0,Math.min(r.max,r.cur));
-  document.getElementById(r.fill).style.width=(r.cur/r.max*100)+'%';
-  document.getElementById(r.frac).textContent=r.cur+' / '+r.max;
-  document.getElementById(r.inp).value=r.cur;
-}
-function changeRes(k,d){RES[k].cur+=d;updateRes(k);}
-function setRes(k,v){RES[k].cur=v;updateRes(k);}
-
-/* ═══ FABULA PIPS ═══ */
-let fabula=3;
-function buildPips(){
-  const row=document.getElementById('pip-row');
-  row.innerHTML='';
-  for(let i=0;i<6;i++){
-    const p=document.createElement('div');
-    p.className='pip'+(i<fabula?' filled':'');
-    p.title='Click to set Fabula Points';
-    p.addEventListener('click',()=>{fabula=i+1;buildPips();});
-    row.appendChild(p);
-  }
-  // click on filled pip to reduce
-  row.querySelectorAll('.pip.filled').forEach((p,i)=>{
-    p.addEventListener('click',()=>{fabula=i+1===fabula?i:i+1;buildPips();},true);
-  });
-  document.getElementById('pip-count').textContent=fabula;
-}
-// right-click pip row to decrease by 1
-document.addEventListener('DOMContentLoaded',()=>{
-  const pr=document.getElementById('pip-row');
-  if(pr) pr.addEventListener('contextmenu',e=>{e.preventDefault();if(fabula>0){fabula--;buildPips();}});
-});
-
-/* ═══ STATUS TOGGLES ═══ */
-function toggleStatus(el,name){el.classList.toggle('active');el.classList.toggle(name);}
-</script>
+        function projectRelic(id) {
+            const display = document.getElementById('relic-display');
+            display.style.opacity = 0;
+            setTimeout(() => {
+                display.innerText = relics[id];
+                display.style.opacity = 1;
+            }, 300);
+        }
+    </script>
 </body>
 </html>
