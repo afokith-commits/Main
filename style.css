@@ -1,0 +1,1065 @@
+/* ==========================================================================
+   PSYCHO-MONITOR // MK-03 RES-SYNC [ANOMALY: 088-ERIA]
+   Atmospheric Cockpit HUD & INFP 4w5 Melancholic Shaders
+   ========================================================================== */
+
+/* --- 1. DESIGN TOKENS & ROOT VARIABLES --- */
+:root {
+  /* Core Void & Chassis Palette */
+  --bg-deep-void: #080a0f;
+  --bg-panel: rgba(14, 18, 27, 0.82);
+  --bg-panel-hover: rgba(22, 28, 42, 0.9);
+  --bg-surface-inset: rgba(6, 8, 12, 0.7);
+  
+  /* Primary Phosphor: Psycho-Frame Verdigris / Cyan */
+  --color-psycho: #4ef0c4;
+  --color-psycho-glow: rgba(78, 240, 196, 0.35);
+  --color-psycho-dim: rgba(78, 240, 196, 0.15);
+
+  /* Harmonic α: Rian (Equatorial Sun, Two-Stroke Oil, Rust) */
+  --color-alpha: #e5a962;
+  --color-alpha-glow: rgba(229, 169, 98, 0.35);
+  --color-alpha-dim: rgba(229, 169, 98, 0.12);
+
+  /* Harmonic β: Lt. Julian Ross (Tactical Crimson, Cold Titanium) */
+  --color-beta: #f05454;
+  --color-beta-glow: rgba(240, 84, 84, 0.4);
+  --color-beta-dim: rgba(240, 84, 84, 0.15);
+
+  /* Harmonic γ: Eria Sterling (Lunar Ice, Silk, Porcelain) */
+  --color-gamma: #a8b8e6;
+  --color-gamma-glow: rgba(168, 184, 230, 0.35);
+  --color-gamma-dim: rgba(168, 184, 230, 0.12);
+
+  /* Active Accent (Dynamic via JS) */
+  --theme-accent: var(--color-alpha);
+  --theme-glow: var(--color-alpha-glow);
+  --theme-dim: var(--color-alpha-dim);
+
+  /* Neutral Typography & Borders */
+  --text-primary: #e6edf8;
+  --text-muted: #8b9bb4;
+  --text-dim: #54627a;
+  --border-subtle: rgba(139, 155, 180, 0.2);
+  --border-active: rgba(78, 240, 196, 0.45);
+
+  /* Typography Stacks */
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-serif: 'Newsreader', Georgia, serif;
+  --font-display: 'Cinzel', serif;
+
+  /* Elevations & UI Radii */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --transition-fast: 0.15s ease;
+  --transition-smooth: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Dynamic Harmonic Theme Overrides (Applied to body via JS) */
+body.theme-alpha {
+  --theme-accent: var(--color-alpha);
+  --theme-glow: var(--color-alpha-glow);
+  --theme-dim: var(--color-alpha-dim);
+}
+body.theme-beta {
+  --theme-accent: var(--color-beta);
+  --theme-glow: var(--color-beta-glow);
+  --theme-dim: var(--color-beta-dim);
+}
+body.theme-gamma {
+  --theme-accent: var(--color-gamma);
+  --theme-glow: var(--color-gamma-glow);
+  --theme-dim: var(--color-gamma-dim);
+}
+
+/* --- 2. GLOBAL RESET & BASE STYLING --- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--bg-deep-void);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-deep-void);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-accent);
+}
+
+/* --- 3. ATMOSPHERIC CRT SHADERS & OPTICAL LAYERS --- */
+.crt-scanlines {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 990;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.015) 0px,
+    rgba(255, 255, 255, 0.015) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  opacity: 0.85;
+}
+
+.crt-vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 991;
+  background: radial-gradient(
+    circle at center,
+    transparent 55%,
+    rgba(4, 5, 8, 0.65) 85%,
+    rgba(2, 3, 5, 0.95) 100%
+  );
+}
+
+.glass-reflection {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 992;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    transparent 25%,
+    rgba(78, 240, 196, 0.01) 45%,
+    transparent 60%
+  );
+}
+
+/* --- 4. COCKPIT HUD SHELL --- */
+.hud-container {
+  position: relative;
+  max-width: 1520px;
+  margin: 0 auto;
+  padding: 18px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 10;
+}
+
+/* --- 5. TOP COCKPIT STATUS BAR --- */
+.hud-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 18px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-top: 2px solid var(--theme-accent);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  transition: border-color var(--transition-smooth);
+}
+
+.header-left, .header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.header-right {
+  justify-content: flex-end;
+}
+
+.header-center {
+  text-align: center;
+}
+
+.hud-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sys-alert {
+  background: rgba(240, 84, 84, 0.15);
+  color: var(--color-beta);
+  border: 1px solid rgba(240, 84, 84, 0.3);
+}
+
+.hud-breadcrumb {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+}
+
+.hud-glitch-badge {
+  font-size: 10px;
+  color: var(--color-psycho);
+  padding: 2px 6px;
+  background: var(--color-psycho-dim);
+  border: 1px solid rgba(78, 240, 196, 0.3);
+  border-radius: var(--radius-sm);
+  animation: pulse-glow 3s infinite alternate;
+}
+
+.hud-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--text-primary);
+  text-shadow: 0 0 10px var(--theme-glow);
+}
+
+.hud-subtitle {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
+.hud-clock {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+}
+
+/* Tactile HUD Buttons */
+.hud-button {
+  background: var(--bg-surface-inset);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  padding: 6px 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all var(--transition-fast);
+}
+
+.hud-button:hover {
+  background: var(--bg-panel-hover);
+  border-color: var(--theme-accent);
+  box-shadow: 0 0 12px var(--theme-glow);
+}
+
+.audio-btn .status-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  transition: background var(--transition-fast);
+}
+
+.audio-btn.active .status-indicator {
+  background: var(--theme-accent);
+  box-shadow: 0 0 8px var(--theme-accent);
+}
+
+/* --- 6. OSCILLOSCOPE & LIVE WAVEFORM SECTION --- */
+.oscilloscope-section {
+  width: 100%;
+}
+
+.scope-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.scope-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.scope-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--theme-accent);
+}
+
+.scope-icon {
+  font-size: 16px;
+}
+
+.scope-metrics {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.scope-metrics strong {
+  color: var(--text-primary);
+}
+
+.status-flux {
+  color: var(--color-psycho);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  animation: pulse-glow 2.5s infinite alternate;
+}
+
+.canvas-wrapper {
+  position: relative;
+  width: 100%;
+  height: 120px;
+  background: var(--bg-surface-inset);
+  border: 1px solid rgba(78, 240, 196, 0.15);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+#waveform-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.canvas-grid-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: 
+    linear-gradient(to right, rgba(78, 240, 196, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(78, 240, 196, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.canvas-legend {
+  position: absolute;
+  bottom: 6px;
+  left: 12px;
+  display: flex;
+  gap: 16px;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  pointer-events: none;
+}
+
+/* --- 7. THE 3-HARMONIC IDENTITY SELECTOR NAV --- */
+.harmonic-nav {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.harmonic-tab {
+  position: relative;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition-smooth);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.harmonic-tab:hover {
+  background: var(--bg-panel-hover);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.harmonic-tab.active {
+  background: rgba(18, 24, 36, 0.95);
+  border-color: var(--theme-accent);
+  box-shadow: 0 4px 20px var(--theme-glow);
+}
+
+.tab-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  opacity: 0.4;
+  transition: opacity var(--transition-fast);
+}
+
+.harmonic-tab.active .tab-accent {
+  opacity: 1;
+  box-shadow: 0 0 10px currentColor;
+}
+
+.tab-accent-alpha { background: var(--color-alpha); color: var(--color-alpha); }
+.tab-accent-beta  { background: var(--color-beta);  color: var(--color-beta); }
+.tab-accent-gamma { background: var(--color-gamma); color: var(--color-gamma); }
+
+.tab-meta {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+}
+
+.tab-name {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+}
+
+.tab-sub {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.tab-tags {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.tab-tags span {
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1px 5px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* --- 8. MAIN DOSSIER GRID (3 COLUMNS) --- */
+.dossier-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 1.35fr 1.1fr;
+  gap: 16px;
+  min-height: 480px;
+}
+
+.hud-panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.panel-header {
+  padding: 12px 16px;
+  background: rgba(6, 8, 12, 0.6);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.panel-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--theme-accent);
+}
+
+.panel-id, .memory-source, .artifact-clearance {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+}
+
+.panel-footer {
+  padding: 10px 16px;
+  background: rgba(6, 8, 12, 0.6);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--theme-accent);
+  box-shadow: 0 0 6px var(--theme-accent);
+}
+
+/* --- 9. COLUMN 1: TELEMETRY PANEL STYLING --- */
+.telemetry-body {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+}
+
+.telemetry-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.telemetry-table tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.telemetry-table td {
+  padding: 7px 0;
+  vertical-align: top;
+}
+
+.telemetry-label {
+  width: 38%;
+  color: var(--text-dim);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.telemetry-val {
+  color: var(--text-primary);
+  font-size: 11px;
+}
+
+.telemetry-val strong {
+  color: var(--theme-accent);
+}
+
+.badge-accent {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--theme-dim);
+  color: var(--theme-accent);
+  border: 1px solid var(--theme-accent);
+  letter-spacing: 0.06em;
+}
+
+.telemetry-callout {
+  padding: 10px 12px;
+  background: var(--bg-surface-inset);
+  border-left: 2px solid var(--theme-accent);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* --- 10. COLUMN 2: MEMORY PANEL STYLING (INFP 4w5 SOUL) --- */
+.memory-body {
+  padding: 18px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+.memory-quote-block {
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.02);
+  border-left: 2px solid var(--theme-accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.memory-quote {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #d8e2f0;
+}
+
+.memory-sensory-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.sensory-card {
+  background: var(--bg-surface-inset);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sensory-card-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9px;
+  color: var(--theme-accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sensory-card-content {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.internal-monologue {
+  background: var(--bg-surface-inset);
+  border: 1px dashed rgba(139, 155, 180, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  font-family: var(--font-serif);
+  font-size: 13px;
+  line-height: 1.65;
+  color: #c4d1e6;
+  position: relative;
+}
+
+.tape-counter strong {
+  color: var(--theme-accent);
+}
+
+/* --- 11. COLUMN 3: ARTIFACT & EVIDENCE PANEL --- */
+.artifact-body {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+}
+
+.artifact-card {
+  background: var(--bg-surface-inset);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.artifact-visual-box {
+  width: 100%;
+  min-height: 160px;
+  background: #05070a;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Steel Dogtag Visual Simulation */
+.dogtag-plate {
+  width: 190px;
+  height: 95px;
+  background: linear-gradient(135deg, #4d5361 0%, #2b303c 50%, #1f232c 100%);
+  border: 2px solid #6b7385;
+  border-radius: 18px;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 6px 16px rgba(0,0,0,0.6);
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: #b0b8c8;
+  position: relative;
+}
+
+.dogtag-hole {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #090b0f;
+  border: 2px solid #5a6273;
+}
+
+.dogtag-text {
+  margin-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.9);
+}
+
+/* Maya's Notebook Sketch Simulation */
+.notebook-page {
+  width: 90%;
+  background: #f4eedb;
+  border: 1px solid #dcd4c0;
+  border-radius: 2px;
+  padding: 14px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+  color: #2b2b2b;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  position: relative;
+}
+
+.notebook-lines {
+  border-bottom: 1px solid rgba(80, 120, 200, 0.25);
+  margin-bottom: 8px;
+  padding-bottom: 2px;
+  font-size: 11px;
+}
+
+.notebook-sketch-drawing {
+  font-size: 24px;
+  text-align: center;
+  margin: 6px 0;
+}
+
+.artifact-caption {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.artifact-action-footer {
+  padding: 12px 16px;
+}
+
+.danger-btn {
+  width: 100%;
+  justify-content: center;
+  background: rgba(240, 84, 84, 0.12);
+  border-color: rgba(240, 84, 84, 0.4);
+  color: #ff9999;
+}
+
+.danger-btn:hover {
+  background: rgba(240, 84, 84, 0.25);
+  border-color: var(--color-beta);
+  box-shadow: 0 0 16px var(--color-beta-glow);
+}
+
+/* --- 12. BOTTOM TACTICAL FOOTER --- */
+.hud-footer {
+  display: grid;
+  grid-template-columns: 1.2fr auto 1.2fr;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 18px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.terminal-prompt {
+  color: var(--theme-accent);
+  font-weight: 700;
+  margin-right: 6px;
+}
+
+.footer-telemetry {
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.hud-pill {
+  padding: 2px 10px;
+  background: var(--bg-surface-inset);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  letter-spacing: 0.08em;
+}
+
+.footer-right {
+  text-align: right;
+  letter-spacing: 0.06em;
+}
+
+/* --- 13. VIST FOUNDATION BLACK-WAX MODAL DRAWER --- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 7, 10, 0.88);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity var(--transition-smooth);
+}
+
+.modal-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  background: #0f131a;
+  border: 1px solid rgba(229, 169, 98, 0.35);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(229, 169, 98, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modal-slide 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modal-slide {
+  from { transform: translateY(20px) scale(0.98); }
+  to   { transform: translateY(0) scale(1); }
+}
+
+.modal-header {
+  padding: 14px 18px;
+  background: #090c12;
+  border-bottom: 1px solid rgba(229, 169, 98, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-crest {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.unicorn-crest {
+  font-size: 20px;
+  color: var(--color-alpha);
+}
+
+.modal-heading {
+  font-family: var(--font-display);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  color: #f0e2d0;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 22px;
+  cursor: pointer;
+  line-height: 1;
+  transition: color var(--transition-fast);
+}
+
+.modal-close:hover {
+  color: var(--color-beta);
+}
+
+.modal-body {
+  padding: 24px 28px;
+  overflow-y: auto;
+  background: radial-gradient(circle at top right, rgba(229, 169, 98, 0.05), transparent 70%), #0f131a;
+  position: relative;
+}
+
+.wax-seal-graphic {
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  opacity: 0.85;
+}
+
+.wax-circle {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #3d0808 0%, #1a0202 100%);
+  border: 2px dashed #9e2a2b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  transform: rotate(-12deg);
+}
+
+.wax-circle span {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #ff9999;
+}
+
+.letter-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 10px;
+  color: var(--color-alpha);
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+}
+
+.letter-divider {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(to right, rgba(229, 169, 98, 0.3), transparent);
+  margin-bottom: 18px;
+}
+
+.letter-text {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  line-height: 1.7;
+  color: #e2dbcd;
+  margin-bottom: 14px;
+}
+
+.letter-highlight {
+  padding: 10px 14px;
+  background: rgba(229, 169, 98, 0.08);
+  border-left: 2px solid var(--color-alpha);
+  color: #fff;
+}
+
+.letter-closing {
+  font-style: italic;
+  color: #c9bfaf;
+}
+
+.letter-stamp {
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.stamp-box {
+  display: inline-block;
+  padding: 3px 8px;
+  border: 1px solid rgba(240, 84, 84, 0.6);
+  color: #ff8080;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.modal-footer {
+  padding: 12px 18px;
+  background: #090c12;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-warning {
+  font-size: 10px;
+  color: var(--color-alpha);
+  letter-spacing: 0.06em;
+}
+
+.primary-btn {
+  background: rgba(229, 169, 98, 0.15);
+  border-color: rgba(229, 169, 98, 0.5);
+  color: #ffd8a8;
+}
+
+.primary-btn:hover {
+  background: rgba(229, 169, 98, 0.3);
+  box-shadow: 0 0 14px var(--color-alpha-glow);
+}
+
+/* --- 14. ANIMATION KEYFRAMES --- */
+@keyframes pulse-glow {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+/* --- 15. RESPONSIVE MEDIA QUERIES (MOBILE & TABLET PADD) --- */
+@media (max-width: 1200px) {
+  .dossier-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .artifact-panel {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 860px) {
+  .hud-container {
+    padding: 12px;
+  }
+  .hud-header {
+    grid-template-columns: 1fr;
+    text-align: left;
+  }
+  .header-center {
+    text-align: left;
+  }
+  .header-right {
+    justify-content: flex-start;
+  }
+  .harmonic-nav {
+    grid-template-columns: 1fr;
+  }
+  .dossier-grid {
+    grid-template-columns: 1fr;
+  }
+  .artifact-panel {
+    grid-column: span 1;
+  }
+  .hud-footer {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
