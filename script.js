@@ -1,6 +1,6 @@
 /**
  * PSYCHO-MONITOR // MK-03 RES-SYNC [ANOMALY: 088-ERIA]
- * Logic Engine, Procedural Ambient Synthesizer & Tri-Harmonic Database
+ * Logic Engine, Generative Ambient Piano Engine & Tri-Harmonic Database
  */
 
 (function () {
@@ -14,7 +14,10 @@
       id: "SEC-0093-α",
       themeClass: "theme-alpha",
       scope: { freq: "432.8 Hz", sync: "96.4%", noise: "0.012 µV" },
-      audioNotes: [130.81, 164.81, 196.00], // C3, E3, G3 (Warm, grounded, nostalgic major chord)
+      // D-minor / F-major pentatonic scale frequencies (Nostalgic piano plucks)
+      scale: [146.83, 174.61, 220.00, 261.63, 293.66, 349.23, 440.00, 523.25], 
+      tempo: 900,
+      soundType: "piano",
       telemetry: {
         designation: "ORIGIN SOUL // RIAN",
         biologicalAge: "17 (at point of temporal termination)",
@@ -64,7 +67,10 @@
       id: "SEC-0095-β",
       themeClass: "theme-beta",
       scope: { freq: "684.2 Hz", sync: "88.1%", noise: "0.089 µV" },
-      audioNotes: [110.00, 155.56, 174.61], // A2, Eb3, F3 (Cold, tense, diminished tritone tension)
+      // Cold, tense minor intervals with subtle tritone dissonance
+      scale: [110.00, 130.81, 155.56, 164.81, 220.00, 261.63, 311.13, 329.63],
+      tempo: 650,
+      soundType: "tactical",
       telemetry: {
         designation: "TACTICAL SHADOW // LT. JULIAN ROSS",
         biologicalAge: "26 (at fatal cockpit collapse)",
@@ -116,7 +122,10 @@
       id: "SEC-0099-γ",
       themeClass: "theme-gamma",
       scope: { freq: "528.0 Hz", sync: "99.8%", noise: "0.004 µV" },
-      audioNotes: [174.61, 220.00, 261.63], // F3, A3, C4 (Ethereal, delicate, glassy lunar major 7th)
+      // High-register music-box chime scale (Delicate, fragile lunar celesta)
+      scale: [261.63, 329.63, 392.00, 493.88, 523.25, 659.25, 783.99, 987.77],
+      tempo: 1100,
+      soundType: "celesta",
       telemetry: {
         designation: "LIVING MASK // ERIA STERLING",
         biologicalAge: "19 (Current Chronological Host)",
@@ -162,80 +171,151 @@
   };
 
   /* ==========================================================================
-     2. PROCEDURAL WEB AUDIO SYNTHESIZER (INFP 4w5 Atmospheric Chords)
+     2. PROCEDURAL PIANO & CHIME SEQUENCER (INFP 4w5 Melodic Audio Engine)
      ========================================================================== */
-  class AmbientResonanceEngine {
+  class GenerativePianoEngine {
     constructor() {
       this.ctx = null;
-      this.oscillators = [];
       this.masterGain = null;
+      this.delayNode = null;
+      this.feedbackGain = null;
       this.filter = null;
       this.isPlaying = false;
+      this.sequenceTimer = null;
+      this.currentScale = HARMONICS.alpha.scale;
+      this.currentSoundType = HARMONICS.alpha.soundType;
+      this.currentTempo = HARMONICS.alpha.tempo;
+      this.step = 0;
+      this.customAudio = null;
+      this.usingCustomAudio = false;
+
+      this.checkCustomBGM();
+    }
+
+    checkCustomBGM() {
+      // If a user drops a bgm.mp3 file in their repo, it prioritizes real music!
+      const testAudio = new Audio('bgm.mp3');
+      testAudio.addEventListener('canplaythrough', () => {
+        this.customAudio = testAudio;
+        this.customAudio.loop = true;
+        this.usingCustomAudio = true;
+      });
+      testAudio.addEventListener('error', () => {
+        this.usingCustomAudio = false;
+      });
     }
 
     init() {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       this.ctx = new AudioCtx();
 
-      // Master lowpass filter (creates that submerged, tape-warmth feeling)
-      this.filter = this.ctx.createBiquadFilter();
-      this.filter.type = "lowpass";
-      this.filter.frequency.setValueAtTime(580, this.ctx.currentTime);
-      this.filter.Q.setValueAtTime(2.5, this.ctx.currentTime);
-
+      // Master Output Volume
       this.masterGain = this.ctx.createGain();
       this.masterGain.gain.setValueAtTime(0, this.ctx.currentTime);
 
+      // Warm Tape Low-Pass Filter (Haruka Nakamura / Lo-Fi Aesthetic)
+      this.filter = this.ctx.createBiquadFilter();
+      this.filter.type = "lowpass";
+      this.filter.frequency.setValueAtTime(1400, this.ctx.currentTime);
+
+      // Tape Echo / Reverb Delay Feedback Loop
+      this.delayNode = this.ctx.createDelay();
+      this.delayNode.delayTime.setValueAtTime(0.38, this.ctx.currentTime);
+
+      this.feedbackGain = this.ctx.createGain();
+      this.feedbackGain.gain.setValueAtTime(0.42, this.ctx.currentTime);
+
+      // Routing: Synth -> Filter -> Delay -> Feedback -> Master
       this.filter.connect(this.masterGain);
+      this.filter.connect(this.delayNode);
+      this.delayNode.connect(this.feedbackGain);
+      this.feedbackGain.connect(this.delayNode);
+      this.delayNode.connect(this.masterGain);
+
       this.masterGain.connect(this.ctx.destination);
     }
 
-    playChord(notes) {
-      if (!this.ctx) this.init();
-      if (this.ctx.state === 'suspended') {
-        this.ctx.resume();
-      }
+    // Play an individual decaying acoustic piano / chime note
+    playNote(freq) {
+      if (!this.ctx || !this.isPlaying || this.usingCustomAudio) return;
 
       const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const noteGain = this.ctx.createGain();
 
-      // Stop and clean previous oscillators smoothly
-      this.oscillators.forEach(osc => {
-        try {
-          osc.gainNode.gain.setTargetAtTime(0, now, 0.2);
-          setTimeout(() => { osc.stop(); osc.disconnect(); }, 350);
-        } catch (e) {}
-      });
-      this.oscillators = [];
+      if (this.currentSoundType === "piano") {
+        // Warm triangle note with quick attack and natural acoustic piano decay
+        osc.type = "triangle";
+        noteGain.gain.setValueAtTime(0.001, now);
+        noteGain.gain.linearRampToValueAtTime(0.24, now + 0.04);
+        noteGain.gain.exponentialRampToValueAtTime(0.0001, now + 2.4);
+      } else if (this.currentSoundType === "celesta") {
+        // High, pure bell/music-box chime
+        osc.type = "sine";
+        noteGain.gain.setValueAtTime(0.001, now);
+        noteGain.gain.linearRampToValueAtTime(0.18, now + 0.02);
+        noteGain.gain.exponentialRampToValueAtTime(0.0001, now + 3.2);
+      } else {
+        // Tactical staccato minor pluck
+        osc.type = "sawtooth";
+        noteGain.gain.setValueAtTime(0.001, now);
+        noteGain.gain.linearRampToValueAtTime(0.12, now + 0.015);
+        noteGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+      }
 
-      // Create new harmonic triad
-      notes.forEach((freq, idx) => {
-        const osc = this.ctx.createOscillator();
-        const oscGain = this.ctx.createGain();
+      osc.frequency.setValueAtTime(freq, now);
 
-        // Layer warm triangle and soft sine waves
-        osc.type = idx === 0 ? "triangle" : "sine";
-        
-        // Subtle micro-detuning (tape-warble effect)
-        const detuneAmount = (idx - 1) * 3.5;
-        osc.detune.setValueAtTime(detuneAmount, now);
-        osc.frequency.setValueAtTime(freq, now);
+      osc.connect(noteGain);
+      noteGain.connect(this.filter);
 
-        // Individual voice volume
-        const voiceVol = idx === 0 ? 0.08 : 0.05;
-        oscGain.gain.setValueAtTime(0, now);
-        oscGain.gain.setTargetAtTime(voiceVol, now, 0.4);
+      osc.start(now);
+      osc.stop(now + 3.5);
+    }
 
-        osc.connect(oscGain);
-        oscGain.connect(this.filter);
+    // Gentle musical sequencing (INFP ambient piano loop)
+    startSequencer() {
+      if (this.sequenceTimer) clearInterval(this.sequenceTimer);
 
-        osc.gainNode = oscGain;
-        osc.start(now);
-        this.oscillators.push(osc);
-      });
+      const runStep = () => {
+        if (!this.isPlaying || this.usingCustomAudio) return;
 
-      // Fade master gain up if unmuted
-      if (this.isPlaying) {
-        this.masterGain.gain.setTargetAtTime(0.18, now, 0.5);
+        // Structured musical arpeggiation with occasional expressive pauses
+        const scale = this.currentScale;
+        const noteIndex = Math.floor(Math.sin(this.step * 0.7) * (scale.length / 2) + (scale.length / 2));
+        const freq = scale[Math.min(Math.max(noteIndex, 0), scale.length - 1)];
+
+        // Play primary melody note
+        this.playNote(freq);
+
+        // Occasionally play a soft bass foundation note on downbeats
+        if (this.step % 4 === 0) {
+          const bassFreq = scale[0] / 2;
+          this.playNote(bassFreq);
+        }
+
+        this.step++;
+      };
+
+      this.sequenceTimer = setInterval(runStep, this.currentTempo);
+    }
+
+    stopSequencer() {
+      if (this.sequenceTimer) {
+        clearInterval(this.sequenceTimer);
+        this.sequenceTimer = null;
+      }
+    }
+
+    setHarmonic(harmonicKey) {
+      const h = HARMONICS[harmonicKey];
+      if (!h) return;
+
+      this.currentScale = h.scale;
+      this.currentSoundType = h.soundType;
+      this.currentTempo = h.tempo;
+
+      if (this.isPlaying && !this.usingCustomAudio) {
+        this.startSequencer();
       }
     }
 
@@ -246,10 +326,21 @@
       this.isPlaying = !this.isPlaying;
       const now = this.ctx.currentTime;
 
+      if (this.usingCustomAudio && this.customAudio) {
+        if (this.isPlaying) {
+          this.customAudio.play();
+        } else {
+          this.customAudio.pause();
+        }
+        return this.isPlaying;
+      }
+
       if (this.isPlaying) {
-        this.masterGain.gain.setTargetAtTime(0.18, now, 0.4);
+        this.masterGain.gain.setTargetAtTime(0.85, now, 0.4);
+        this.startSequencer();
       } else {
-        this.masterGain.gain.setTargetAtTime(0, now, 0.2);
+        this.masterGain.gain.setTargetAtTime(0, now, 0.3);
+        this.stopSequencer();
       }
 
       return this.isPlaying;
@@ -293,22 +384,21 @@
       this.ctx.clearRect(0, 0, w, h);
       this.phase += 0.035;
 
-      // Color selection matching the active harmonic
-      let strokeColor = "rgba(229, 169, 98, 0.85)"; // Alpha Amber
+      let strokeColor = "rgba(229, 169, 98, 0.85)";
       let speedMult = 1.0;
       let complexity = 3;
 
       if (this.currentHarmonic === "beta") {
-        strokeColor = "rgba(240, 84, 84, 0.9)"; // Beta Crimson
+        strokeColor = "rgba(240, 84, 84, 0.9)";
         speedMult = 1.8;
         complexity = 5;
       } else if (this.currentHarmonic === "gamma") {
-        strokeColor = "rgba(168, 184, 230, 0.85)"; // Gamma Lunar Lavender
+        strokeColor = "rgba(168, 184, 230, 0.85)";
         speedMult = 0.8;
         complexity = 2;
       }
 
-      // Draw secondary phantom wave (Psycho-Frame leakage)
+      // Secondary Psycho-Frame leakage wave
       this.ctx.beginPath();
       this.ctx.strokeStyle = "rgba(78, 240, 196, 0.25)";
       this.ctx.lineWidth = 1.5 * window.devicePixelRatio;
@@ -320,14 +410,13 @@
       }
       this.ctx.stroke();
 
-      // Draw primary active harmonic brainwave
+      // Primary active brainwave
       this.ctx.beginPath();
       this.ctx.strokeStyle = strokeColor;
       this.ctx.lineWidth = 2 * window.devicePixelRatio;
 
       for (let x = 0; x < w; x += 3) {
         const norm = x / w;
-        // Superimposed sine frequencies + subtle analog jitter
         const wave1 = Math.sin(norm * Math.PI * 6 + this.phase * speedMult);
         const wave2 = Math.cos(norm * Math.PI * 12 - this.phase * 0.5) * 0.4;
         const wave3 = Math.sin(norm * Math.PI * 24 + this.phase * 2) * (complexity === 5 ? 0.25 : 0.08);
@@ -349,7 +438,7 @@
   class DossierApp {
     constructor() {
       this.activeHarmonicKey = "alpha";
-      this.audio = new AmbientResonanceEngine();
+      this.audio = new GenerativePianoEngine();
       this.scope = new OscilloscopeVisualizer("waveform-canvas");
 
       // DOM Elements
@@ -357,12 +446,10 @@
       this.audioToggleBtn = document.getElementById("audio-toggle-btn");
       this.audioLabel = document.getElementById("audio-label");
       
-      // Top Scope Readouts
       this.scopeFreq = document.getElementById("scope-freq");
       this.scopeSync = document.getElementById("scope-sync");
       this.scopeNoise = document.getElementById("scope-noise");
 
-      // Dossier Panels
       this.panelFileId = document.getElementById("panel-file-id");
       this.telemetryContent = document.getElementById("telemetry-content");
       this.memorySourceLabel = document.getElementById("memory-source-label");
@@ -372,7 +459,6 @@
       this.artifactContent = document.getElementById("artifact-content");
       this.consoleStream = document.getElementById("console-stream");
 
-      // Modal Elements
       this.vistModal = document.getElementById("vist-modal");
       this.openModalBtn = document.getElementById("open-vist-modal-btn");
       this.closeModalBtn = document.getElementById("close-vist-modal-btn");
@@ -384,7 +470,6 @@
     }
 
     initEvents() {
-      // Harmonic Tab Switching
       this.tabs.forEach(tab => {
         tab.addEventListener("click", () => {
           const key = tab.getAttribute("data-harmonic");
@@ -394,22 +479,17 @@
         });
       });
 
-      // Audio Toggle
       if (this.audioToggleBtn) {
         this.audioToggleBtn.addEventListener("click", () => {
           const isPlaying = this.audio.toggle();
           this.audioToggleBtn.classList.toggle("active", isPlaying);
           this.audioToggleBtn.setAttribute("aria-pressed", isPlaying);
           if (this.audioLabel) {
-            this.audioLabel.textContent = isPlaying ? "ACTIVE (SYNTH ON)" : "STANDBY";
-          }
-          if (isPlaying) {
-            this.audio.playChord(HARMONICS[this.activeHarmonicKey].audioNotes);
+            this.audioLabel.textContent = isPlaying ? "ACTIVE (PIANO AMBIENCE)" : "STANDBY";
           }
         });
       }
 
-      // Modal Triggers
       if (this.openModalBtn && this.vistModal) {
         this.openModalBtn.addEventListener("click", () => this.setModalVisible(true));
       }
@@ -425,7 +505,6 @@
         });
       }
 
-      // Keyboard Esc listener for modal
       window.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && this.vistModal && !this.vistModal.classList.contains("hidden")) {
           this.setModalVisible(false);
@@ -448,20 +527,16 @@
       if (this.activeHarmonicKey === key) return;
       this.activeHarmonicKey = key;
 
-      // Update Body Theme Class
       document.body.className = `cockpit-theme-ambient ${HARMONICS[key].themeClass}`;
 
-      // Update Tab Visuals
       this.tabs.forEach(tab => {
         const isCurrent = tab.getAttribute("data-harmonic") === key;
         tab.classList.toggle("active", isCurrent);
       });
 
-      // Update Scope Canvas & Sound
       this.scope.setHarmonic(key);
-      this.audio.playChord(HARMONICS[key].audioNotes);
+      this.audio.setHarmonic(key);
 
-      // Re-render Data
       this.render();
     }
 
@@ -469,13 +544,11 @@
       const data = HARMONICS[this.activeHarmonicKey];
       if (!data) return;
 
-      // 1. Update Scope Telemetry
       if (this.scopeFreq) this.scopeFreq.textContent = data.scope.freq;
       if (this.scopeSync) this.scopeSync.textContent = data.scope.sync;
       if (this.scopeNoise) this.scopeNoise.textContent = data.scope.noise;
       if (this.panelFileId) this.panelFileId.textContent = `FILE // ${data.id}`;
 
-      // 2. Render Telemetry Column
       if (this.telemetryContent) {
         let rowsHtml = data.telemetry.fields.map(f => `
           <tr>
@@ -505,7 +578,6 @@
         `;
       }
 
-      // 3. Render Memory Column (With typewriter effect)
       if (this.memorySourceLabel) this.memorySourceLabel.textContent = data.memory.source;
       if (this.memoryQuoteText) this.memoryQuoteText.textContent = data.memory.quote;
 
@@ -530,12 +602,10 @@
         `;
       }
 
-      // 4. Render Artifact Column
       if (this.artifactContent) {
         this.artifactContent.innerHTML = data.artifact.render();
       }
 
-      // 5. Update Status Line
       if (this.consoleStream) {
         this.consoleStream.textContent = `HARMONIC ACTIVE: [${data.id}] // SYNCHRONIZING PSYCHO-FRAME BUS... OK`;
       }
@@ -566,7 +636,6 @@
     }
   }
 
-  // Initialize application once DOM is ready
   document.addEventListener("DOMContentLoaded", () => {
     window.app = new DossierApp();
   });
