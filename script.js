@@ -69,7 +69,7 @@
       scope: { freq: "684.2 Hz", sync: "88.1%", noise: "0.089 µV" },
       
       // ⬇️ PUT YOUR YOUTUBE VIDEO ID FOR JULIAN ROSS HERE (Default: Feryquitous - Dstorv)
-      youtubeId: "J2p3o4uV7bQ", 
+      youtubeId: "_cSdW3LjtKw", 
       
       telemetry: {
         designation: "TACTICAL SHADOW // LT. JULIAN ROSS",
@@ -124,7 +124,7 @@
       scope: { freq: "528.0 Hz", sync: "99.8%", noise: "0.004 µV" },
       
       // ⬇️ PUT YOUR YOUTUBE VIDEO ID FOR ERIA HERE (Default: Chouchou - Lunaria)
-      youtubeId: "W98pX4t26eQ", 
+      youtubeId: "XX2gPs44fxg", 
       
       telemetry: {
         designation: "LIVING MASK // ERIA STERLING",
