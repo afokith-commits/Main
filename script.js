@@ -1,23 +1,23 @@
 /**
  * PSYCHO-MONITOR // MK-03 RES-SYNC [ANOMALY: 088-ERIA]
- * Logic Engine, Generative Ambient Piano Engine & Tri-Harmonic Database
+ * Official YouTube Streaming Audio Engine, Oscilloscope & Tri-Harmonic Database
  */
 
 (function () {
   'use strict';
 
   /* ==========================================================================
-     1. THE TRI-HARMONIC DATA VAULT (INFP 4w5 Narrative & Telemetry)
+     1. THE TRI-HARMONIC DATA VAULT (INFP 4w5 Narrative, Telemetry & YouTube IDs)
      ========================================================================== */
   const HARMONICS = {
     alpha: {
       id: "SEC-0093-α",
       themeClass: "theme-alpha",
       scope: { freq: "432.8 Hz", sync: "96.4%", noise: "0.012 µV" },
-      // D-minor / F-major pentatonic scale frequencies (Nostalgic piano plucks)
-      scale: [146.83, 174.61, 220.00, 261.63, 293.66, 349.23, 440.00, 523.25], 
-      tempo: 900,
-      soundType: "piano",
+      
+      // ⬇️ PUT YOUR YOUTUBE VIDEO ID FOR RIAN HERE (Default: Haruka Nakamura - Lamp)
+      youtubeId: "ZgI2j9Fz7_8", 
+      
       telemetry: {
         designation: "ORIGIN SOUL // RIAN",
         biologicalAge: "17 (at point of temporal termination)",
@@ -67,10 +67,10 @@
       id: "SEC-0095-β",
       themeClass: "theme-beta",
       scope: { freq: "684.2 Hz", sync: "88.1%", noise: "0.089 µV" },
-      // Cold, tense minor intervals with subtle tritone dissonance
-      scale: [110.00, 130.81, 155.56, 164.81, 220.00, 261.63, 311.13, 329.63],
-      tempo: 650,
-      soundType: "tactical",
+      
+      // ⬇️ PUT YOUR YOUTUBE VIDEO ID FOR JULIAN ROSS HERE (Default: Feryquitous - Dstorv)
+      youtubeId: "J2p3o4uV7bQ", 
+      
       telemetry: {
         designation: "TACTICAL SHADOW // LT. JULIAN ROSS",
         biologicalAge: "26 (at fatal cockpit collapse)",
@@ -122,10 +122,10 @@
       id: "SEC-0099-γ",
       themeClass: "theme-gamma",
       scope: { freq: "528.0 Hz", sync: "99.8%", noise: "0.004 µV" },
-      // High-register music-box chime scale (Delicate, fragile lunar celesta)
-      scale: [261.63, 329.63, 392.00, 493.88, 523.25, 659.25, 783.99, 987.77],
-      tempo: 1100,
-      soundType: "celesta",
+      
+      // ⬇️ PUT YOUR YOUTUBE VIDEO ID FOR ERIA HERE (Default: Chouchou - Lunaria)
+      youtubeId: "W98pX4t26eQ", 
+      
       telemetry: {
         designation: "LIVING MASK // ERIA STERLING",
         biologicalAge: "19 (Current Chronological Host)",
@@ -171,176 +171,83 @@
   };
 
   /* ==========================================================================
-     2. PROCEDURAL PIANO & CHIME SEQUENCER (INFP 4w5 Melodic Audio Engine)
+     2. YOUTUBE STREAMING ENGINE (IFrame API Integration)
      ========================================================================== */
-  class GenerativePianoEngine {
+  class YouTubeStreamEngine {
     constructor() {
-      this.ctx = null;
-      this.masterGain = null;
-      this.delayNode = null;
-      this.feedbackGain = null;
-      this.filter = null;
+      this.player = null;
+      this.isReady = false;
       this.isPlaying = false;
-      this.sequenceTimer = null;
-      this.currentScale = HARMONICS.alpha.scale;
-      this.currentSoundType = HARMONICS.alpha.soundType;
-      this.currentTempo = HARMONICS.alpha.tempo;
-      this.step = 0;
-      this.customAudio = null;
-      this.usingCustomAudio = false;
+      this.currentHarmonic = "alpha";
 
-      this.checkCustomBGM();
+      this.initIframeAPI();
     }
 
-    checkCustomBGM() {
-      // If a user drops a bgm.mp3 file in their repo, it prioritizes real music!
-      const testAudio = new Audio('bgm.mp3');
-      testAudio.addEventListener('canplaythrough', () => {
-        this.customAudio = testAudio;
-        this.customAudio.loop = true;
-        this.usingCustomAudio = true;
-      });
-      testAudio.addEventListener('error', () => {
-        this.usingCustomAudio = false;
-      });
-    }
+    initIframeAPI() {
+      // Create offscreen container for YouTube player
+      const container = document.createElement("div");
+      container.id = "yt-hidden-player";
+      container.style.position = "fixed";
+      container.style.top = "-9999px";
+      container.style.left = "-9999px";
+      container.style.width = "200px";
+      container.style.height = "200px";
+      container.style.opacity = "0.001";
+      container.style.pointerEvents = "none";
+      document.body.appendChild(container);
 
-    init() {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      this.ctx = new AudioCtx();
+      // Dynamically load YouTube IFrame API script
+      const tag = document.createElement('script');
+      tag.src = "https://www.youtube.com/iframe_api";
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-      // Master Output Volume
-      this.masterGain = this.ctx.createGain();
-      this.masterGain.gain.setValueAtTime(0, this.ctx.currentTime);
-
-      // Warm Tape Low-Pass Filter (Haruka Nakamura / Lo-Fi Aesthetic)
-      this.filter = this.ctx.createBiquadFilter();
-      this.filter.type = "lowpass";
-      this.filter.frequency.setValueAtTime(1400, this.ctx.currentTime);
-
-      // Tape Echo / Reverb Delay Feedback Loop
-      this.delayNode = this.ctx.createDelay();
-      this.delayNode.delayTime.setValueAtTime(0.38, this.ctx.currentTime);
-
-      this.feedbackGain = this.ctx.createGain();
-      this.feedbackGain.gain.setValueAtTime(0.42, this.ctx.currentTime);
-
-      // Routing: Synth -> Filter -> Delay -> Feedback -> Master
-      this.filter.connect(this.masterGain);
-      this.filter.connect(this.delayNode);
-      this.delayNode.connect(this.feedbackGain);
-      this.feedbackGain.connect(this.delayNode);
-      this.delayNode.connect(this.masterGain);
-
-      this.masterGain.connect(this.ctx.destination);
-    }
-
-    // Play an individual decaying acoustic piano / chime note
-    playNote(freq) {
-      if (!this.ctx || !this.isPlaying || this.usingCustomAudio) return;
-
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const noteGain = this.ctx.createGain();
-
-      if (this.currentSoundType === "piano") {
-        // Warm triangle note with quick attack and natural acoustic piano decay
-        osc.type = "triangle";
-        noteGain.gain.setValueAtTime(0.001, now);
-        noteGain.gain.linearRampToValueAtTime(0.24, now + 0.04);
-        noteGain.gain.exponentialRampToValueAtTime(0.0001, now + 2.4);
-      } else if (this.currentSoundType === "celesta") {
-        // High, pure bell/music-box chime
-        osc.type = "sine";
-        noteGain.gain.setValueAtTime(0.001, now);
-        noteGain.gain.linearRampToValueAtTime(0.18, now + 0.02);
-        noteGain.gain.exponentialRampToValueAtTime(0.0001, now + 3.2);
-      } else {
-        // Tactical staccato minor pluck
-        osc.type = "sawtooth";
-        noteGain.gain.setValueAtTime(0.001, now);
-        noteGain.gain.linearRampToValueAtTime(0.12, now + 0.015);
-        noteGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
-      }
-
-      osc.frequency.setValueAtTime(freq, now);
-
-      osc.connect(noteGain);
-      noteGain.connect(this.filter);
-
-      osc.start(now);
-      osc.stop(now + 3.5);
-    }
-
-    // Gentle musical sequencing (INFP ambient piano loop)
-    startSequencer() {
-      if (this.sequenceTimer) clearInterval(this.sequenceTimer);
-
-      const runStep = () => {
-        if (!this.isPlaying || this.usingCustomAudio) return;
-
-        // Structured musical arpeggiation with occasional expressive pauses
-        const scale = this.currentScale;
-        const noteIndex = Math.floor(Math.sin(this.step * 0.7) * (scale.length / 2) + (scale.length / 2));
-        const freq = scale[Math.min(Math.max(noteIndex, 0), scale.length - 1)];
-
-        // Play primary melody note
-        this.playNote(freq);
-
-        // Occasionally play a soft bass foundation note on downbeats
-        if (this.step % 4 === 0) {
-          const bassFreq = scale[0] / 2;
-          this.playNote(bassFreq);
-        }
-
-        this.step++;
+      // YouTube API Callback
+      window.onYouTubeIframeAPIReady = () => {
+        this.player = new YT.Player('yt-hidden-player', {
+          height: '200',
+          width: '200',
+          videoId: HARMONICS[this.currentHarmonic].youtubeId,
+          playerVars: {
+            'autoplay': 0,
+            'controls': 0,
+            'loop': 1,
+            'playlist': HARMONICS[this.currentHarmonic].youtubeId
+          },
+          events: {
+            'onReady': () => {
+              this.isReady = true;
+            }
+          }
+        });
       };
-
-      this.sequenceTimer = setInterval(runStep, this.currentTempo);
     }
 
-    stopSequencer() {
-      if (this.sequenceTimer) {
-        clearInterval(this.sequenceTimer);
-        this.sequenceTimer = null;
-      }
-    }
+    playHarmonic(key) {
+      this.currentHarmonic = key;
+      const targetId = HARMONICS[key].youtubeId;
 
-    setHarmonic(harmonicKey) {
-      const h = HARMONICS[harmonicKey];
-      if (!h) return;
-
-      this.currentScale = h.scale;
-      this.currentSoundType = h.soundType;
-      this.currentTempo = h.tempo;
-
-      if (this.isPlaying && !this.usingCustomAudio) {
-        this.startSequencer();
+      if (this.isReady && this.player && this.player.loadVideoById) {
+        if (this.isPlaying) {
+          this.player.loadVideoById({
+            videoId: targetId,
+            suggestedQuality: 'small'
+          });
+        } else {
+          this.player.cueVideoById(targetId);
+        }
       }
     }
 
     toggle() {
-      if (!this.ctx) this.init();
-      if (this.ctx.state === 'suspended') this.ctx.resume();
+      if (!this.isReady || !this.player) return false;
 
       this.isPlaying = !this.isPlaying;
-      const now = this.ctx.currentTime;
-
-      if (this.usingCustomAudio && this.customAudio) {
-        if (this.isPlaying) {
-          this.customAudio.play();
-        } else {
-          this.customAudio.pause();
-        }
-        return this.isPlaying;
-      }
 
       if (this.isPlaying) {
-        this.masterGain.gain.setTargetAtTime(0.85, now, 0.4);
-        this.startSequencer();
+        this.player.playVideo();
       } else {
-        this.masterGain.gain.setTargetAtTime(0, now, 0.3);
-        this.stopSequencer();
+        this.player.pauseVideo();
       }
 
       return this.isPlaying;
@@ -438,7 +345,7 @@
   class DossierApp {
     constructor() {
       this.activeHarmonicKey = "alpha";
-      this.audio = new GenerativePianoEngine();
+      this.audio = new YouTubeStreamEngine();
       this.scope = new OscilloscopeVisualizer("waveform-canvas");
 
       // DOM Elements
@@ -485,7 +392,7 @@
           this.audioToggleBtn.classList.toggle("active", isPlaying);
           this.audioToggleBtn.setAttribute("aria-pressed", isPlaying);
           if (this.audioLabel) {
-            this.audioLabel.textContent = isPlaying ? "ACTIVE (PIANO AMBIENCE)" : "STANDBY";
+            this.audioLabel.textContent = isPlaying ? "ACTIVE (STREAMING BGM)" : "STANDBY";
           }
         });
       }
@@ -535,7 +442,7 @@
       });
 
       this.scope.setHarmonic(key);
-      this.audio.setHarmonic(key);
+      this.audio.playHarmonic(key);
 
       this.render();
     }
