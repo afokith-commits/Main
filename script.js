@@ -1,6 +1,6 @@
 /**
  * PSYCHO-MONITOR // MK-03 RES-SYNC [ANOMALY: 088-ERIA]
- * Diegetic Acoustic Monitor Engine (YouTube API), Oscilloscope & Tri-Harmonic Database
+ * Big Cockpit Audio Ignition, Infinite Auto-Loop, Oscilloscope & Tri-Harmonic Database
  */
 
 (function () {
@@ -15,7 +15,7 @@
       themeClass: "theme-alpha",
       scope: { freq: "432.8 Hz", sync: "96.4%", noise: "0.012 µV" },
       
-      // Cicada — Ocean Foam (Embeddable Official / HDSounDI Upload)
+      // Cicada — Ocean Foam
       youtubeId: "QpRuSDvorBc", 
       trackTitle: "Cicada — Ocean Foam (浪沫撫過礫石灘)",
       
@@ -69,7 +69,7 @@
       themeClass: "theme-beta",
       scope: { freq: "684.2 Hz", sync: "88.1%", noise: "0.089 µV" },
       
-      // Kevin Penkin — Gallantry and Recapitulation (Embeddable OST Upload)
+      // Kevin Penkin — Gallantry and Recapitulation
       youtubeId: "T_jgBbCsdeU", 
       trackTitle: "Kevin Penkin — Gallantry and Recapitulation",
 
@@ -125,7 +125,7 @@
       themeClass: "theme-gamma",
       scope: { freq: "528.0 Hz", sync: "99.8%", noise: "0.004 µV" },
       
-      // Matryoshka — Sacred Play Secret Place (Embeddable Virgin Babylon Video)
+      // Matryoshka — Sacred Play Secret Place
       youtubeId: "RqtIatDmt3A", 
       trackTitle: "Matryoshka — Sacred Play Secret Place",
 
@@ -174,21 +174,69 @@
   };
 
   /* ==========================================================================
-     2. DIEGETIC TACTICAL YOUTUBE MONITOR ENGINE
+     2. YOUTUBE STREAMING ENGINE (With Infinite Auto-Loop)
      ========================================================================== */
   class YouTubeStreamEngine {
     constructor() {
       this.player = null;
       this.isReady = false;
       this.isPlaying = false;
+      this.pendingPlay = false;
       this.currentHarmonic = "alpha";
 
+      this.createBigPlayGateUI();
       this.createTacticalMonitorUI();
       this.initIframeAPI();
     }
 
+    // Creates the unmissable "Big Play" ignition screen
+    createBigPlayGateUI() {
+      const gate = document.createElement("div");
+      gate.id = "big-play-gate";
+      gate.style.cssText = `
+        position: fixed;
+        inset: 0;
+        background: rgba(5, 7, 10, 0.88);
+        backdrop-filter: blur(8px);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-mono);
+        transition: opacity 0.4s ease;
+      `;
+
+      gate.innerHTML = `
+        <div style="background: rgba(14, 18, 27, 0.96); border: 2px solid var(--theme-accent); border-radius: 4px; padding: 28px 36px; text-align: center; max-width: 440px; box-shadow: 0 0 35px var(--theme-glow);">
+          <div style="font-size: 10px; color: var(--color-beta); letter-spacing: 0.14em; font-weight: 700; margin-bottom: 8px;">
+            ⚠ NEURAL AUDIO LINK DISCONNECTED
+          </div>
+          <h2 style="font-family: var(--font-display); font-size: 16px; letter-spacing: 0.12em; color: #fff; margin-bottom: 8px;">
+            UNIT-03 COCKPIT INITIALIZATION
+          </h2>
+          <p style="font-family: var(--font-serif); font-size: 14px; color: var(--text-muted); line-height: 1.5; margin-bottom: 22px;">
+            Engage the Psycho-Frame audio relay to stream continuous ambient telemetry and unlock the database.
+          </p>
+          <button id="gate-ignite-btn" style="background: var(--theme-dim); border: 1px solid var(--theme-accent); color: var(--text-primary); font-family: var(--font-mono); font-size: 12px; font-weight: 700; letter-spacing: 0.1em; padding: 12px 24px; border-radius: 2px; cursor: pointer; box-shadow: 0 0 16px var(--theme-glow); transition: all 0.2s ease;">
+            ⏵ ENGAGE BGM & INITIALIZE COCKPIT
+          </button>
+        </div>
+      `;
+
+      document.body.appendChild(gate);
+
+      // Ignition button event
+      const btn = document.getElementById("gate-ignite-btn");
+      if (btn) {
+        btn.addEventListener("click", () => {
+          this.triggerAutoplayIgnition();
+          gate.style.opacity = "0";
+          setTimeout(() => gate.remove(), 400);
+        });
+      }
+    }
+
     createTacticalMonitorUI() {
-      // Create a sleek, in-universe cockpit monitor in the bottom-right corner
       const widget = document.createElement("div");
       widget.id = "yt-hud-widget";
       widget.style.cssText = `
@@ -221,7 +269,6 @@
     }
 
     initIframeAPI() {
-      // Load YouTube Iframe API
       if (!window.YT) {
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
@@ -245,15 +292,50 @@
           events: {
             'onReady': () => {
               this.isReady = true;
+              this.player.setVolume(85);
               const badge = document.getElementById("yt-track-badge");
-              if (badge) badge.textContent = "SYNCED";
+              if (badge) badge.textContent = "READY";
+
+              if (this.pendingPlay) {
+                this.executePlay();
+              }
+            },
+            // Infinite Auto-Loop: When the video ends, replay immediately
+            'onStateChange': (event) => {
+              if (event.data === YT.PlayerState.ENDED) {
+                event.target.playVideo();
+              }
             },
             'onError': (e) => {
-              console.warn("YouTube Playback Alert [Code " + e.data + "]. Switching source...");
+              console.warn("YouTube Playback Alert [Code " + e.data + "].");
             }
           }
         });
       };
+    }
+
+    triggerAutoplayIgnition() {
+      this.isPlaying = true;
+      if (this.isReady && this.player) {
+        this.executePlay();
+      } else {
+        this.pendingPlay = true;
+      }
+
+      const topBtn = document.getElementById("audio-toggle-btn");
+      const topLabel = document.getElementById("audio-label");
+      if (topBtn) topBtn.classList.add("active");
+      if (topLabel) topLabel.textContent = "ACTIVE (LOOPING)";
+    }
+
+    executePlay() {
+      if (!this.player || !this.player.playVideo) return;
+      this.player.playVideo();
+      const badge = document.getElementById("yt-track-badge");
+      if (badge) {
+        badge.textContent = "ONLINE (LOOP)";
+        badge.style.color = "var(--theme-accent)";
+      }
     }
 
     playHarmonic(key) {
@@ -284,7 +366,7 @@
       if (this.isPlaying) {
         this.player.playVideo();
         if (badge) {
-          badge.textContent = "ONLINE";
+          badge.textContent = "ONLINE (LOOP)";
           badge.style.color = "var(--theme-accent)";
         }
       } else {
@@ -350,7 +432,6 @@
         complexity = 2;
       }
 
-      // Secondary Psycho-Frame leakage wave
       this.ctx.beginPath();
       this.ctx.strokeStyle = "rgba(78, 240, 196, 0.25)";
       this.ctx.lineWidth = 1.5 * window.devicePixelRatio;
@@ -362,7 +443,6 @@
       }
       this.ctx.stroke();
 
-      // Primary active brainwave
       this.ctx.beginPath();
       this.ctx.strokeStyle = strokeColor;
       this.ctx.lineWidth = 2 * window.devicePixelRatio;
@@ -437,7 +517,7 @@
           this.audioToggleBtn.classList.toggle("active", isPlaying);
           this.audioToggleBtn.setAttribute("aria-pressed", isPlaying);
           if (this.audioLabel) {
-            this.audioLabel.textContent = isPlaying ? "ACTIVE (STREAMING)" : "STANDBY";
+            this.audioLabel.textContent = isPlaying ? "ACTIVE (LOOPING)" : "STANDBY";
           }
         });
       }
