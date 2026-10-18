@@ -29,7 +29,7 @@
           { label: "Vocation", val: "Civilian Marine Mechanic / Apprentice" },
           { label: "Psych Profile", val: "Deep survivor's guilt, extreme mechanical empathy, protective instinct." },
           { label: "Cellular Trace", val: "Negative (Original physical form completely dissolved into salt-ash)." },
-          { label: "Psycho-Drift Duration", val: "26 Months unanchored within orbital Psycho-Field." }
+          { label: "Psycho-Drift Duration", val: "32 Months unanchored within orbital Psycho-Field." }
         ],
         callout: "The subject retains absolute memory of the equatorial tidal surge and the exact thermal bloom that vaporized the Sunda shelf. Anchoring reflex remains tied to manual combustion engines."
       },
@@ -152,7 +152,7 @@
           { icon: "♬", label: "Acoustic", desc: "The muffled hiss of atmospheric recirculators in the dome; Evelyn's gentle footsteps." },
           { icon: "👁", label: "Visual", desc: "The blue marble of Earth through the window—and the dark, drowned wound of Southeast Asia." }
         ],
-        monologue: "Vincent held Clara’s empty casket six years ago. When he pulled me out of that cockpit, he didn’t see an enemy ace or a biological anomaly—he saw a child who needed a warm bed. They gave me five years of peace. If the Vist Foundation wants their ghost pilot back, I will burn half the solar system before I let them touch this family."
+        monologue: "Vincent held Clara’s empty casket six years ago. When he pulled me out of that cockpit, he didn’t see an enemy ace or a biological anomaly—he saw a child who needed a warm bed. They gave me four years of peace. If the Vist Foundation wants their ghost pilot back, I will burn half the solar system before I let them touch this family."
       },
       artifact: {
         render: () => `
