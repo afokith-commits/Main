@@ -1,0 +1,57 @@
+/* ==========================================================================
+   IMMERSION LAYER — loads after style.css. Nothing in style.css is changed.
+   ========================================================================== */
+.cursor-glow{position:fixed;inset:0;pointer-events:none;z-index:1;background:radial-gradient(460px circle at var(--mx,50%) var(--my,30%),var(--theme-dim),transparent 70%)}
+.hud-panel{transition:border-color .3s,box-shadow .3s}
+.hud-panel:hover{border-color:var(--theme-accent);box-shadow:0 0 26px var(--theme-dim)}
+.hud-button{transition:transform .12s,box-shadow .2s,background .2s}
+.hud-button:active{transform:scale(.96)}
+.harmonic-tab:active{transform:scale(.985)}
+.harmonic-tab:focus-visible,.sensory-card:focus-visible,.decrypt-btn:focus-visible{outline:2px solid var(--theme-accent);outline-offset:2px}
+
+.hud-panel.enter{animation:panelIn .55s cubic-bezier(.16,1,.3,1) both}
+.hud-panel.enter:nth-child(2){animation-delay:.07s}.hud-panel.enter:nth-child(3){animation-delay:.14s}
+@keyframes panelIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+body.switching::after{content:"";position:fixed;inset:0;z-index:9000;pointer-events:none;background:var(--theme-accent);animation:flash .5s ease-out forwards}
+body.switching .dossier-grid{animation:tear .45s steps(2) 1}
+@keyframes flash{0%{opacity:.2}100%{opacity:0}}
+@keyframes tear{0%{transform:none}25%{transform:translateX(-6px);filter:hue-rotate(40deg) contrast(1.4)}50%{transform:translateX(5px) skewX(-2deg)}75%{transform:translateX(-2px);filter:saturate(2)}100%{transform:none;filter:none}}
+.canvas-wrapper.spike{animation:spike .5s ease-out}
+@keyframes spike{0%{filter:brightness(2.2) drop-shadow(0 0 14px var(--theme-accent));transform:scaleY(1.22)}100%{filter:none;transform:none}}
+
+.type-caret::after{content:"▌";margin-left:2px;color:var(--theme-accent);animation:blink .8s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+
+.sensory-card{cursor:pointer;position:relative;transition:border-color .2s,background .2s,transform .15s}
+.sensory-card::after{content:"+";position:absolute;top:8px;right:10px;color:var(--text-dim);font-size:14px}
+.sensory-card.open::after{content:"–";color:var(--theme-accent)}
+.sensory-card:hover{border-color:var(--theme-accent);background:var(--theme-dim);transform:translateY(-1px)}
+.sensory-card.open{border-color:var(--theme-accent)}
+.sensory-echo{max-height:0;opacity:0;overflow:hidden;font-family:var(--font-serif);font-style:italic;font-size:13px;line-height:1.45;color:var(--theme-accent);transition:max-height .45s,opacity .45s,margin .45s}
+.sensory-card.open .sensory-echo{max-height:160px;opacity:1;margin-top:6px}
+
+tr.has-note{cursor:pointer}
+tr.has-note td:first-child::before{content:"▸ ";color:var(--theme-accent)}
+tr.has-note.open td:first-child::before{content:"▾ "}
+tr.has-note:hover td{background:var(--theme-dim)}
+tr.note-row{display:none}
+tr.has-note.open + tr.note-row{display:table-row}
+tr.note-row td{padding:8px 10px;font-family:var(--font-serif);font-style:italic;font-size:13px;color:var(--theme-accent);border-left:2px solid var(--theme-accent);background:var(--bg-surface-inset);animation:panelIn .35s both}
+
+.artifact-visual-box{transition:transform .15s ease-out;will-change:transform;cursor:crosshair}
+.decrypt-btn{margin-top:10px;width:100%;background:transparent;border:1px dashed var(--theme-accent);color:var(--theme-accent);font:700 10px var(--font-mono);letter-spacing:.1em;padding:8px;cursor:pointer;transition:background .2s}
+.decrypt-btn:hover{background:var(--theme-dim)}
+.decrypt-out{margin-top:8px;min-height:3.2em;padding-left:8px;border-left:2px solid var(--theme-accent);font-size:11px;line-height:1.5;color:var(--theme-accent);word-break:break-word}
+
+.key-hint{font-size:9px;letter-spacing:.08em;color:var(--text-dim)}
+.key-hint b{color:var(--theme-accent);border:1px solid var(--border-subtle);padding:0 4px;border-radius:2px;font-weight:700}
+.yt-collapse{background:none;border:1px solid var(--border-subtle);color:var(--text-muted);font:700 9px var(--font-mono);cursor:pointer;margin-left:6px;padding:0 5px}
+#yt-iframe-slot{transition:height .3s}
+.countdown{font-weight:700;letter-spacing:.1em;color:#f05454;animation:blink 1s steps(2) infinite}
+#gate-ignite-btn{animation:gatePulse 2s ease-in-out infinite}
+#gate-ignite-btn:hover{transform:scale(1.05)}
+@keyframes gatePulse{50%{box-shadow:0 0 30px var(--theme-glow)}}
+@keyframes lineIn{from{opacity:0;transform:translateY(8px);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
+@media (max-width:860px){.key-hint{display:none}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
