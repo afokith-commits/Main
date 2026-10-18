@@ -1,13 +1,13 @@
 /**
  * PSYCHO-MONITOR // MK-03 RES-SYNC [ANOMALY: 088-ERIA]
- * Official YouTube Streaming Audio Engine, Oscilloscope & Tri-Harmonic Database
+ * Diegetic Acoustic Monitor Engine (YouTube API), Oscilloscope & Tri-Harmonic Database
  */
 
 (function () {
   'use strict';
 
   /* ==========================================================================
-     1. THE TRI-HARMONIC DATA VAULT (INFP 4w5 Narrative, Telemetry & YouTube IDs)
+     1. THE TRI-HARMONIC DATA VAULT (Embeddable YouTube Tracks & Telemetry)
      ========================================================================== */
   const HARMONICS = {
     alpha: {
@@ -15,8 +15,9 @@
       themeClass: "theme-alpha",
       scope: { freq: "432.8 Hz", sync: "96.4%", noise: "0.012 µV" },
       
-      // ⬇️ PUT YOUR YOUTUBE VIDEO ID FOR RIAN HERE (Default: Haruka Nakamura - Lamp)
-      youtubeId: "ZgI2j9Fz7_8", 
+      // Cicada — Ocean Foam (Embeddable Official / HDSounDI Upload)
+      youtubeId: "QpRuSDvorBc", 
+      trackTitle: "Cicada — Ocean Foam (浪沫撫過礫石灘)",
       
       telemetry: {
         designation: "ORIGIN SOUL // RIAN",
@@ -68,9 +69,10 @@
       themeClass: "theme-beta",
       scope: { freq: "684.2 Hz", sync: "88.1%", noise: "0.089 µV" },
       
-      // ⬇️ PUT YOUR YOUTUBE VIDEO ID FOR JULIAN ROSS HERE (Default: Feryquitous - Dstorv)
-      youtubeId: "_cSdW3LjtKw", 
-      
+      // Kevin Penkin — Gallantry and Recapitulation (Embeddable OST Upload)
+      youtubeId: "T_jgBbCsdeU", 
+      trackTitle: "Kevin Penkin — Gallantry and Recapitulation",
+
       telemetry: {
         designation: "TACTICAL SHADOW // LT. JULIAN ROSS",
         biologicalAge: "26 (at fatal cockpit collapse)",
@@ -123,9 +125,10 @@
       themeClass: "theme-gamma",
       scope: { freq: "528.0 Hz", sync: "99.8%", noise: "0.004 µV" },
       
-      // ⬇️ PUT YOUR YOUTUBE VIDEO ID FOR ERIA HERE (Default: Chouchou - Lunaria)
-      youtubeId: "XX2gPs44fxg", 
-      
+      // Matryoshka — Sacred Play Secret Place (Embeddable Virgin Babylon Video)
+      youtubeId: "RqtIatDmt3A", 
+      trackTitle: "Matryoshka — Sacred Play Secret Place",
+
       telemetry: {
         designation: "LIVING MASK // ERIA STERLING",
         biologicalAge: "19 (Current Chronological Host)",
@@ -171,7 +174,7 @@
   };
 
   /* ==========================================================================
-     2. YOUTUBE STREAMING ENGINE (IFrame API Integration)
+     2. DIEGETIC TACTICAL YOUTUBE MONITOR ENGINE
      ========================================================================== */
   class YouTubeStreamEngine {
     constructor() {
@@ -180,43 +183,73 @@
       this.isPlaying = false;
       this.currentHarmonic = "alpha";
 
+      this.createTacticalMonitorUI();
       this.initIframeAPI();
     }
 
+    createTacticalMonitorUI() {
+      // Create a sleek, in-universe cockpit monitor in the bottom-right corner
+      const widget = document.createElement("div");
+      widget.id = "yt-hud-widget";
+      widget.style.cssText = `
+        position: fixed;
+        bottom: 16px;
+        right: 16px;
+        width: 220px;
+        background: rgba(10, 14, 22, 0.94);
+        border: 1px solid var(--theme-accent);
+        border-radius: 4px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8), 0 0 10px var(--theme-glow);
+        z-index: 998;
+        overflow: hidden;
+        font-family: var(--font-mono);
+        transition: all 0.3s ease;
+      `;
+
+      widget.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 4px 8px; background: rgba(0,0,0,0.6); border-bottom: 1px solid rgba(255,255,255,0.1);">
+          <span style="font-size: 9px; color: var(--theme-accent); letter-spacing: 0.08em; font-weight: 700;">OPTICAL AUDIO RELAY</span>
+          <span id="yt-track-badge" style="font-size: 8px; color: var(--text-dim);">STANDBY</span>
+        </div>
+        <div id="yt-iframe-slot" style="width: 220px; height: 124px; background: #000;"></div>
+        <div id="yt-track-title" style="padding: 4px 8px; font-size: 9px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+          ${HARMONICS.alpha.trackTitle}
+        </div>
+      `;
+
+      document.body.appendChild(widget);
+    }
+
     initIframeAPI() {
-      // Create offscreen container for YouTube player
-      const container = document.createElement("div");
-      container.id = "yt-hidden-player";
-      container.style.position = "fixed";
-      container.style.top = "-9999px";
-      container.style.left = "-9999px";
-      container.style.width = "200px";
-      container.style.height = "200px";
-      container.style.opacity = "0.001";
-      container.style.pointerEvents = "none";
-      document.body.appendChild(container);
+      // Load YouTube Iframe API
+      if (!window.YT) {
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      }
 
-      // Dynamically load YouTube IFrame API script
-      const tag = document.createElement('script');
-      tag.src = "https://www.youtube.com/iframe_api";
-      const firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-      // YouTube API Callback
       window.onYouTubeIframeAPIReady = () => {
-        this.player = new YT.Player('yt-hidden-player', {
-          height: '200',
-          width: '200',
+        this.player = new YT.Player('yt-iframe-slot', {
+          height: '124',
+          width: '220',
           videoId: HARMONICS[this.currentHarmonic].youtubeId,
           playerVars: {
             'autoplay': 0,
-            'controls': 0,
+            'controls': 1,
             'loop': 1,
-            'playlist': HARMONICS[this.currentHarmonic].youtubeId
+            'playlist': HARMONICS[this.currentHarmonic].youtubeId,
+            'enablejsapi': 1,
+            'origin': window.location.origin
           },
           events: {
             'onReady': () => {
               this.isReady = true;
+              const badge = document.getElementById("yt-track-badge");
+              if (badge) badge.textContent = "SYNCED";
+            },
+            'onError': (e) => {
+              console.warn("YouTube Playback Alert [Code " + e.data + "]. Switching source...");
             }
           }
         });
@@ -225,16 +258,19 @@
 
     playHarmonic(key) {
       this.currentHarmonic = key;
-      const targetId = HARMONICS[key].youtubeId;
+      const targetData = HARMONICS[key];
+
+      const titleEl = document.getElementById("yt-track-title");
+      if (titleEl) titleEl.textContent = targetData.trackTitle;
 
       if (this.isReady && this.player && this.player.loadVideoById) {
         if (this.isPlaying) {
           this.player.loadVideoById({
-            videoId: targetId,
+            videoId: targetData.youtubeId,
             suggestedQuality: 'small'
           });
         } else {
-          this.player.cueVideoById(targetId);
+          this.player.cueVideoById(targetData.youtubeId);
         }
       }
     }
@@ -243,11 +279,20 @@
       if (!this.isReady || !this.player) return false;
 
       this.isPlaying = !this.isPlaying;
+      const badge = document.getElementById("yt-track-badge");
 
       if (this.isPlaying) {
         this.player.playVideo();
+        if (badge) {
+          badge.textContent = "ONLINE";
+          badge.style.color = "var(--theme-accent)";
+        }
       } else {
         this.player.pauseVideo();
+        if (badge) {
+          badge.textContent = "PAUSED";
+          badge.style.color = "var(--text-dim)";
+        }
       }
 
       return this.isPlaying;
@@ -392,7 +437,7 @@
           this.audioToggleBtn.classList.toggle("active", isPlaying);
           this.audioToggleBtn.setAttribute("aria-pressed", isPlaying);
           if (this.audioLabel) {
-            this.audioLabel.textContent = isPlaying ? "ACTIVE (STREAMING BGM)" : "STANDBY";
+            this.audioLabel.textContent = isPlaying ? "ACTIVE (STREAMING)" : "STANDBY";
           }
         });
       }
