@@ -4,7 +4,7 @@
   const X = {
     alpha: {
       echo: ["Pak Usman's outboard always coughed twice before it caught. Father said that's how you knew it was honest.", "The putty knife slipped once. The scar still sits across these knuckles. Whose knuckles.", "Maya's radio was reading the tide tables. Nobody was listening.", "The light came in white and the shadows left. I remember thinking the sea looked clean."],
-      notes: ["Axis impact reached the Sunda shelf at noon. The pier sat inside the thermal bloom.", "Maritime school enrolment lapsed; exams taken externally so the shop could stay open.", "He talks to engines. This is not dissociation. It is the thing keeping him whole."],
+      notes: ["The Axis fragment struck the Sunda Shelf just after the midday meal. The pier sat inside the thermal bloom. The place is called the Sunda Sink now.", "Enrolled at the maritime school but sitting exams externally, so the shop could stay open.", "He talks to engines. This is not dissociation. It is the thing keeping him whole."],
       hidden: "MAYA // AGE 8 // LAST POSITION: SEAWALL, YELLOW DRESS. STATUS: UNRECORDED.",
       log: ["TIDAL SURGE REPLAY BUFFERED // CH-1", "TWO-STROKE RESONANCE @ 38 HZ // TRACE FOUND", "MEMORY SALINITY RISING", "MAYA'S SKETCHPAD CACHE: INTACT"]
     },
@@ -16,7 +16,7 @@
     },
     gamma: {
       echo: ["Evelyn leaves a cup on the landing at ten. I've never told her I'm awake.", "Cashmere hides the wrists. The wrists hide the strength.", "The recirculators hum in B-flat. I tuned a cello to it once.", "Earth looks calm from here. It isn't."],
-      notes: ["Cover story approved by the Board. Pulmonary trauma explains the pallor and the missing years.", "Garage entries logged 02:00–04:00. Logged by Vincent, then deleted.", "Black wax, linen paper, no postage. Hand-delivered into a sealed house."],
+      notes: ["Cover story built by Vincent alone. The Anaheim Board was never told. Pulmonary trauma explains the pallor and the missing years.", "Garage entries logged 02:00–04:00. Logged by Vincent, then deleted.", "Black wax, linen paper, no postage. Hand-delivered into a sealed house."],
       hidden: "BERTH 44 // 2400 HRS // REACTOR PRIMES ON KEY ACCEPT. SHE HAS NOT YET DECIDED.",
       log: ["HOUSEHOLD NOMINAL // 1ST RING QUIET", "UNAUTHORIZED GARAGE ENTRY // 02:40", "VIST FOUNDATION ECHO DETECTED", "FATHER'S SIGNATURE ON EVERYTHING"]
     }
