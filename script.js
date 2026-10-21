@@ -281,7 +281,7 @@
 
       let leversHtml = b.immediateLevers.map(l => `
         <div class="gm-lever-card">
-          <div class="gm-lever-title">⚠ LEVER: ${l.title}</div>
+          <div class="gm-lever-title">⚠ CAMPAIGN LEVER: ${l.title}</div>
           <div class="gm-lever-desc">${l.desc}</div>
         </div>
       `).join("");
@@ -295,33 +295,33 @@
         <div class="gm-grid-two">
           <div class="gm-levers-list">
             <div style="font-size:9px; font-weight:700; color:var(--text-dim); letter-spacing:0.1em; text-transform:uppercase;">
-              Campaign Pressure Points (Immediate Adventure Seeds):
+              Immediate Adventure Hooks for the GM:
             </div>
             ${leversHtml}
           </div>
 
           <div class="gm-stats-card">
             <div style="font-size:9px; font-weight:700; color:var(--theme-accent); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px;">
-              Session 1 Tactical Baseline:
+              Dossier Summary:
             </div>
             <div class="gm-stat-row">
-              <span class="gm-stat-label">License Level:</span>
-              <span class="gm-stat-val">${b.pilotQuickStats.licenseLevel}</span>
-            </div>
-            <div class="gm-stat-row">
-              <span class="gm-stat-label">Tactical Role:</span>
-              <span class="gm-stat-val">${b.pilotQuickStats.role}</span>
+              <span class="gm-stat-label">Origin:</span>
+              <span class="gm-stat-val" style="font-size:10px;">${b.summaryPills.origin}</span>
             </div>
             <div class="gm-stat-row">
               <span class="gm-stat-label">Chassis:</span>
-              <span class="gm-stat-val">${b.pilotQuickStats.frame}</span>
+              <span class="gm-stat-val" style="font-size:10px;">${b.summaryPills.chassis}</span>
+            </div>
+            <div class="gm-stat-row">
+              <span class="gm-stat-label">Dogtag:</span>
+              <span class="gm-stat-val" style="font-size:10px;">${b.summaryPills.dogtag}</span>
             </div>
             <div class="gm-stat-row">
               <span class="gm-stat-label">Allegiance:</span>
-              <span class="gm-stat-val" style="font-size:9px;">${b.pilotQuickStats.allegiance}</span>
+              <span class="gm-stat-val" style="font-size:9px;">${b.summaryPills.allegiance}</span>
             </div>
             <div style="margin-top:6px; font-family:var(--font-serif); font-size:11px; line-height:1.4; color:var(--text-muted); border-top:1px solid rgba(255,255,255,0.06); padding-top:6px;">
-              <strong>Hook:</strong> ${b.campaignHook}
+              <strong>Session 1 Hook:</strong> ${b.campaignHook}
             </div>
           </div>
         </div>
@@ -389,25 +389,15 @@
       this.artifactModal.setAttribute('aria-hidden', 'false');
     }
 
-    /* 3.4 LANCER TTRPG Pilot & Mech Drawer */
+    /* 3.4 Subject 088 Narrative Dossier Drawer */
     renderLancerSpecs() {
       if (!this.lancerDrawerContent) return;
-      const l = this.data.lancer;
+      const d = this.data.dossierArchive;
 
-      let triggersHtml = l.pilot.triggers.map(t => `
-        <div class="trigger-card">
-          <div class="trigger-head">
-            <span>${t.name}</span>
-            <span class="trigger-bonus">${t.bonus}</span>
-          </div>
-          <div class="trigger-desc">${t.desc}</div>
-        </div>
-      `).join("");
-
-      let mountsHtml = l.mech.mounts.map(m => `
-        <div class="mount-card">
-          <div style="font-size:9px; font-weight:700; color:var(--color-psycho); letter-spacing:0.08em; text-transform:uppercase;">${m.type}</div>
-          <div style="font-size:11px; color:#fff; font-family:var(--font-mono);">${m.weapon}</div>
+      let triadHtml = d.harmonicTriad.map(t => `
+        <div class="dossier-bio-card">
+          <div class="dossier-bio-title" style="color:var(--theme-accent); font-family:var(--font-mono);">${t.strata}</div>
+          <div class="dossier-bio-desc">${t.context}</div>
         </div>
       `).join("");
 
@@ -419,70 +409,36 @@
       `).join("");
 
       this.lancerDrawerContent.innerHTML = `
-        <!-- PILOT IDENTITY -->
         <div>
-          <div class="lancer-section-title">PILOT BIOMETRICS & RECORD</div>
-          <div style="font-size:12px; font-weight:700; color:#fff; margin-bottom:2px;">${l.pilot.name}</div>
-          <div style="font-size:10px; color:var(--text-muted); margin-bottom:8px;">${l.pilot.background}</div>
-          <div class="lancer-grid">
-            <div class="lancer-metric-box"><span class="lancer-metric-label">LL</span><span class="lancer-metric-val">${l.pilot.licenseLevel}</span></div>
-            <div class="lancer-metric-box"><span class="lancer-metric-label">GRIT</span><span class="lancer-metric-val">${l.pilot.grit}</span></div>
-            <div class="lancer-metric-box"><span class="lancer-metric-label">HP</span><span class="lancer-metric-val">${l.pilot.hp}</span></div>
-            <div class="lancer-metric-box"><span class="lancer-metric-label">SPEED</span><span class="lancer-metric-val">${l.pilot.speed}</span></div>
-          </div>
+          <div class="dossier-section-title">SUBJECT FILE // SEC-088</div>
+          <div style="font-size:13px; font-weight:700; color:#fff; margin-bottom:2px;">${d.identity.designation}</div>
+          <div style="font-size:10px; color:var(--theme-accent); margin-bottom:6px;">${d.identity.origin}</div>
+          <div style="font-size:10px; color:var(--text-muted); line-height:1.4;">${d.identity.status}</div>
         </div>
 
-        <!-- PILOT TRIGGERS -->
         <div>
-          <div class="lancer-section-title">PILOT TRIGGERS (NARRATIVE CHECKS)</div>
-          <div class="trigger-list">
-            ${triggersHtml}
-          </div>
+          <div class="dossier-section-title">TRIPARTITE ANOMALY (HARMONIC NODES)</div>
+          ${triadHtml}
         </div>
 
-        <!-- MECH FRAME SPEC -->
         <div>
-          <div class="lancer-section-title">MECH CHASSIS: ${l.mech.frame}</div>
-          <div style="font-size:10px; color:var(--text-dim); margin-bottom:8px;">CLASSIFICATION: ${l.mech.classification}</div>
-          <div class="lancer-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom:8px;">
-            <div class="lancer-metric-box"><span class="lancer-metric-label">HULL</span><span class="lancer-metric-val">${l.mech.stats.hull}</span></div>
-            <div class="lancer-metric-box"><span class="lancer-metric-label">AGI</span><span class="lancer-metric-val">${l.mech.stats.agility}</span></div>
-            <div class="lancer-metric-box"><span class="lancer-metric-label">SYS</span><span class="lancer-metric-val">${l.mech.stats.systems}</span></div>
-            <div class="lancer-metric-box"><span class="lancer-metric-label">ENG</span><span class="lancer-metric-val">${l.mech.stats.engineering}</span></div>
-          </div>
-          <div class="lancer-grid" style="grid-template-columns: repeat(4, 1fr);">
-            <div class="lancer-metric-box"><span class="lancer-metric-label">HP</span><span class="lancer-metric-val">${l.mech.hp}</span></div>
-            <div class="lancer-metric-box"><span class="lancer-metric-label">ARMOR</span><span class="lancer-metric-val">${l.mech.armor}</span></div>
-            <div class="lancer-metric-box"><span class="lancer-metric-label">EVASION</span><span class="lancer-metric-val">${l.mech.evasion}</span></div>
-            <div class="lancer-metric-box"><span class="lancer-metric-label">E-DEF</span><span class="lancer-metric-val">${l.mech.edef}</span></div>
-          </div>
-        </div>
-
-        <!-- CORE SYSTEM -->
-        <div>
-          <div class="lancer-section-title">CORE SYSTEM // PARACAUSAL</div>
-          <div style="background:var(--bg-surface-inset); border:1px solid var(--border-subtle); padding:10px; border-radius:var(--radius-sm);">
-            <div style="font-size:10px; font-weight:700; color:var(--color-psycho); margin-bottom:4px;">${l.mech.coreSystem.name}</div>
-            <div style="font-size:11px; font-family:var(--font-serif); color:var(--text-prose-secondary); line-height:1.45; margin-bottom:6px;">
-              <strong>ACTIVE:</strong> ${l.mech.coreSystem.active}
+          <div class="dossier-section-title">PROTOTYPE UNIT-03 SPECS</div>
+          <div class="dossier-bio-card">
+            <div style="font-size:10px; font-weight:700; color:var(--color-psycho); margin-bottom:4px;">CHASSIS: ${d.prototypeSpecs.chassis}</div>
+            <div style="font-size:11px; font-family:var(--font-serif); color:var(--text-prose-secondary); line-height:1.45; margin-bottom:4px;">
+              <strong>Cockpit:</strong> ${d.prototypeSpecs.liner}
             </div>
-            <div style="font-size:11px; font-family:var(--font-serif); color:var(--text-muted); line-height:1.45;">
-              <strong>PASSIVE:</strong> ${l.mech.coreSystem.passive}
+            <div style="font-size:11px; font-family:var(--font-serif); color:var(--text-muted); line-height:1.45; margin-bottom:4px;">
+              <strong>Avionics:</strong> ${d.prototypeSpecs.weaponry}
+            </div>
+            <div style="font-size:10px; color:var(--color-beta); font-family:var(--font-mono); margin-top:6px;">
+              ⚠ WARNING: ${d.prototypeSpecs.dangerProfile}
             </div>
           </div>
         </div>
 
-        <!-- WEAPON MOUNTS -->
         <div>
-          <div class="lancer-section-title">INTEGRATED WEAPON MOUNTS</div>
-          <div class="mount-list">
-            ${mountsHtml}
-          </div>
-        </div>
-
-        <!-- QUICK CAMPAIGN GLOSSARY -->
-        <div>
-          <div class="lancer-section-title">CAMPAIGN DOSSIER GLOSSARY</div>
+          <div class="dossier-section-title">CAMPAIGN LORE GLOSSARY</div>
           ${compendiumHtml}
         </div>
       `;

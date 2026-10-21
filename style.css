@@ -5,11 +5,10 @@
 
 /* --- 1. DESIGN TOKENS & DYNAMIC THEMES --- */
 :root {
-  /* Core Void & Chassis Palette */
   --bg-deep-void: #06080c;
-  --bg-panel: rgba(12, 16, 24, 0.88);
+  --bg-panel: rgba(12, 16, 24, 0.9);
   --bg-panel-solid: #0d121c;
-  --bg-surface-inset: rgba(5, 7, 11, 0.75);
+  --bg-surface-inset: rgba(5, 7, 11, 0.8);
   --bg-card: rgba(18, 24, 36, 0.6);
   --bg-card-hover: rgba(26, 34, 52, 0.85);
 
@@ -18,27 +17,25 @@
   --color-psycho-glow: rgba(78, 240, 196, 0.35);
   --color-psycho-dim: rgba(78, 240, 196, 0.12);
 
-  /* Harmonic α: Rian (Equatorial Sun, Two-Stroke Oil, Rust, Brine) */
+  /* Harmonic α: Rian (Sunda Strait, Castor Oil, Salt) */
   --color-alpha: #e5a962;
   --color-alpha-glow: rgba(229, 169, 98, 0.4);
   --color-alpha-dim: rgba(229, 169, 98, 0.12);
 
-  /* Harmonic β: Lt. Julian Ross (Tactical Crimson, Coolant, Gunmetal) */
+  /* Harmonic β: Lt. Julian Ross (Tactical Crimson, Coolant, Blood) */
   --color-beta: #f05454;
   --color-beta-glow: rgba(240, 84, 84, 0.4);
   --color-beta-dim: rgba(240, 84, 84, 0.14);
 
-  /* Harmonic γ: Eria Sterling (Lunar Ice, Silk, Porcelain, Cashmere) */
+  /* Harmonic γ: Eria Sterling (Lunar Ice, Silk, Porcelain) */
   --color-gamma: #a8b8e6;
   --color-gamma-glow: rgba(168, 184, 230, 0.4);
   --color-gamma-dim: rgba(168, 184, 230, 0.12);
 
-  /* Active Accent (Dynamic via body class) */
   --theme-accent: var(--color-alpha);
   --theme-glow: var(--color-alpha-glow);
   --theme-dim: var(--color-alpha-dim);
 
-  /* Editorial & Reading Typography Colors */
   --text-prose-primary: #e6ebf5;
   --text-prose-secondary: #c0cce0;
   --text-muted: #8493ab;
@@ -46,12 +43,10 @@
   --border-subtle: rgba(132, 147, 171, 0.18);
   --border-active: rgba(78, 240, 196, 0.45);
 
-  /* Typography Stacks */
   --font-mono: 'JetBrains Mono', monospace;
   --font-serif: 'Newsreader', Georgia, serif;
   --font-display: 'Cinzel', serif;
 
-  /* Layout Measurements */
   --reader-max-width: 68ch;
   --radius-sm: 2px;
   --radius-md: 4px;
@@ -59,7 +54,6 @@
   --transition-smooth: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Harmonic State Overrides */
 body.theme-alpha {
   --theme-accent: var(--color-alpha);
   --theme-glow: var(--color-alpha-glow);
@@ -76,7 +70,6 @@ body.theme-gamma {
   --theme-dim: var(--color-gamma-dim);
 }
 
-/* --- 2. RESET & BASE LAYOUT --- */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -100,7 +93,6 @@ html, body {
   color: var(--theme-accent);
 }
 
-/* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -116,7 +108,7 @@ html, body {
   background: var(--theme-accent);
 }
 
-/* --- 3. CRT SHADERS & OPTICAL AMBIENCE --- */
+/* --- CRT & VIGNETTE --- */
 .crt-scanlines {
   position: fixed;
   inset: 0;
@@ -159,7 +151,7 @@ html, body {
   );
 }
 
-/* --- 4. COCKPIT HUD SHELL --- */
+/* --- HUD SHELL --- */
 .hud-container {
   position: relative;
   max-width: 1560px;
@@ -171,7 +163,7 @@ html, body {
   z-index: 10;
 }
 
-/* --- 5. TOP STATUS & TELEMETRY HEADER --- */
+/* --- TOP HEADER --- */
 .hud-header {
   display: grid;
   grid-template-columns: 1.1fr auto 1.1fr;
@@ -231,7 +223,6 @@ html, body {
   padding: 2px 8px;
   border-radius: var(--radius-sm);
   letter-spacing: 0.06em;
-  transition: all var(--transition-fast);
 }
 
 .hud-title {
@@ -255,7 +246,6 @@ html, body {
   letter-spacing: 0.08em;
 }
 
-/* Tactile HUD Buttons */
 .hud-button {
   background: var(--bg-surface-inset);
   color: var(--text-prose-primary);
@@ -302,7 +292,7 @@ html, body {
   box-shadow: 0 0 14px var(--color-psycho-glow);
 }
 
-/* --- 6. OSCILLOSCOPE & LIVE TELEMETRY STRIP --- */
+/* --- OSCILLOSCOPE --- */
 .oscilloscope-section {
   width: 100%;
 }
@@ -355,17 +345,9 @@ html, body {
   color: var(--text-prose-primary);
 }
 
-.stress-nominal {
-  color: var(--color-psycho);
-}
-
-.stress-elevated {
-  color: var(--color-alpha);
-}
-
-.stress-critical {
-  color: var(--color-beta);
-}
+.stress-nominal { color: var(--color-psycho); }
+.stress-elevated { color: var(--color-alpha); }
+.stress-critical { color: var(--color-beta); }
 
 .canvas-wrapper {
   position: relative;
@@ -405,7 +387,7 @@ html, body {
   pointer-events: none;
 }
 
-/* --- 7. GM EXECUTIVE BRIEFING (COLLAPSIBLE ACCORDION) --- */
+/* --- GM EXECUTIVE BRIEFING --- */
 .gm-briefing-section {
   width: 100%;
 }
@@ -565,7 +547,7 @@ html, body {
   font-weight: 600;
 }
 
-/* --- 8. CHAPTER JUMP NAVIGATION BAR --- */
+/* --- CHAPTER NAVIGATION --- */
 .chapter-nav {
   display: flex;
   align-items: center;
@@ -636,7 +618,7 @@ html, body {
   text-overflow: ellipsis;
 }
 
-/* --- 9. THE THREE-COLUMN READING STAGE --- */
+/* --- READING STAGE LAYOUT --- */
 .reading-stage-layout {
   display: grid;
   grid-template-columns: 280px 1fr 280px;
@@ -645,7 +627,7 @@ html, body {
   min-height: 700px;
 }
 
-/* --- 10. LEFT COLUMN: SENSORY RELIQUARY --- */
+/* --- LEFT COLUMN: SENSORY RELIQUARY --- */
 .reliquary-rail {
   background: var(--bg-panel);
   border: 1px solid var(--border-subtle);
@@ -753,7 +735,7 @@ html, body {
   color: var(--text-muted);
 }
 
-/* --- 11. CENTER COLUMN: EDITORIAL PROSE VIEWPORT --- */
+/* --- CENTER COLUMN: PROSE VIEWPORT --- */
 .prose-viewport {
   background: var(--bg-panel);
   border: 1px solid var(--border-subtle);
@@ -813,7 +795,6 @@ html, body {
   opacity: 0.4;
 }
 
-/* Editorial Story Typography */
 .prose-content {
   display: flex;
   flex-direction: column;
@@ -828,10 +809,8 @@ html, body {
   font-size: 16px;
   line-height: 1.8;
   color: var(--text-prose-secondary);
-  font-optical-sizing: auto;
 }
 
-/* Drop-cap for the first paragraph of a chapter */
 .prose-content > p:first-of-type::first-letter {
   font-family: var(--font-display);
   font-size: 3.4em;
@@ -842,7 +821,6 @@ html, body {
   text-shadow: 0 0 10px var(--theme-glow);
 }
 
-/* Tactical In-line Redaction Bars */
 .redaction-bar {
   margin: 16px 0;
   padding: 12px 16px;
@@ -912,7 +890,6 @@ html, body {
   display: block;
 }
 
-/* Chapter Footer Pager */
 .prose-footer {
   display: flex;
   justify-content: space-between;
@@ -928,7 +905,7 @@ html, body {
   color: var(--text-dim);
 }
 
-/* --- 12. RIGHT COLUMN: HARMONIC MARGINALIA RAIL --- */
+/* --- RIGHT COLUMN: HARMONIC MARGINALIA --- */
 .marginalia-rail {
   background: var(--bg-panel);
   border: 1px solid var(--border-subtle);
@@ -1022,7 +999,7 @@ html, body {
   letter-spacing: 0.06em;
 }
 
-/* --- 13. BOTTOM TACTICAL FOOTER --- */
+/* --- FOOTER --- */
 .hud-footer {
   display: grid;
   grid-template-columns: 1.2fr auto 1.2fr;
@@ -1068,7 +1045,7 @@ html, body {
   letter-spacing: 0.06em;
 }
 
-/* --- 14. SLIDE-OUT LANCER PILOT & MECH SPEC DRAWER --- */
+/* --- SLIDE-OUT SUBJECT DOSSIER DRAWER --- */
 .lancer-drawer {
   position: fixed;
   top: 0;
@@ -1132,7 +1109,7 @@ html, body {
   gap: 18px;
 }
 
-.lancer-section-title {
+.dossier-section-title {
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -1143,65 +1120,28 @@ html, body {
   text-transform: uppercase;
 }
 
-.lancer-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  text-align: center;
-}
-
-.lancer-metric-box {
+.dossier-bio-card {
   background: var(--bg-surface-inset);
   border: 1px solid var(--border-subtle);
-  padding: 6px;
   border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin-bottom: 8px;
 }
 
-.lancer-metric-label {
-  font-size: 8px;
-  color: var(--text-dim);
-  display: block;
-}
-
-.lancer-metric-val {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--color-psycho);
-}
-
-.trigger-list, .mount-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.trigger-card, .mount-card {
-  background: var(--bg-surface-inset);
-  border: 1px solid var(--border-subtle);
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-}
-
-.trigger-head {
-  display: flex;
-  justify-content: space-between;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text-prose-primary);
-  margin-bottom: 2px;
-}
-
-.trigger-bonus {
-  color: var(--color-psycho);
-}
-
-.trigger-desc {
-  font-family: var(--font-serif);
+.dossier-bio-title {
   font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.dossier-bio-desc {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  line-height: 1.5;
   color: var(--text-muted);
 }
 
-/* --- 15. MODAL OVERLAYS & ARTIFACT VIEWERS --- */
+/* --- MODALS --- */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -1269,7 +1209,7 @@ html, body {
   overflow-y: auto;
 }
 
-/* --- 16. BIG PLAY IGNITION GATE --- */
+/* --- IGNITION GATE --- */
 .play-gate-overlay {
   position: fixed;
   inset: 0;
@@ -1353,13 +1293,13 @@ html, body {
   overflow: hidden;
 }
 
-/* --- 17. RESPONSIVE BREAKPOINTS --- */
+/* --- RESPONSIVE BREAKPOINTS --- */
 @media (max-width: 1200px) {
   .reading-stage-layout {
     grid-template-columns: 240px 1fr;
   }
   .marginalia-rail {
-    display: none; /* Floats into bottom or accessible in modal */
+    display: none;
   }
 }
 

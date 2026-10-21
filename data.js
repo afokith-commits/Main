@@ -2,13 +2,13 @@
  * PSYCHO-MONITOR // MK-03 RES-SYNC [ANOMALY: 088-ERIA]
  * Central Content & Narrative Core (Decoupled Data Store)
  * 
- * Edit this file to customize the story, GM briefing, soundtrack, or LANCER stats.
+ * Based directly on Eria.md and Fractured Century lore.
  */
 
 window.DOSSIER_DATA = {
 
   // =========================================================================
-  // 1. GM EXECUTIVE BRIEFING (The 60-Second Pitch & Immediate Adventure Levers)
+  // 1. GM EXECUTIVE BRIEFING (Grounded in Eria.md Story Beats)
   // =========================================================================
   gmBriefing: {
     callsign: "GHOST SEED",
@@ -18,27 +18,27 @@ window.DOSSIER_DATA = {
     immediateLevers: [
       {
         title: "The Forged Casualty Record",
-        desc: "Anaheim's internal audit believes Julian Ross died in combat. If Union intelligence or corporate auditors discover Julian's living DNA inside Eria, Director Vincent Sterling faces military execution for high treason."
+        desc: "Anaheim's internal audit believes Julian Ross died in the Sunda sector. If Union military intelligence or corporate auditors discover Julian's living DNA inside Eria, Director Vincent Sterling faces military execution for high treason."
       },
       {
         title: "The Unshielded Psycho-Mesh",
-        desc: "Unit-03 is lined with raw, unshielded Psycho-Frame alloy. Under heavy combat stress, Subject 088 risks paracausal dissociation—where Julian's lethal combat autopilot or Rian's saltwater grief violently overrides her conscious mind."
+        desc: "Unit-03 is lined with raw, unshielded Psycho-Frame alloy. Under combat stress, Subject 088 risks paracausal dissociation—where Julian's lethal combat reflexes or Rian's saltwater memories violently override her conscious motor control."
       },
       {
         title: "The Berth 44 Extortion",
         desc: "The Vist Foundation holds the silver telemetry key and the unredacted cockpit ledger. What is waiting for Unit-03 at Lagrange Point 1, and who gave the Foundation clearance inside Von Braun's sealed perimeter?"
       }
     ],
-    pilotQuickStats: {
-      licenseLevel: "LL2",
-      role: "Striker / Close-Quarters Paracausal Interceptor",
-      frame: "Prototype Unit-03",
-      allegiance: "Anaheim Civilian Cover-Up → Vist Operative (Coerced)"
+    summaryPills: {
+      origin: "Sunda Strait (Earth) → Von Braun City (Luna)",
+      chassis: "Prototype Unit-03 (Unshielded Psycho-Frame)",
+      dogtag: "ROSS, JULIAN — LT. / 088-921-A",
+      allegiance: "Anaheim Cover-Up → Coerced Vist Operative"
     }
   },
 
   // =========================================================================
-  // 2. THE 5-CHAPTER NARRATIVE CORE (Full Story with Inline Redactions)
+  // 2. THE 5-CHAPTER NARRATIVE CORE (Word-for-Word Eria.md)
   // =========================================================================
   chapters: [
     {
@@ -93,7 +93,7 @@ window.DOSSIER_DATA = {
         id: "redact-1",
         label: "LONDO BELL INCIDENT TELEMETRY // SECTOR-04",
         blackoutText: "IMPACT CONFIRMED: Axis fragment struck the Sunda Shelf at Mach 24. Thermal bloom vaporized the coastline within 4.2 seconds. Estimated casualties: 42,000,000. Sector redesignated 'THE SUNDA SINK'. Zero biological recovery.",
-        gmNote: "GM Note: Rian's original body dissolved into salt-ash. His soul drifted unanchored in the orbital Psycho-Field for over two years."
+        gmNote: "Story Detail: Rian's original body dissolved into salt-ash. His consciousness drifted unanchored in the orbital Psycho-Field for over two years."
       }
     },
 
@@ -145,7 +145,7 @@ window.DOSSIER_DATA = {
         id: "redact-2",
         label: "PROTOTYPE UNIT-03 BLACK-BOX TELEMETRY LOG",
         blackoutText: "PARACAUSAL CONDENSATION ANOMALY: Autonomic nervous system rewritten under high-frequency psycho-resonance. Original pilot mass (82 kg) reduced to 41 kg. Skeletal and cellular realignment confirmed. Kinetic combat reflexes burned into host motor cortex.",
-        gmNote: "GM Hook: Julian's soul dissolved upon death, but his lethal combat reflexes remain burned into the host girl's muscles."
+        gmNote: "Story Detail: Julian's personality dissolved upon death, but his lethal combat reflexes remain burned into the girl's motor cortex."
       }
     },
 
@@ -212,7 +212,7 @@ window.DOSSIER_DATA = {
         id: "redact-3",
         label: "ANAHEIM ELECTRONICS // CLASSIFIED DISPOSITION REPORT #95-088",
         blackoutText: "FALSIFIED RECORD CONFIRMED: Target Lt. Julian Ross logged as neutralized. Biological remains declared fully vaporized by thermite charges. Transferred subject to personal shuttle under forged authorization Alpha-Zero. Signatory: Senior Director Vincent Sterling.",
-        gmNote: "GM Hook: Vincent committed corporate treason to save her. If Anaheim finds out, he and his wife will be executed."
+        gmNote: "Story Detail: Vincent committed corporate treason to save her. If Anaheim finds out, he and Evelyn will be executed."
       }
     },
 
@@ -266,7 +266,7 @@ window.DOSSIER_DATA = {
         id: "redact-4",
         label: "STERLING RESIDENCE SECURITY LOGS // 02:00–04:00 AM",
         blackoutText: "ANOMALOUS NOCTURNAL ACTIVITY: Subject 088 logged entering lower maintenance garage 48 times between U.C. 0097 and 0098. Manual overhaul of combustion engines performed without tools requested. Logs wiped manually by Vincent Sterling.",
-        gmNote: "GM Hook: The mechanical instinct of Rian is the only thing keeping Eria from full dissociative breakdown."
+        gmNote: "Story Detail: Rian's mechanical habit on the roadster engines is the only anchor keeping Eria from full dissociative ego death."
       }
     },
 
@@ -339,7 +339,7 @@ window.DOSSIER_DATA = {
         id: "redact-5",
         label: "VIST FOUNDATION ENCRYPTED FLIGHT CORRIDOR",
         blackoutText: "AUTHORIZATION ACCEPTED: Berth 44 gantry disengaged. Flight trajectory locked for Lagrange Point 1 (Sweet Water perimeter). Black-box ledger sealed pending arrival. Operator designation confirmed: GHOST SEED.",
-        gmNote: "GM Hook: This is Session 1. Unit-03 launches toward Lagrange Point 1, entering the campaign."
+        gmNote: "Campaign Transition: Subject 088 departs Von Braun City for Lagrange Point 1."
       }
     }
   ],
@@ -376,7 +376,7 @@ window.DOSSIER_DATA = {
   },
 
   // =========================================================================
-  // 4. SENSORY ANCHORS (INFP 4w5 Totems & Interactive Artifacts)
+  // 4. SENSORY ANCHORS (Physical Totems from Eria.md)
   // =========================================================================
   anchors: [
     {
@@ -453,72 +453,45 @@ window.DOSSIER_DATA = {
   ],
 
   // =========================================================================
-  // 5. LANCER TTRPG PILOT & MECH SPECS (Ready for DM Reference)
+  // 5. SUBJECT 088 DOSSIER ARCHIVE (Pure Story Lore — Zero Fake RPG Stats)
   // =========================================================================
-  lancer: {
-    pilot: {
-      name: "Eria Sterling (Host) / Rian (Soul) / Lt. Julian Ross (Conditioning)",
-      callsign: "GHOST SEED",
-      licenseLevel: "LL2",
-      background: "Civilian Marine Mechanic / Guerilla Irregular Ace",
-      grit: "+1",
-      hp: "8",
-      armor: "0",
-      evasion: "10",
-      speed: "4",
-      triggers: [
-        { name: "Mechanical Empathy", bonus: "+2", desc: "Diagnosing reactor hums, combustion timing, and structural stress by ear." },
-        { name: "Autonomic Kinetic Reflex", bonus: "+4", desc: "Julian's lethal combat autopilot firing before conscious thought." },
-        { name: "Aristocratic Composure", bonus: "+2", desc: "Concealing terror and psychological dissociation in elite social settings." },
-        { name: "Read a Target", bonus: "+2", desc: "Calculating threat vectors, ambush angles, and enemy mechanical weaknesses." }
-      ]
+  dossierArchive: {
+    identity: {
+      designation: "SUBJECT: 088 // ERIA STERLING",
+      origin: "Tripartite Paracausal Reconstruction",
+      currentAge: "19 (Biological Host)",
+      status: "Active Pilot // Anaheim Black-Project Anomaly"
     },
-    mech: {
-      frame: "ANAHEIM PROTOTYPE UNIT-03",
-      classification: "Striker / Paracausal Interceptor",
-      size: "1",
-      armor: "1",
-      hp: "12",
-      repairCap: "4",
-      speed: "5",
-      evasion: "10",
-      edef: "8",
-      sensorRange: "10",
-      techAttack: "+0",
-      stats: { hull: "+1", agility: "+2", systems: "+0", engineering: "+1" },
-      coreSystem: {
-        name: "TRI-HARMONIC RESONANCE (PARACAUSAL PROTOCOL)",
-        active: "OVERCHARGE: For 1 Scene, pilot may tap Julian's ace reflex (+1 Accuracy to all Kinetic/Melee attacks) or Rian's salvage empathy (Clear 2 Stress / Repair 4 HP on immediate rest). Triggers +2 Heat.",
-        passive: "Unshielded Psycho-Mesh: While at Danger Zone (Heat >= 4), melee attacks deal +1d6 Bonus Kinetic Damage."
+    harmonicTriad: [
+      {
+        strata: "Harmonic α: Rian (The Saltwater Soul)",
+        context: "17-year-old civilian apprentice at Sunda Strait pier. Vaporized during the U.C. 0093 Axis impact. Provides mechanical empathy, engine tuning reflexes, and moral center."
       },
-      mounts: [
-        { type: "Heavy Mount", weapon: "Thermal High-Frequency Blade (2d6+2 Kinetic / AP)" },
-        { type: "Main Mount", weapon: "Solid-Shot Assault Interceptor Cannon (1d6+3 Kinetic / Range 8)" },
-        { type: "Aux Mount", weapon: "Minovsky Chaff Dispersion Cannons (Blast 1 Jamming Cloud)" }
-      ]
+      {
+        strata: "Harmonic β: Lt. Julian Ross (The Tactical Shadow)",
+        context: "26-year-old rogue ace responsible for 42M credits of Anaheim sabotage. Mortally wounded in U.C. 0095; physical form broken down and condensed during unshielded Psycho-Frame resonance. Motor cortex reflexes burned into host."
+      },
+      {
+        strata: "Harmonic γ: Eria Sterling (The Living Mask)",
+        context: "Adopted as Vincent Sterling's niece in Von Braun City. Given tailored clothes, social etiquette, and private shelter. Suffers from dissociative trauma and the burden of protecting her adoptive family from treason charges."
+      }
+    ],
+    prototypeSpecs: {
+      chassis: "Prototype Unit-03",
+      liner: "Raw hexagonal Psycho-Frame mesh along cockpit bulkheads",
+      weaponry: "High-frequency thermal blade, armor-piercing interceptor cannon, Minovsky chaff canisters",
+      dangerProfile: "Unshielded psychic collapse risk under elevated neural resonance."
     }
   },
 
   // =========================================================================
-  // 6. AMBIENT NEURAL JUKEBOX (From User's Liked Songs)
-  // =========================================================================
-  ambientJukebox: [
-    { title: "Cicada — Ocean Foam", artist: "Cicada", youtubeId: "QpRuSDvorBc" },
-    { title: "Kevin Penkin — Gallantry and Recapitulation", artist: "Kevin Penkin", youtubeId: "T_jgBbCsdeU" },
-    { title: "Tomoya Naka — Rainy Song (String Ver.)", artist: "Tomoya Naka", youtubeId: "yee1HACD1HE" },
-    { title: "Matryoshka — Sacred Play Secret Place", artist: "Matryoshka", youtubeId: "RqtIatDmt3A" },
-    { title: "Mili — In Hell We Live, Lament", artist: "Mili", youtubeId: "XfTWgMgknpY" }
-  ],
-
-  // =========================================================================
-  // 7. LORE COMPENDIUM (Quick Tooltip Setting Chips from Lancer.md)
+  // 6. LORE COMPENDIUM (From Lancer.md)
   // =========================================================================
   compendium: {
     "SUNDA SINK": "Ground Zero of the U.C. 0093 Axis impact in Southeast Asia. A flooded, hypersaline wasteland of sunken islands, asteroid debris, and toxic salt plains.",
     "AXIS IMPACT": "March U.C. 0093 disaster where the falling asteroid Axis fractured; half struck Southeast Asia, destroying nations and plunging Earth into an impact winter.",
     "ANAHEIM ELECTRONICS": "The dominant planetary megacorporation secretly supplying military frames and components to all rival factions simultaneously.",
-    "THE UNION": "Corporate oligarchy spanning the Americas and Australia, driven by aerospace supremacy and led by Anaheim's Denver headquarters.",
     "VIST FOUNDATION": "Enigmatic, sovereign lunar syndicate holding classified blackmail over corporate and military leadership across the Earth Sphere.",
-    "PSYCHO-FRAME": "Alloy embedded with microscopic computer circuits capable of translating human pilot brainwaves directly into mechanical reality."
+    "PSYCHO-FRAME": "Alloy embedded with microscopic computer circuits capable of translating human pilot brainwaves directly into physical reality."
   }
 };
