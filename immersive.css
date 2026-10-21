@@ -1,272 +1,450 @@
 /* ==========================================================================
-   PSYCHO-MONITOR MK-03: IMMERSIVE READING ENGINE & DECRYPT V2 STYLING
+   PSYCHO-MONITOR // MK-03 RES-SYNC [ANOMALY: 088-ERIA]
+   Immersion Layer: Reading Focus Shaders, 2.5D Physics & Declassification FX
    ========================================================================== */
 
-/* --------------------------------------------------------------------------
-   1. STICKY PROGRESS HAIRLINE
-   ----------------------------------------------------------------------- */
-#sticky-progress-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: rgba(255, 255, 255, 0.04);
-  z-index: 1000;
-  pointer-events: none;
-}
-
-#sticky-progress-indicator {
-  height: 100%;
-  width: 0%;
-  background: var(--harmonic-accent);
-  box-shadow: 0 0 10px var(--harmonic-glow);
-  transition: width 0.18s ease-out;
-}
-
-/* --------------------------------------------------------------------------
-   2. CRT SCANLINE OVERLAYS & READING MASK
-   ----------------------------------------------------------------------- */
-.crt-overlay {
+/* --- 1. AMBIENT CURSOR GLOW & COCKPIT LIGHTING --- */
+.cursor-glow {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 900;
+  z-index: 1;
+  background: radial-gradient(
+    520px circle at var(--mx, 50%) var(--my, 30%),
+    var(--theme-dim),
+    transparent 72%
+  );
+  transition: opacity 0.3s ease;
+}
+
+/* --- 2. READING FOCUS MODE (COCKPIT SCROLL-DIM) --- */
+/* When actively reading the narrative, peripheral HUD dials softly dim */
+body.reading-active .hud-header,
+body.reading-active .oscilloscope-section,
+body.reading-active .gm-briefing-section,
+body.reading-active .chapter-nav,
+body.reading-active .reliquary-rail,
+body.reading-active .marginalia-rail,
+body.reading-active .hud-footer {
+  opacity: 0.22;
+  filter: blur(0.4px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease;
+}
+
+body.reading-active .hud-header:hover,
+body.reading-active .oscilloscope-section:hover,
+body.reading-active .gm-briefing-section:hover,
+body.reading-active .chapter-nav:hover,
+body.reading-active .reliquary-rail:hover,
+body.reading-active .marginalia-rail:hover,
+body.reading-active .hud-footer:hover {
+  opacity: 1;
+  filter: none;
+}
+
+/* --- 3. HARMONIC TRANSITION TEAR & PHOSPHOR FLASH --- */
+body.harmonic-shifting::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background: var(--theme-accent);
+  animation: harmonic-flash 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes harmonic-flash {
+  0% { opacity: 0.28; }
+  100% { opacity: 0; }
+}
+
+body.harmonic-shifting .reading-stage-layout {
+  animation: hud-glitch-tear 0.35s steps(2) 1;
+}
+
+@keyframes hud-glitch-tear {
+  0% { transform: none; }
+  25% { transform: translateX(-4px); filter: contrast(1.3) hue-rotate(20deg); }
+  50% { transform: translateX(3px) skewX(-1.5deg); }
+  75% { transform: translateX(-1px); }
+  100% { transform: none; filter: none; }
+}
+
+/* --- 4. WAVEFORM OVERCHARGE & STRESS SPIKE --- */
+.canvas-wrapper.spike {
+  animation: scope-overcharge 0.45s ease-out;
+}
+
+@keyframes scope-overcharge {
+  0% {
+    filter: brightness(2.2) drop-shadow(0 0 16px var(--theme-accent));
+    transform: scaleY(1.18);
+  }
+  100% {
+    filter: none;
+    transform: none;
+  }
+}
+
+/* --- 5. TACTILE FORENSIC REDACTION & SCRAMBLE SHADERS --- */
+.redaction-bar {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s ease, border-color 0.25s, box-shadow 0.25s;
+}
+
+.redaction-bar:active {
+  transform: scale(0.995);
+}
+
+.redaction-bar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
   background: linear-gradient(
-    rgba(18, 16, 16, 0) 50%, 
-    rgba(0, 0, 0, 0.28) 50%
-  ),
-  linear-gradient(
     90deg,
-    rgba(255, 0, 0, 0.02),
-    rgba(0, 255, 0, 0.01),
-    rgba(0, 0, 255, 0.02)
+    transparent,
+    rgba(240, 84, 84, 0.25),
+    transparent
   );
-  background-size: 100% 3px, 6px 100%;
-  opacity: 0.65;
-  transition: opacity 0.5s ease;
+  pointer-events: none;
+  transition: left 0.6s ease;
 }
 
-/* Reading Mode: Eradicate scanlines over prose to preserve typography */
-body.reading-active .crt-overlay {
-  opacity: 0.25;
-  mask-image: radial-gradient(
-    ellipse 65% 85% at 50% 50%,
-    rgba(0, 0, 0, 0.02) 0%,
-    rgba(0, 0, 0, 0.5) 60%,
-    rgba(0, 0, 0, 1) 100%
-  );
-  -webkit-mask-image: radial-gradient(
-    ellipse 65% 85% at 50% 50%,
-    rgba(0, 0, 0, 0.02) 0%,
-    rgba(0, 0, 0, 0.5) 60%,
-    rgba(0, 0, 0, 1) 100%
-  );
+.redaction-bar:hover::before {
+  left: 120%;
 }
 
-/* --------------------------------------------------------------------------
-   3. PROSE CONTAINER & OPTIMAL READING TYPOGRAPHY
-   ----------------------------------------------------------------------- */
-#prose-container {
-  background-color: var(--bg-reading-column);
-  padding: 3.5rem 2.5rem 9rem 2.5rem;
-  border-left: 1px solid rgba(255, 255, 255, 0.04);
-  border-right: 1px solid rgba(255, 255, 255, 0.04);
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+.redaction-bar.declassified {
+  border-color: var(--theme-accent);
+  border-left-color: var(--theme-accent);
+  background: rgba(8, 12, 18, 0.95);
+  box-shadow: 0 0 18px var(--theme-dim);
+}
+
+.redaction-bar.declassified .redaction-header {
+  color: var(--theme-accent);
+}
+
+.redaction-bar.declassified .redaction-status {
+  background: var(--theme-dim);
+  color: var(--theme-accent);
+}
+
+.redaction-bar.declassifying .redaction-block {
+  animation: cipher-strobe 0.35s steps(3) infinite;
+}
+
+@keyframes cipher-strobe {
+  0% { opacity: 0.8; filter: blur(0.5px); }
+  50% { opacity: 1; filter: none; }
+  100% { opacity: 0.9; }
+}
+
+/* Typewriter Scramble Caret */
+.type-caret::after {
+  content: "▌";
+  margin-left: 2px;
+  color: var(--theme-accent);
+  animation: blink-caret 0.75s steps(2) infinite;
+}
+
+@keyframes blink-caret {
+  50% { opacity: 0; }
+}
+
+/* --- 6. 2.5D SENSORY ANCHORS & DETAIL PRESENTATION --- */
+.anchor-item {
+  transition: transform 0.18s ease-out, border-color 0.2s, background 0.2s;
+  will-change: transform;
+}
+
+.anchor-item:hover {
+  border-color: var(--theme-accent);
+  box-shadow: 0 4px 14px var(--theme-dim);
+}
+
+/* Maya's Drawing Book Simulation */
+.artifact-sketchpad {
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.sketch-paper {
+  background: #f7f3e8;
+  border: 1px solid #d4cbb3;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+  padding: 18px 24px;
+  border-radius: 2px;
+  max-width: 320px;
+  width: 100%;
+  text-align: center;
+  color: #2b303c;
   position: relative;
-  z-index: 10;
-  outline: none;
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 22px,
+    rgba(100, 140, 220, 0.22) 23px
+  );
 }
 
-.prose-chapter-header {
-  margin-bottom: 3.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 1.5rem;
+.sketch-meta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: #64758d;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 4px;
 }
 
-.chapter-number-display {
-  font-size: 0.82rem;
-  letter-spacing: 0.25em;
-  color: var(--harmonic-accent);
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+.sketch-art {
+  font-size: 32px;
+  margin: 12px 0;
 }
 
-.chapter-title-display {
-  font-family: 'Newsreader', Georgia, serif;
-  font-size: 2.2rem;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  color: var(--text-main);
-  line-height: 1.2;
+.sketch-quote {
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  font-size: 13px;
+  color: #1e3a8a;
+  line-height: 1.4;
 }
 
-/* Paragraph Text Metrics */
-.prose-paragraph {
-  font-family: 'Newsreader', Georgia, serif;
-  font-size: 1.16rem; /* 18.5px base for optimal reading */
-  line-height: 1.76;
-  color: var(--text-main);
-  letter-spacing: 0.012em;
-  margin-bottom: 2.2rem;
+/* Julian's Titanium Dogtag Simulation */
+.artifact-dogtag-box {
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.dogtag-visual {
+  width: 220px;
+  height: 110px;
+  background: linear-gradient(135deg, #4f5666 0%, #292e3a 50%, #1a1e27 100%);
+  border: 2px solid #757f94;
+  border-radius: 20px;
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.8), 0 8px 24px rgba(0, 0, 0, 0.7);
+  padding: 14px 18px;
   position: relative;
-  text-align: justify;
-  text-justify: inter-word;
-  word-break: normal;
-  hyphens: auto;
+  display: flex;
+  align-items: center;
 }
 
-/* Drop Cap on Chapter Opening Paragraph */
-.prose-paragraph.first-paragraph::first-letter {
-  font-size: 3.9rem;
-  line-height: 0.82;
-  float: left;
-  margin-right: 0.85rem;
-  margin-top: 0.15rem;
-  color: var(--harmonic-accent);
-  font-family: 'Newsreader', Georgia, serif;
-  text-shadow: 0 0 18px var(--harmonic-glow);
+.tag-chain {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #080a0e;
+  border: 2px solid #636d80;
 }
 
-/* Scene Break Glyphs */
-.scene-break {
+.tag-body {
+  margin-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: #d1d7e3;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.95);
+}
+
+/* 8mm Wrench Simulation */
+.artifact-wrench-box {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.wrench-visual {
+  width: 260px;
+  height: 38px;
+  background: linear-gradient(90deg, #5c6370 0%, #9ba3b4 50%, #4a505c 100%);
+  border-radius: 6px;
+  border: 1px solid #bcc4d4;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.25rem;
-  margin: 4.5rem 0;
-  color: var(--harmonic-accent);
-  opacity: 0.6;
-  font-size: 1.15rem;
-  letter-spacing: 0.45em;
-  user-select: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
 }
 
-/* --------------------------------------------------------------------------
-   4. DECRYPT V2: STABLE-GEOMETRY VISIBILITY MECHANICS
-   ----------------------------------------------------------------------- */
-/* Clean prose revealed behind the fringe */
-.prose-paragraph .text-resolved {
-  color: var(--text-main);
-  visibility: visible;
-}
-
-/* Cipher static fringe: strictly monospace, colored with active harmonic */
-.prose-paragraph .text-fringe {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 1.05rem;
+.wrench-text {
+  font-family: var(--font-mono);
+  font-size: 9px;
   font-weight: 700;
-  color: var(--fringe-color);
-  text-shadow: 0 0 8px var(--fringe-glow);
-  display: inline;
-  letter-spacing: 0.06em;
-  user-select: none;
+  letter-spacing: 0.12em;
+  color: #1a1e26;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
-/* Unresolved text: Holds physical layout dimensions without rendering pixels */
-.prose-paragraph .text-unresolved {
-  visibility: hidden !important;
-  user-select: none;
+/* Vist Cipher Key Simulation */
+.artifact-key-box {
+  padding: 20px;
+  text-align: center;
 }
 
-/* Resolved state transition */
-.prose-paragraph.resolved {
-  transition: color 0.3s ease;
+.vist-seal-small {
+  font-size: 32px;
+  color: #e5a962;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 0 10px rgba(229, 169, 98, 0.4));
 }
 
-/* --------------------------------------------------------------------------
-   5. NON-DESTRUCTIVE REDACTION BARS (Finding B.10)
-   ----------------------------------------------------------------------- */
-.redacted-phrase {
-  position: relative;
+.key-teeth {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #ffd8a8;
+  border: 1px solid rgba(229, 169, 98, 0.4);
+  padding: 6px 14px;
   display: inline-block;
-  cursor: pointer;
-  border-radius: 1px;
+  background: rgba(229, 169, 98, 0.08);
 }
 
-/* Blackout Classified Bar Overlay */
-.redacted-phrase::after {
-  content: '';
+.artifact-narrative {
+  margin-top: 14px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* --- 7. VIST FOUNDATION BLACK-WAX LETTER PRESENTATION --- */
+.vist-card {
+  max-width: 680px;
+  border-color: rgba(229, 169, 98, 0.4);
+  box-shadow: 0 12px 50px rgba(0, 0, 0, 0.9), 0 0 25px rgba(229, 169, 98, 0.18);
+}
+
+.vist-modal-body {
+  background: radial-gradient(
+    circle at top right,
+    rgba(229, 169, 98, 0.07),
+    transparent 65%
+  ), #0e131c;
+  padding: 28px 32px;
+  position: relative;
+}
+
+.unicorn-crest {
+  font-size: 20px;
+  color: #e5a962;
+}
+
+.wax-seal-wrapper {
   position: absolute;
-  inset: -1px -3px;
-  background-color: #000;
-  border: 1px solid var(--text-ghost);
-  box-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
-  transition: opacity 0.3s var(--ease-quick), transform 0.2s ease;
-  z-index: 2;
+  top: 24px;
+  right: 28px;
 }
 
-.redacted-phrase:hover::after {
-  border-color: var(--harmonic-accent);
-  box-shadow: 0 0 8px var(--harmonic-glow);
+.wax-seal {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #3d0808 0%, #190202 100%);
+  border: 2px dashed #9e2a2b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
+  transform: rotate(-14deg);
 }
 
-/* Revealed State */
-.redacted-phrase[data-revealed="true"]::after {
-  opacity: 0;
-  pointer-events: none;
-  transform: scaleY(0.1);
+.wax-seal span {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #ff9999;
 }
 
-.redacted-phrase[data-revealed="true"] {
-  color: var(--harmonic-accent);
-  text-shadow: 0 0 6px var(--harmonic-glow);
+.letter-meta-block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: #e5a962;
+  margin-bottom: 18px;
 }
 
-/* --------------------------------------------------------------------------
-   6. READING FOCUS MODE (`body.reading-active`)
-   ----------------------------------------------------------------------- */
-/* Dim peripheral elements down to comfortable ambient finding levels */
-body.reading-active #cockpit-header,
-body.reading-active #oscilloscope-container,
-body.reading-active #left-rail,
-body.reading-active #right-rail,
-body.reading-active #cockpit-footer {
-  opacity: 0.12;
-  filter: blur(1.2px) contrast(85%);
-  transition: opacity 0.6s var(--ease-cockpit), filter 0.6s var(--ease-cockpit);
+.letter-body-prose {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  line-height: 1.7;
+  color: #e3ded5;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
-/* Instant recovery on user attention / focus */
-body.reading-active #cockpit-header:hover,
-body.reading-active #cockpit-header:focus-within,
-body.reading-active #oscilloscope-container:hover,
-body.reading-active #left-rail:hover,
-body.reading-active #left-rail:focus-within,
-body.reading-active #right-rail:hover,
-body.reading-active #right-rail:focus-within,
-body.reading-active #cockpit-footer:hover,
-body.reading-active #cockpit-footer:focus-within {
-  opacity: 1;
-  filter: blur(0px) contrast(100%);
-  transition: opacity 0.15s ease-out, filter 0.15s ease-out;
+.letter-body-prose strong {
+  color: #fff;
 }
 
-/* --------------------------------------------------------------------------
-   7. ACCESSIBILITY & PREFERS-REDUCED-MOTION
-   ----------------------------------------------------------------------- */
+.letter-callout {
+  padding: 10px 14px;
+  background: rgba(229, 169, 98, 0.09);
+  border-left: 2px solid #e5a962;
+  color: #fff;
+}
+
+.letter-signoff {
+  font-style: italic;
+  color: #c4baa9;
+}
+
+.danger-btn {
+  background: rgba(240, 84, 84, 0.14);
+  border-color: rgba(240, 84, 84, 0.45);
+  color: #ff9999;
+}
+
+.danger-btn:hover {
+  background: rgba(240, 84, 84, 0.28);
+  border-color: var(--color-beta);
+  box-shadow: 0 0 18px var(--color-beta-glow);
+}
+
+/* --- 8. SMOOTH ENTRY ANIMATIONS --- */
+.prose-viewport,
+.reliquary-rail,
+.marginalia-rail,
+.gm-accordion {
+  animation: panel-enter 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* --- 9. ACCESSIBILITY: PREFERS REDUCED MOTION --- */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
-  }
-
-  .prose-paragraph .text-fringe {
-    display: none !important;
-  }
-
-  .prose-paragraph .text-unresolved {
-    visibility: visible !important;
-  }
-
-  body.reading-active #cockpit-header,
-  body.reading-active #oscilloscope-container,
-  body.reading-active #left-rail,
-  body.reading-active #right-rail,
-  body.reading-active #cockpit-footer {
-    filter: none !important;
-    opacity: 0.3 !important;
   }
 }

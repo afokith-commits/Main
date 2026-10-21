@@ -1,759 +1,830 @@
 /**
- * ============================================================================
- * PSYCHO-MONITOR MK-03: MASTER APPLICATION CONTROLLER
- * Orchestrates: Telemetry Ingestion, Dynamic Rails, Decrypt V2, Audio, Oscilloscope
- * Guardrail: Verbatim canon integrity. Lore only; zero RPG crunch mechanics.
- * ============================================================================
+ * PSYCHO-MONITOR // MK-03 RES-SYNC [ANOMALY: 088-ERIA]
+ * Core Application Controller, Narrative Reader & Gapless Audio Engine
  */
 
-import {
-  CHAPTER_ARCHIVE,
-  HARMONIC_PROFILES,
-  SENSORY_ANCHORS,
-  MARGINALIA_ARCHIVE,
-  REDACTION_TARGETS,
-  calculateReadingMetrics,
-  getChapterBundle
-} from './data.js';
-
-import {
-  DecryptEngineV2,
-  ReadingFocusController,
-  initReadingFocusMode,
-  initTactileInteractions,
-  sound
-} from './immersive.js';
-
-class CockpitAppController {
-  constructor() {
-    this.currentChapterId = 1;
-    this.decryptEngine = null;
-    this.focusController = null;
-    this.oscilloscope = null;
-
-    // Mission clock state
-    this.clockInterval = null;
-    this.tickerInterval = null;
-
-    // Cache core DOM references
-    this.dom = {
-      // Header & HUD Telemetry
-      chapterNum: document.getElementById('chapter-num') || document.getElementById('chapter-number'),
-      chapterYear: document.getElementById('chapter-year'),
-      chapterLocation: document.getElementById('chapter-location'),
-      chapterTitle: document.getElementById('chapter-title'),
-      chapterReadTime: document.getElementById('chapter-read-time'),
-      dominantHarmonicChip: document.getElementById('dominant-harmonic-chip'),
-      missionClock: document.getElementById('mission-clock'),
-      audioToggleBtn: document.getElementById('audio-toggle-btn'),
-      audioLabel: document.getElementById('audio-label'),
-      consoleStream: document.getElementById('console-stream') || document.getElementById('footer-ticker'),
-
-      // Scope Metrics
-      scopeFreq: document.getElementById('scope-freq'),
-      scopeSync: document.getElementById('scope-sync'),
-      scopeStress: document.getElementById('scope-stress'),
-      tapeTime: document.getElementById('tape-time'),
-      currentTrackName: document.getElementById('current-track-name'),
-      waveformCanvas: document.getElementById('waveform-canvas'),
-
-      // GM Briefing
-      gmBriefing: document.getElementById('gm-briefing') || document.getElementById('gm-briefing-box'),
-      gmBriefPill: document.getElementById('gm-brief-pill'),
-      gmBriefClose: document.getElementById('gm-brief-close'),
-      gmBriefContent: document.getElementById('gm-briefing-content'),
-
-      // Navigation
-      chapterNavButtons: document.getElementById('chapter-nav-buttons'),
-      prevChapterBtn: document.getElementById('prev-chapter-btn'),
-      nextChapterBtn: document.getElementById('next-chapter-btn'),
-      readingProgress: document.getElementById('reading-progress'),
-
-      // Content Rails
-      proseViewport: document.getElementById('prose-viewport') || document.getElementById('prose-container'),
-      proseContent: document.getElementById('prose-content') || document.getElementById('prose-body'),
-      anchorList: document.getElementById('anchor-list'),
-      marginAnnotations: document.getElementById('margin-annotations'),
-      subconsciousText: document.getElementById('subconscious-text'),
-
-      // Decrypt Action Controls
-      decryptStatus: document.getElementById('decrypt-status'),
-      instantDecryptBtn: document.getElementById('instant-decrypt-btn'),
-
-      // Modals & Drawers
-      toggleDossierBtn: document.getElementById('toggle-dossier-btn'),
-      closeDossierBtn: document.getElementById('close-dossier-btn'),
-      lancerDrawer: document.getElementById('lancer-drawer'),
-      lancerDrawerContent: document.getElementById('lancer-drawer-content'),
-
-      artifactModal: document.getElementById('artifact-modal'),
-      closeArtifactModalBtn: document.getElementById('close-artifact-modal-btn'),
-      artifactModalTitle: document.getElementById('artifact-modal-title'),
-      artifactModalBody: document.getElementById('artifact-modal-body'),
-
-      vistModal: document.getElementById('vist-modal'),
-      closeVistModalBtn: document.getElementById('close-vist-modal-btn'),
-      dismissVistModalBtn: document.getElementById('dismiss-vist-modal-btn'),
-      slotKeyBtn: document.getElementById('slot-key-btn'),
-      vistModalContent: document.getElementById('vist-modal-content'),
-
-      bigPlayGate: document.getElementById('big-play-gate'),
-      gateIgniteBtn: document.getElementById('gate-ignite-btn')
-    };
-
-    this.init();
-  }
-
-  init() {
-    // 1. Initialize Sub-Engines
-    this.decryptEngine = new DecryptEngineV2();
-    this.focusController = initReadingFocusMode();
-    initTactileInteractions();
-
-    // 2. Setup Peripheral Visualizers & Audio
-    this.initOscilloscope();
-    this.initGMBriefing();
-    this.initDossierDrawer();
-    this.initArtifactModal();
-    this.initVistModal();
-    this.initIgnitionGate();
-    this.initAudioControls();
-
-    // 3. Bind Keyboard Hotkeys & Listeners
-    this.bindKeyboardShortcuts();
-    this.listenToSystemEvents();
-    this.startMissionClocks();
-
-    // 4. Render Chapter Navigation Tabs
-    this.renderChapterNav();
-
-    // 5. Hydrate Initial Chapter (Chapter 1 Default)
-    this.loadChapter(1);
-  }
+(function () {
+  'use strict';
 
   /* ==========================================================================
-     CHAPTER HYDRATION PIPELINE (ATOMIC & CANONICAL)
+     1. YOUTUBE CONTINUOUS AUDIO CONTROLLER
      ========================================================================== */
-  loadChapter(chapterId) {
-    const bundle = getChapterBundle(chapterId);
-    if (!bundle) return;
+  class CockpitAudioEngine {
+    constructor() {
+      this.player = null;
+      this.isReady = false;
+      this.isPlaying = false;
+      this.currentVideoId = null;
+      this.pendingVideoId = null;
 
-    this.currentChapterId = chapterId;
-
-    // Stage 1: Teardown running animations
-    this.decryptEngine.cancelAll();
-
-    // Stage 2: Harmonic Shift & CSS Custom Variables
-    document.body.dataset.harmonic = bundle.harmonic;
-    document.body.classList.remove('theme-alpha', 'theme-beta', 'theme-gamma');
-    document.body.classList.add(`theme-${bundle.harmonic}`);
-
-    // Stage 3: Telemetry & Header Metadata Update
-    this.updateTelemetryHeaders(bundle);
-
-    // Stage 4: Peripheral Columns Hydration (Sensory Anchors & Marginalia)
-    this.renderSensoryAnchors(bundle.anchors);
-    this.renderMarginalia(bundle.marginalia);
-    this.updateSubconsciousEcho(bundle.harmonic);
-
-    // Stage 5: Prose DOM Injection & Decrypt Engine Mounting
-    this.renderProseContent(bundle);
-
-    // Stage 6: Diegetic Feedback
-    sound.playHarmonicChord(bundle.harmonic);
-    if (this.oscilloscope) {
-      this.oscilloscope.setHarmonic(bundle.harmonicProfile);
+      this.initAPI();
     }
 
-    // Scroll reader smoothly to top of narrative stage
-    if (this.dom.proseViewport) {
-      this.dom.proseViewport.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    initAPI() {
+      if (!window.YT) {
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      }
+
+      window.onYouTubeIframeAPIReady = () => {
+        const firstTrack = window.DOSSIER_DATA?.chapters[0]?.track?.youtubeId || "QpRuSDvorBc";
+        this.currentVideoId = firstTrack;
+
+        this.player = new YT.Player('yt-player-slot', {
+          height: '100',
+          width: '100',
+          videoId: firstTrack,
+          playerVars: {
+            autoplay: 0,
+            controls: 0,
+            loop: 1,
+            playlist: firstTrack,
+            enablejsapi: 1,
+            origin: window.location.origin
+          },
+          events: {
+            onReady: () => {
+              this.isReady = true;
+              this.player.setVolume(82);
+
+              if (this.pendingVideoId) {
+                this.playTrack(this.pendingVideoId);
+                this.pendingVideoId = null;
+              }
+            },
+            onStateChange: (event) => {
+              // Infinite Auto-Loop: Immediate replay on end
+              if (event.data === YT.PlayerState.ENDED) {
+                event.target.playVideo();
+              }
+            }
+          }
+        });
+      };
     }
 
-    this.updateNavigationControls();
-    this.logConsole(`SECTOR LOADED // ${bundle.index}: ${bundle.title} // HARMONIC ${bundle.harmonic.toUpperCase()} ATTUNED`);
-  }
+    playTrack(videoId) {
+      if (!videoId) return;
 
-  updateTelemetryHeaders(bundle) {
-    const { wordCount, estMinutes } = calculateReadingMetrics(bundle.paragraphs);
-
-    if (this.dom.chapterNum) this.dom.chapterNum.textContent = `CHAPTER ${bundle.index}`;
-    if (this.dom.chapterYear) this.dom.chapterYear.textContent = bundle.year;
-    if (this.dom.chapterLocation) this.dom.chapterLocation.textContent = bundle.location;
-    if (this.dom.chapterTitle) this.dom.chapterTitle.textContent = bundle.title;
-    if (this.dom.chapterReadTime) this.dom.chapterReadTime.textContent = `EST. READ: ${estMinutes} MIN (${wordCount} WORDS)`;
-
-    const profile = bundle.harmonicProfile;
-    if (this.dom.dominantHarmonicChip) {
-      this.dom.dominantHarmonicChip.textContent = `DOMINANT: ${profile.name}`;
-    }
-
-    // Update Oscilloscope Scope Labels based on active identity
-    const metricsMap = {
-      alpha: { freq: '432.8 Hz', sync: '96.4%', stress: '14% [STABLE]', track: 'Sunda Trench Hydro-Acoustics' },
-      beta:  { freq: '684.2 Hz', sync: '88.1%', stress: '64% [OVERCHARGE]', track: 'Anaheim Black-Ops Carrier' },
-      gamma: { freq: '528.0 Hz', sync: '99.8%', stress: '38% [DISSOCIATING]', track: 'Axis Silicate Resonance' }
-    };
-
-    const cur = metricsMap[bundle.harmonic] || metricsMap.alpha;
-    if (this.dom.scopeFreq) this.dom.scopeFreq.textContent = cur.freq;
-    if (this.dom.scopeSync) this.dom.scopeSync.textContent = cur.sync;
-    if (this.dom.scopeStress) this.dom.scopeStress.textContent = cur.stress;
-    if (this.dom.currentTrackName) this.dom.currentTrackName.textContent = `TRACK: ${cur.track}`;
-  }
-
-  renderSensoryAnchors(anchors) {
-    if (!this.dom.anchorList) return;
-    this.dom.anchorList.innerHTML = '';
-
-    anchors.forEach(anchor => {
-      const card = document.createElement('div');
-      card.className = 'anchor-card';
-      card.tabIndex = 0;
-      card.role = 'button';
-      card.setAttribute('aria-label', `Inspect sensory anchor: ${anchor.name}`);
-      card.dataset.artifactId = anchor.id;
-
-      card.innerHTML = `
-        <div class="anchor-code">${anchor.code}</div>
-        <div class="anchor-name">${anchor.name}</div>
-        <div class="anchor-tag">${anchor.sensoryModality}</div>
-        <div class="anchor-desc">${anchor.cueText}</div>
-      `;
-
-      card.addEventListener('click', () => this.openArtifactModal(anchor));
-      card.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          this.openArtifactModal(anchor);
-        }
-      });
-
-      this.dom.anchorList.appendChild(card);
-    });
-  }
-
-  renderMarginalia(notes) {
-    if (!this.dom.marginAnnotations) return;
-    this.dom.marginAnnotations.innerHTML = '';
-
-    if (notes.length === 0) {
-      this.dom.marginAnnotations.innerHTML = `
-        <div class="marginalia-card">
-          <span class="margin-source">COCKPIT ARCHIVE // SEC-088</span>
-          <h4 class="margin-label">NO ACTIVE ANOMALIES</h4>
-          <p class="margin-body">Telemetry stream nominal for this operational coordinate.</p>
-        </div>
-      `;
-      return;
-    }
-
-    notes.forEach(note => {
-      const card = document.createElement('div');
-      card.className = 'marginalia-card';
-      card.innerHTML = `
-        <span class="margin-source">${note.source}</span>
-        <h4 class="margin-label">${note.header}</h4>
-        <p class="margin-body">${note.quote}</p>
-      `;
-      this.dom.marginAnnotations.appendChild(card);
-    });
-  }
-
-  updateSubconsciousEcho(harmonic) {
-    if (!this.dom.subconsciousText) return;
-
-    const echoes = {
-      alpha: '"The saltwater had gotten into the manifold before we even cleared the reef..."',
-      beta: '"Julian had left his grease pencil on the console. The numbers were all negative offsets..."',
-      gamma: '"Machines don\'t remember being drowned, Eria. Only the pilots do."'
-    };
-
-    this.dom.subconsciousText.textContent = echoes[harmonic] || echoes.alpha;
-  }
-
-  renderProseContent(bundle) {
-    const container = this.dom.proseContent;
-    if (!container) return;
-    container.innerHTML = '';
-
-    // Register active redaction targets for this chapter
-    this.decryptEngine.setRedactionTargets(bundle.redactions);
-
-    bundle.paragraphs.forEach((paragraphText, idx) => {
-      if (paragraphText === '***') {
-        const breakEl = document.createElement('div');
-        breakEl.className = 'scene-break';
-        breakEl.setAttribute('aria-hidden', 'true');
-        breakEl.textContent = '∿ ∿ ∿';
-        container.appendChild(breakEl);
+      if (!this.isReady || !this.player) {
+        this.pendingVideoId = videoId;
         return;
       }
 
-      const p = document.createElement('p');
-      p.className = 'prose-paragraph';
-      if (idx === 0) p.classList.add('first-paragraph');
-      p.textContent = paragraphText;
-
-      container.appendChild(p);
-
-      // Mount to Decrypt v2
-      this.decryptEngine.mountParagraph(p);
-    });
-
-    if (this.dom.decryptStatus) {
-      this.dom.decryptStatus.textContent = 'STREAM: DECRYPTING TELEMETRY...';
-    }
-
-    this.decryptEngine.updateReadingProgress(0);
-  }
-
-  /* ==========================================================================
-     CHAPTER NAVIGATION & UI CONTROLS
-     ========================================================================== */
-  renderChapterNav() {
-    if (!this.dom.chapterNavButtons) return;
-    this.dom.chapterNavButtons.innerHTML = '';
-
-    CHAPTER_ARCHIVE.forEach(chapter => {
-      const btn = document.createElement('button');
-      btn.className = `chapter-tab ${chapter.id === this.currentChapterId ? 'active' : ''}`;
-      btn.type = 'button';
-      btn.dataset.chapterId = chapter.id;
-
-      btn.innerHTML = `
-        <span class="chapter-tab-num">${chapter.index}</span>
-        <span class="chapter-tab-title">${chapter.title}</span>
-      `;
-
-      btn.addEventListener('click', () => {
-        sound.playTone(620, 0.05, 'triangle', 0.02);
-        this.loadChapter(chapter.id);
-      });
-
-      this.dom.chapterNavButtons.appendChild(btn);
-    });
-
-    // Wire Next & Previous Pagers
-    if (this.dom.prevChapterBtn) {
-      this.dom.prevChapterBtn.addEventListener('click', () => {
-        if (this.currentChapterId > 1) {
-          sound.playTone(480, 0.06, 'triangle', 0.02);
-          this.loadChapter(this.currentChapterId - 1);
+      if (this.currentVideoId !== videoId) {
+        this.currentVideoId = videoId;
+        if (this.isPlaying) {
+          this.player.loadVideoById({
+            videoId: videoId,
+            suggestedQuality: 'small'
+          });
+        } else {
+          this.player.cueVideoById(videoId);
         }
-      });
-    }
-
-    if (this.dom.nextChapterBtn) {
-      this.dom.nextChapterBtn.addEventListener('click', () => {
-        if (this.currentChapterId < CHAPTER_ARCHIVE.length) {
-          sound.playTone(560, 0.06, 'triangle', 0.02);
-          this.loadChapter(this.currentChapterId + 1);
-        }
-      });
-    }
-
-    // Instant Decrypt Button (Hotkey 'R' or Click)
-    if (this.dom.instantDecryptBtn) {
-      this.dom.instantDecryptBtn.addEventListener('click', () => {
-        this.decryptEngine.resolveEntireChapter(this.dom.proseViewport);
-        if (this.dom.decryptStatus) {
-          this.dom.decryptStatus.textContent = 'STREAM: ALL TELEMETRY RESOLVED';
-        }
-      });
-    }
-  }
-
-  updateNavigationControls() {
-    // Update Chapter Tabs Active State
-    if (this.dom.chapterNavButtons) {
-      const tabs = this.dom.chapterNavButtons.querySelectorAll('.chapter-tab');
-      tabs.forEach(tab => {
-        const id = parseInt(tab.dataset.chapterId, 10);
-        tab.classList.toggle('active', id === this.currentChapterId);
-      });
-    }
-
-    // Pager states
-    if (this.dom.prevChapterBtn) {
-      this.dom.prevChapterBtn.disabled = this.currentChapterId === 1;
-    }
-    if (this.dom.nextChapterBtn) {
-      this.dom.nextChapterBtn.disabled = this.currentChapterId === CHAPTER_ARCHIVE.length;
-    }
-    if (this.dom.readingProgress) {
-      this.dom.readingProgress.textContent = `LOG ${this.currentChapterId} OF ${CHAPTER_ARCHIVE.length}`;
-    }
-  }
-
-  /* ==========================================================================
-     GM BRIEFING COLLAPSIBLE CONTROLLER
-     ========================================================================== */
-  initGMBriefing() {
-    const isDismissed = localStorage.getItem('pm_briefing_seen') === 'true';
-
-    if (this.dom.gmBriefing && isDismissed) {
-      this.dom.gmBriefing.classList.add('collapsed');
-      if (this.dom.gmBriefing.removeAttribute) {
-        this.dom.gmBriefing.removeAttribute('open');
+      } else if (this.isPlaying && this.player.playVideo) {
+        this.player.playVideo();
       }
-      if (this.dom.gmBriefPill) this.dom.gmBriefPill.classList.remove('hidden');
     }
 
-    if (this.dom.gmBriefPill) {
-      this.dom.gmBriefPill.addEventListener('click', () => {
-        sound.playTone(720, 0.04, 'sine', 0.02);
-        if (this.dom.gmBriefing) {
-          this.dom.gmBriefing.classList.toggle('collapsed');
-        }
-      });
+    startPlayback() {
+      this.isPlaying = true;
+      if (this.isReady && this.player && this.player.playVideo) {
+        this.player.playVideo();
+      } else {
+        this.pendingVideoId = this.currentVideoId;
+      }
     }
 
-    if (this.dom.gmBriefClose) {
-      this.dom.gmBriefClose.addEventListener('click', () => {
-        sound.playTone(340, 0.05, 'triangle', 0.02);
-        if (this.dom.gmBriefing) {
-          this.dom.gmBriefing.classList.add('collapsed');
-          localStorage.setItem('pm_briefing_seen', 'true');
-        }
-        if (this.dom.gmBriefPill) this.dom.gmBriefPill.classList.remove('hidden');
-      });
+    toggle() {
+      if (!this.isReady || !this.player) return false;
+
+      this.isPlaying = !this.isPlaying;
+      if (this.isPlaying) {
+        this.player.playVideo();
+      } else {
+        this.player.pauseVideo();
+      }
+      return this.isPlaying;
     }
   }
 
   /* ==========================================================================
-     MODALS & SLIDE-OUT DOSSIERS
+     2. PROCEDURAL OSCILLOSCOPE & BIOMETRIC WAVEFORM VISUALIZER
      ========================================================================== */
-  initDossierDrawer() {
-    if (this.dom.toggleDossierBtn && this.dom.lancerDrawer) {
-      this.dom.toggleDossierBtn.addEventListener('click', () => {
-        const isOpen = this.dom.lancerDrawer.classList.contains('open');
-        this.toggleDossier(!isOpen);
-      });
+  class OscilloscopeVisualizer {
+    constructor(canvasId) {
+      this.canvas = document.getElementById(canvasId);
+      if (!this.canvas) return;
+      this.ctx = this.canvas.getContext('2d');
+      this.harmonic = "alpha";
+      this.phase = 0;
+
+      this.resize();
+      window.addEventListener('resize', () => this.resize());
+      this.animate();
     }
 
-    if (this.dom.closeDossierBtn && this.dom.lancerDrawer) {
-      this.dom.closeDossierBtn.addEventListener('click', () => {
-        this.toggleDossier(false);
-      });
+    resize() {
+      if (!this.canvas) return;
+      const rect = this.canvas.getBoundingClientRect();
+      this.canvas.width = rect.width * (window.devicePixelRatio || 1);
+      this.canvas.height = rect.height * (window.devicePixelRatio || 1);
+    }
+
+    setHarmonic(harmonicKey) {
+      this.harmonic = harmonicKey;
+    }
+
+    animate() {
+      requestAnimationFrame(() => this.animate());
+      if (!this.ctx || !this.canvas) return;
+
+      const w = this.canvas.width;
+      const h = this.canvas.height;
+      const mid = h / 2;
+
+      this.ctx.clearRect(0, 0, w, h);
+      this.phase += 0.038;
+
+      let primaryColor = "rgba(229, 169, 98, 0.88)"; // Alpha: Amber
+      let speed = 1.0;
+      let complexity = 3;
+
+      if (this.harmonic === "beta") {
+        primaryColor = "rgba(240, 84, 84, 0.92)"; // Beta: Crimson
+        speed = 1.85;
+        complexity = 5;
+      } else if (this.harmonic === "gamma") {
+        primaryColor = "rgba(168, 184, 230, 0.88)"; // Gamma: Porcelain Ice
+        speed = 0.85;
+        complexity = 2;
+      }
+
+      // Background Reference Baseline (Psycho-field carrier)
+      this.ctx.beginPath();
+      this.ctx.strokeStyle = "rgba(78, 240, 196, 0.2)";
+      this.ctx.lineWidth = 1.2 * (window.devicePixelRatio || 1);
+      for (let x = 0; x < w; x += 4) {
+        const rad = (x / w) * Math.PI * 6 + this.phase * 0.5;
+        const y = mid + Math.sin(rad) * 12 * Math.cos(this.phase * 0.2);
+        if (x === 0) this.ctx.moveTo(x, y);
+        else this.ctx.lineTo(x, y);
+      }
+      this.ctx.stroke();
+
+      // Active Synaptic Trace
+      this.ctx.beginPath();
+      this.ctx.strokeStyle = primaryColor;
+      this.ctx.lineWidth = 1.8 * (window.devicePixelRatio || 1);
+
+      for (let x = 0; x < w; x += 3) {
+        const norm = x / w;
+        const w1 = Math.sin(norm * Math.PI * 6 + this.phase * speed);
+        const w2 = Math.cos(norm * Math.PI * 12 - this.phase * 0.4) * 0.35;
+        const w3 = Math.sin(norm * Math.PI * 24 + this.phase * 1.8) * (complexity === 5 ? 0.3 : 0.08);
+        const jitter = (Math.random() - 0.5) * 1.8;
+
+        const amp = h * 0.26;
+        const y = mid + (w1 + w2 + w3) * amp + jitter;
+
+        if (x === 0) this.ctx.moveTo(x, y);
+        else this.ctx.lineTo(x, y);
+      }
+      this.ctx.stroke();
     }
   }
 
-  toggleDossier(open) {
-    if (!this.dom.lancerDrawer) return;
-    this.dom.lancerDrawer.classList.toggle('open', open);
-    this.dom.lancerDrawer.setAttribute('aria-hidden', String(!open));
-    if (this.dom.toggleDossierBtn) {
-      this.dom.toggleDossierBtn.setAttribute('aria-expanded', String(open));
+  /* ==========================================================================
+     3. MASTER DOSSIER & NARRATIVE READER CONTROLLER
+     ========================================================================== */
+  class DossierApp {
+    constructor() {
+      this.data = window.DOSSIER_DATA;
+      if (!this.data) {
+        console.error("FATAL: DOSSIER_DATA is missing. Ensure data.js loaded first.");
+        return;
+      }
+
+      this.currentChapterIndex = 0;
+      this.audio = new CockpitAudioEngine();
+      this.scope = new OscilloscopeVisualizer('waveform-canvas');
+
+      // DOM Cache
+      this.dominantChip = document.getElementById('dominant-harmonic-chip');
+      this.audioToggleBtn = document.getElementById('audio-toggle-btn');
+      this.audioLabel = document.getElementById('audio-label');
+      this.currentTrackName = document.getElementById('current-track-name');
+      this.toggleDossierBtn = document.getElementById('toggle-dossier-btn');
+      this.lancerDrawer = document.getElementById('lancer-drawer');
+      this.closeDossierBtn = document.getElementById('close-dossier-btn');
+      this.lancerDrawerContent = document.getElementById('lancer-drawer-content');
+
+      this.scopeFreq = document.getElementById('scope-freq');
+      this.scopeSync = document.getElementById('scope-sync');
+      this.scopeStress = document.getElementById('scope-stress');
+      this.tapeTime = document.getElementById('tape-time');
+
+      this.gmBriefingContent = document.getElementById('gm-briefing-content');
+      this.chapterNavButtons = document.getElementById('chapter-nav-buttons');
+
+      this.anchorList = document.getElementById('anchor-list');
+      this.subconsciousText = document.getElementById('subconscious-text');
+      this.marginAnnotations = document.getElementById('margin-annotations');
+
+      this.chapterNum = document.getElementById('chapter-num');
+      this.chapterYear = document.getElementById('chapter-year');
+      this.chapterReadTime = document.getElementById('chapter-read-time');
+      this.chapterTitle = document.getElementById('chapter-title');
+      this.chapterTrackTitle = document.getElementById('chapter-track-title');
+      this.proseContent = document.getElementById('prose-content');
+      this.prevChapterBtn = document.getElementById('prev-chapter-btn');
+      this.nextChapterBtn = document.getElementById('next-chapter-btn');
+      this.readingProgress = document.getElementById('reading-progress');
+      this.consoleStream = document.getElementById('console-stream');
+
+      this.artifactModal = document.getElementById('artifact-modal');
+      this.artifactModalTitle = document.getElementById('artifact-modal-title');
+      this.artifactModalBody = document.getElementById('artifact-modal-body');
+      this.closeArtifactModalBtn = document.getElementById('close-artifact-modal-btn');
+
+      this.vistModal = document.getElementById('vist-modal');
+      this.vistModalContent = document.getElementById('vist-modal-content');
+      this.closeVistModalBtn = document.getElementById('close-vist-modal-btn');
+      this.slotKeyBtn = document.getElementById('slot-key-btn');
+      this.dismissVistModalBtn = document.getElementById('dismiss-vist-modal-btn');
+
+      this.bigPlayGate = document.getElementById('big-play-gate');
+      this.gateIgniteBtn = document.getElementById('gate-ignite-btn');
+
+      this.init();
     }
-    sound.playTone(open ? 640 : 320, 0.08, 'triangle', 0.03);
-  }
 
-  initArtifactModal() {
-    if (this.dom.closeArtifactModalBtn && this.dom.artifactModal) {
-      this.dom.closeArtifactModalBtn.addEventListener('click', () => {
-        this.closeArtifactModal();
-      });
+    init() {
+      this.renderGMBriefing();
+      this.renderChapterNav();
+      this.renderSensoryAnchors();
+      this.renderLancerSpecs();
+      this.renderVistModalContent();
+
+      this.loadChapter(0);
+      this.bindEvents();
+      this.startClocks();
+      this.initScrollFocus();
     }
 
-    if (this.dom.artifactModal) {
-      this.dom.artifactModal.addEventListener('click', (e) => {
-        if (e.target === this.dom.artifactModal) this.closeArtifactModal();
-      });
-    }
-  }
+    /* 3.1 GM Executive Briefing */
+    renderGMBriefing() {
+      if (!this.gmBriefingContent) return;
+      const b = this.data.gmBriefing;
 
-  openArtifactModal(anchor) {
-    if (!this.dom.artifactModal) return;
-
-    if (this.dom.artifactModalTitle) {
-      this.dom.artifactModalTitle.textContent = `${anchor.code} // ${anchor.name}`;
-    }
-
-    if (this.dom.artifactModalBody) {
-      this.dom.artifactModalBody.innerHTML = `
-        <div class="modal-artifact-detail">
-          <div class="modal-tag-badge">${anchor.sensoryModality}</div>
-          <p class="modal-cue"><strong>Sensory Cue:</strong> "${anchor.cueText}"</p>
-          <hr class="modal-divider">
-          <p class="modal-desc">${anchor.contextDescription}</p>
-          <div class="modal-unlock-note">Discovered in Chapter ${anchor.chapterUnlock} // Identity Tether</div>
+      let leversHtml = b.immediateLevers.map(l => `
+        <div class="gm-lever-card">
+          <div class="gm-lever-title">⚠ CAMPAIGN LEVER: ${l.title}</div>
+          <div class="gm-lever-desc">${l.desc}</div>
         </div>
-      `;
-    }
+      `).join("");
 
-    this.dom.artifactModal.classList.remove('hidden');
-    this.dom.artifactModal.setAttribute('aria-hidden', 'false');
-    sound.playTone(540, 0.08, 'triangle', 0.03);
-  }
+      this.gmBriefingContent.innerHTML = `
+        <div class="gm-pitch-box">
+          <div class="gm-pitch-title">HIGH CONCEPT // CALLSIGN: ${b.callsign} [${b.subjectId}]</div>
+          <p class="gm-pitch-desc">${b.highConcept}</p>
+        </div>
 
-  closeArtifactModal() {
-    if (!this.dom.artifactModal) return;
-    this.dom.artifactModal.classList.add('hidden');
-    this.dom.artifactModal.setAttribute('aria-hidden', 'true');
-    sound.playTone(320, 0.05, 'triangle', 0.02);
-  }
+        <div class="gm-grid-two">
+          <div class="gm-levers-list">
+            <div style="font-size:9px; font-weight:700; color:var(--text-dim); letter-spacing:0.1em; text-transform:uppercase;">
+              Immediate Adventure Hooks for the GM:
+            </div>
+            ${leversHtml}
+          </div>
 
-  initVistModal() {
-    const closeVist = () => {
-      if (this.dom.vistModal) {
-        this.dom.vistModal.classList.add('hidden');
-        this.dom.vistModal.setAttribute('aria-hidden', 'true');
-      }
-      sound.playTone(220, 0.08, 'triangle', 0.02);
-    };
-
-    if (this.dom.closeVistModalBtn) this.dom.closeVistModalBtn.addEventListener('click', closeVist);
-    if (this.dom.dismissVistModalBtn) this.dom.dismissVistModalBtn.addEventListener('click', closeVist);
-
-    if (this.dom.slotKeyBtn) {
-      this.dom.slotKeyBtn.addEventListener('click', () => {
-        // Diegetic Key Engagement
-        sound.playTone(880, 0.2, 'sawtooth', 0.04);
-        this.logConsole('BERTH 44 LAUNCH TUBE PRIMED // CARRIER GARENCIERES INBOUND');
-        closeVist();
-      });
-    }
-  }
-
-  openVistModal() {
-    if (this.currentChapterId !== 5) {
-      sound.playTone(180, 0.2, 'sawtooth', 0.04);
-      this.logConsole('ACCESS DENIED: CIPHER KEY LOCKED UNTIL CHAPTER 5');
-      return;
-    }
-
-    if (!this.dom.vistModal) return;
-
-    if (this.dom.vistModalContent) {
-      this.dom.vistModalContent.innerHTML = `
-        <div class="vist-letter-content">
-          <div class="vist-watermark">VIST FOUNDATION // DISCRETIONARY CIPHER</div>
-          <p class="vist-body">
-            "The pilot was not incinerated. The Foundation has kept your silence for three years, Director Sterling. The bill is now due. The pilot is to report to Berth 44, Outer Docks, Von Braun Industrial Perimeter, before 2400 hours. Come alone, or the unedited black-box telemetry will be delivered directly to the Anaheim Board of Directors and the Federation Military Police."
-          </p>
-          <div class="vist-signature">
-            <span>SEAL: PURPLE-BLACK SYNTHETIC WAX</span>
-            <span>CREST: BEAST RAMPANT BEFORE SEGMENTED SUN</span>
+          <div class="gm-stats-card">
+            <div style="font-size:9px; font-weight:700; color:var(--theme-accent); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px;">
+              Dossier Summary:
+            </div>
+            <div class="gm-stat-row">
+              <span class="gm-stat-label">Origin:</span>
+              <span class="gm-stat-val" style="font-size:10px;">${b.summaryPills.origin}</span>
+            </div>
+            <div class="gm-stat-row">
+              <span class="gm-stat-label">Chassis:</span>
+              <span class="gm-stat-val" style="font-size:10px;">${b.summaryPills.chassis}</span>
+            </div>
+            <div class="gm-stat-row">
+              <span class="gm-stat-label">Dogtag:</span>
+              <span class="gm-stat-val" style="font-size:10px;">${b.summaryPills.dogtag}</span>
+            </div>
+            <div class="gm-stat-row">
+              <span class="gm-stat-label">Allegiance:</span>
+              <span class="gm-stat-val" style="font-size:9px;">${b.summaryPills.allegiance}</span>
+            </div>
+            <div style="margin-top:6px; font-family:var(--font-serif); font-size:11px; line-height:1.4; color:var(--text-muted); border-top:1px solid rgba(255,255,255,0.06); padding-top:6px;">
+              <strong>Session 1 Hook:</strong> ${b.campaignHook}
+            </div>
           </div>
         </div>
       `;
     }
 
-    this.dom.vistModal.classList.remove('hidden');
-    this.dom.vistModal.setAttribute('aria-hidden', 'false');
-    sound.playTone(440, 0.12, 'triangle', 0.03);
-  }
+    /* 3.2 Chapter Navigation Buttons */
+    renderChapterNav() {
+      if (!this.chapterNavButtons) return;
 
-  initIgnitionGate() {
-    if (this.dom.gateIgniteBtn && this.dom.bigPlayGate) {
-      this.dom.gateIgniteBtn.addEventListener('click', () => {
-        sound.ensureContext();
-        sound.playHarmonicChord('alpha');
+      this.chapterNavButtons.innerHTML = this.data.chapters.map((ch, idx) => `
+        <button class="chapter-tab ${idx === 0 ? 'active' : ''}" data-chapter-index="${idx}" type="button">
+          <span class="chapter-tab-num">${ch.number}</span>
+          <span class="chapter-tab-title">${ch.title}</span>
+        </button>
+      `).join("");
 
-        this.dom.bigPlayGate.style.opacity = '0';
-        setTimeout(() => {
-          this.dom.bigPlayGate.style.display = 'none';
-        }, 350);
-
-        this.logConsole('COCKPIT RELAY INITIALIZED // SUBJECT 088 SYNCHRONIZED');
+      this.chapterNavButtons.querySelectorAll('.chapter-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.getAttribute('data-chapter-index'), 10);
+          this.loadChapter(idx);
+        });
       });
+    }
+
+    /* 3.3 Sensory Anchor Reliquary */
+    renderSensoryAnchors() {
+      if (!this.anchorList) return;
+
+      this.anchorList.innerHTML = this.data.anchors.map(a => `
+        <div class="anchor-item" data-anchor-id="${a.id}" tabindex="0" role="button" title="Inspect ${a.title}">
+          <div class="anchor-icon">${a.icon}</div>
+          <div class="anchor-meta">
+            <div class="anchor-title">${a.title}</div>
+            <div class="anchor-sub">${a.subtitle}</div>
+          </div>
+        </div>
+      `).join("");
+
+      this.anchorList.querySelectorAll('.anchor-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const id = item.getAttribute('data-anchor-id');
+          this.inspectAnchor(id);
+        });
+      });
+    }
+
+    inspectAnchor(anchorId) {
+      const anchor = this.data.anchors.find(a => a.id === anchorId);
+      if (!anchor || !this.artifactModal) return;
+
+      if (this.artifactModalTitle) {
+        this.artifactModalTitle.textContent = `INSPECTING // ${anchor.title.toUpperCase()}`;
+      }
+      if (this.artifactModalBody) {
+        this.artifactModalBody.innerHTML = `
+          ${anchor.detailMarkup}
+          <div style="font-size:11px; color:var(--text-dim); text-align:center; margin-top:12px; letter-spacing:0.06em;">
+            ${anchor.caption}
+          </div>
+        `;
+      }
+
+      this.artifactModal.classList.remove('hidden');
+      this.artifactModal.setAttribute('aria-hidden', 'false');
+    }
+
+    /* 3.4 Subject 088 Narrative Dossier Drawer */
+    renderLancerSpecs() {
+      if (!this.lancerDrawerContent) return;
+      const d = this.data.dossierArchive;
+
+      let triadHtml = d.harmonicTriad.map(t => `
+        <div class="dossier-bio-card">
+          <div class="dossier-bio-title" style="color:var(--theme-accent); font-family:var(--font-mono);">${t.strata}</div>
+          <div class="dossier-bio-desc">${t.context}</div>
+        </div>
+      `).join("");
+
+      let compendiumHtml = Object.entries(this.data.compendium).map(([term, desc]) => `
+        <div style="padding:6px 8px; background:var(--bg-surface-inset); border-left:2px solid var(--color-psycho); margin-bottom:6px; font-size:11px;">
+          <strong style="color:var(--color-psycho); font-family:var(--font-mono);">${term}:</strong>
+          <span style="font-family:var(--font-serif); color:var(--text-muted);">${desc}</span>
+        </div>
+      `).join("");
+
+      this.lancerDrawerContent.innerHTML = `
+        <div>
+          <div class="dossier-section-title">SUBJECT FILE // SEC-088</div>
+          <div style="font-size:13px; font-weight:700; color:#fff; margin-bottom:2px;">${d.identity.designation}</div>
+          <div style="font-size:10px; color:var(--theme-accent); margin-bottom:6px;">${d.identity.origin}</div>
+          <div style="font-size:10px; color:var(--text-muted); line-height:1.4;">${d.identity.status}</div>
+        </div>
+
+        <div>
+          <div class="dossier-section-title">TRIPARTITE ANOMALY (HARMONIC NODES)</div>
+          ${triadHtml}
+        </div>
+
+        <div>
+          <div class="dossier-section-title">PROTOTYPE UNIT-03 SPECS</div>
+          <div class="dossier-bio-card">
+            <div style="font-size:10px; font-weight:700; color:var(--color-psycho); margin-bottom:4px;">CHASSIS: ${d.prototypeSpecs.chassis}</div>
+            <div style="font-size:11px; font-family:var(--font-serif); color:var(--text-prose-secondary); line-height:1.45; margin-bottom:4px;">
+              <strong>Cockpit:</strong> ${d.prototypeSpecs.liner}
+            </div>
+            <div style="font-size:11px; font-family:var(--font-serif); color:var(--text-muted); line-height:1.45; margin-bottom:4px;">
+              <strong>Avionics:</strong> ${d.prototypeSpecs.weaponry}
+            </div>
+            <div style="font-size:10px; color:var(--color-beta); font-family:var(--font-mono); margin-top:6px;">
+              ⚠ WARNING: ${d.prototypeSpecs.dangerProfile}
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="dossier-section-title">CAMPAIGN LORE GLOSSARY</div>
+          ${compendiumHtml}
+        </div>
+      `;
+    }
+
+    /* 3.5 Vist Foundation Modal Content */
+    renderVistModalContent() {
+      if (!this.vistModalContent) return;
+
+      this.vistModalContent.innerHTML = `
+        <div class="wax-seal-wrapper" aria-hidden="true">
+          <div class="wax-seal">
+            <span>VIST</span>
+          </div>
+        </div>
+
+        <div class="letter-meta-block">
+          <span>ORIGIN: L1 RECEPTACLE // CIPHER ALPHA-ZERO</span>
+          <span>TARGET: SENIOR DIRECTOR VINCENT STERLING (RESIDENCE PRIVATE TERMINAL)</span>
+          <span>CLASSIFICATION: HIGH TREASON // EXPENDABLE PILOT RETRIEVAL ORDER</span>
+        </div>
+
+        <div class="letter-body-prose">
+          <p><strong>DIRECTOR STERLING:</strong></p>
+          <p>
+            For three years, the Vist Foundation has maintained deliberate oversight of your division's ledger. We are fully aware that <em>Lt. Julian Ross</em> was not incinerated in the Sunda sector, nor was Prototype Unit-03 vaporized in combat.
+          </p>
+          <p>
+            We know what you carried home to Von Braun City in your private shuttle. We know whose face sits at your breakfast table in the 1st Ring.
+          </p>
+          <p class="letter-callout">
+            The pilot is to report to <strong>Berth 44, Outer Docks, Von Braun Industrial Perimeter</strong> before 2400 hours tonight. She is to take controls of Unit-03 and depart for Lagrange Point 1.
+          </p>
+          <p>
+            Should she fail to report, the unedited black-box telemetry—alongside DNA markers proving the living presence of Julian Ross—will be delivered simultaneously to the Anaheim Board of Directors and the UNION Military Police.
+          </p>
+          <p class="letter-signoff">
+            <em>The bill is now due, Vincent. Keep your house safe.</em>
+          </p>
+        </div>
+      `;
+    }
+
+    /* 3.6 Load Chapter & Synchronize Cockpit State */
+    loadChapter(index) {
+      if (index < 0 || index >= this.data.chapters.length) return;
+      this.currentChapterIndex = index;
+      const chapter = this.data.chapters[index];
+
+      // Update Header & Nav State
+      document.querySelectorAll('.chapter-tab').forEach((tab, idx) => {
+        tab.classList.toggle('active', idx === index);
+      });
+
+      if (this.chapterNum) this.chapterNum.textContent = chapter.number;
+      if (this.chapterYear) this.chapterYear.textContent = chapter.era;
+      if (this.chapterReadTime) this.chapterReadTime.textContent = `EST. READ: ${chapter.readTime}`;
+      if (this.chapterTitle) this.chapterTitle.textContent = chapter.title;
+      if (this.chapterTrackTitle) this.chapterTrackTitle.textContent = chapter.track.title;
+
+      // Update Harmonic Theme
+      this.setHarmonicTheme(chapter.harmonicKey);
+
+      // Render Prose with Redaction Block
+      if (this.proseContent) {
+        let paragraphsHtml = chapter.paragraphs.map(p => {
+          if (p === '***') {
+            return `<div style="text-align:center; color:var(--theme-accent); font-size:16px; margin:16px 0;">∿ ∿ ∿</div>`;
+          }
+          return `<p>${p}</p>`;
+        }).join("");
+
+        let redactionHtml = "";
+        if (chapter.redaction) {
+          const r = chapter.redaction;
+          redactionHtml = `
+            <div class="redaction-bar" id="${r.id}" data-redact-id="${r.id}" tabindex="0" role="button" title="Click to declassify classified intelligence">
+              <div class="redaction-header">
+                <span>CLASSIFIED // ${r.label}</span>
+                <span class="redaction-status">CLICK TO DECLASSIFY</span>
+              </div>
+              <div class="redaction-block">████████████████████████████████████████████████████████████</div>
+              <div class="redaction-gm-note">
+                <strong>${r.gmNote}</strong>
+              </div>
+            </div>
+          `;
+        }
+
+        this.proseContent.innerHTML = paragraphsHtml + redactionHtml;
+        this.bindRedactionEvents();
+      }
+
+      // Update Pager Status
+      if (this.readingProgress) {
+        this.readingProgress.textContent = `LOG ${index + 1} OF ${this.data.chapters.length}`;
+      }
+      if (this.prevChapterBtn) {
+        this.prevChapterBtn.disabled = index === 0;
+        this.prevChapterBtn.style.opacity = index === 0 ? "0.3" : "1";
+      }
+      if (this.nextChapterBtn) {
+        this.nextChapterBtn.disabled = index === this.data.chapters.length - 1;
+        this.nextChapterBtn.style.opacity = index === this.data.chapters.length - 1 ? "0.3" : "1";
+      }
+
+      // Update Marginalia & Subconscious Echo
+      this.updateMarginalia(chapter.id);
+
+      // Trigger Gapless Track Switch
+      this.audio.playTrack(chapter.track.youtubeId);
+      if (this.currentTrackName) {
+        this.currentTrackName.textContent = `TRACK: ${chapter.track.title}`;
+      }
+
+      // Scroll smoothly to top of prose viewport
+      const viewport = document.getElementById('prose-viewport');
+      if (viewport && index > 0) {
+        viewport.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      if (this.consoleStream) {
+        this.consoleStream.textContent = `SECTOR SYNC: [${chapter.number}] // BGM: ${chapter.track.artist} // NOMINAL`;
+      }
+    }
+
+    setHarmonicTheme(harmonicKey) {
+      document.body.className = `cockpit-theme-ambient theme-${harmonicKey}`;
+      this.scope.setHarmonic(harmonicKey);
+
+      // Trigger screen tear animation
+      document.body.classList.add('harmonic-shifting');
+      setTimeout(() => document.body.classList.remove('harmonic-shifting'), 450);
+
+      const labels = {
+        alpha: "DOMINANT: HARMONIC α (RIAN — SALTWATER SOUL)",
+        beta: "DOMINANT: HARMONIC β (JULIAN — TACTICAL ACE)",
+        gamma: "DOMINANT: HARMONIC γ (ERIA — PORCELAIN VESSEL)"
+      };
+
+      if (this.dominantChip) {
+        this.dominantChip.textContent = labels[harmonicKey] || labels.alpha;
+      }
+
+      // Update diagnostic metrics per harmonic
+      if (harmonicKey === "alpha") {
+        if (this.scopeFreq) this.scopeFreq.textContent = "432.8 Hz";
+        if (this.scopeSync) this.scopeSync.textContent = "96.4%";
+        if (this.scopeStress) {
+          this.scopeStress.textContent = "14% [STABLE]";
+          this.scopeStress.className = "metric-item stress-nominal";
+        }
+      } else if (harmonicKey === "beta") {
+        if (this.scopeFreq) this.scopeFreq.textContent = "684.2 Hz";
+        if (this.scopeSync) this.scopeSync.textContent = "88.1%";
+        if (this.scopeStress) {
+          this.scopeStress.textContent = "64% [OVERCHARGE RISK]";
+          this.scopeStress.className = "metric-item stress-critical";
+        }
+      } else {
+        if (this.scopeFreq) this.scopeFreq.textContent = "528.0 Hz";
+        if (this.scopeSync) this.scopeSync.textContent = "99.8%";
+        if (this.scopeStress) {
+          this.scopeStress.textContent = "38% [DISSOCIATING]";
+          this.scopeStress.className = "metric-item stress-elevated";
+        }
+      }
+    }
+
+    updateMarginalia(chapterId) {
+      const notes = this.data.marginalia[chapterId] || [];
+      if (this.marginAnnotations) {
+        this.marginAnnotations.innerHTML = notes.map(n => `
+          <div class="annotation-card" style="border-left-color: var(--color-${n.strata});">
+            <strong style="color: var(--color-${n.strata});">HARMONIC ${n.strata.toUpperCase()}:</strong>
+            ${n.note}
+          </div>
+        `).join("");
+      }
+
+      // Pick the primary echo for the subconscious stream box
+      if (this.subconsciousText && notes.length > 0) {
+        this.subconsciousText.textContent = `“${notes[0].note}”`;
+      }
+    }
+
+    /* 3.7 Single-Click Declassify Handler */
+    bindRedactionEvents() {
+      const chapter = this.data.chapters[this.currentChapterIndex];
+      if (!chapter || !chapter.redaction) return;
+
+      const bar = document.getElementById(chapter.redaction.id);
+      if (!bar) return;
+
+      bar.addEventListener('click', () => {
+        if (bar.classList.contains('declassified')) return;
+
+        bar.classList.add('declassifying');
+        const block = bar.querySelector('.redaction-block');
+        const status = bar.querySelector('.redaction-status');
+
+        let steps = 0;
+        const glyphs = '█▓▒░#%&*01';
+        const targetText = chapter.redaction.blackoutText;
+
+        const interval = setInterval(() => {
+          steps++;
+          if (steps < 8) {
+            block.textContent = [...targetText].map(c => (c === ' ' ? ' ' : glyphs[Math.floor(Math.random() * glyphs.length)])).join('');
+          } else {
+            clearInterval(interval);
+            block.textContent = targetText;
+            bar.classList.remove('declassifying');
+            bar.classList.add('declassified');
+            if (status) status.textContent = "DECLASSIFIED // ACCESS GRANTED";
+
+            // Trigger visualizer spike
+            const scopeBox = document.querySelector('.canvas-wrapper');
+            if (scopeBox) {
+              scopeBox.classList.remove('spike');
+              void scopeBox.offsetWidth;
+              scopeBox.classList.add('spike');
+            }
+          }
+        }, 35);
+      });
+    }
+
+    /* 3.8 Global Events & Modal Bindings */
+    bindEvents() {
+      // Big Ignition Gate
+      if (this.gateIgniteBtn && this.bigPlayGate) {
+        this.gateIgniteBtn.addEventListener('click', () => {
+          this.audio.startPlayback();
+          if (this.audioToggleBtn) this.audioToggleBtn.classList.add('active');
+          if (this.audioLabel) this.audioLabel.textContent = "ACTIVE (LOOP)";
+
+          this.bigPlayGate.style.opacity = '0';
+          setTimeout(() => {
+            this.bigPlayGate.style.display = 'none';
+          }, 400);
+        });
+      }
+
+      // Top Audio Toggle
+      if (this.audioToggleBtn) {
+        this.audioToggleBtn.addEventListener('click', () => {
+          const isPlaying = this.audio.toggle();
+          this.audioToggleBtn.classList.toggle('active', isPlaying);
+          if (this.audioLabel) {
+            this.audioLabel.textContent = isPlaying ? "ACTIVE (LOOP)" : "MUTED";
+          }
+        });
+      }
+
+      // LANCER Drawer Toggle
+      if (this.toggleDossierBtn && this.lancerDrawer) {
+        this.toggleDossierBtn.addEventListener('click', () => this.toggleDossier(true));
+      }
+      if (this.closeDossierBtn && this.lancerDrawer) {
+        this.closeDossierBtn.addEventListener('click', () => this.toggleDossier(false));
+      }
+
+      // Pager Buttons
+      if (this.prevChapterBtn) {
+        this.prevChapterBtn.addEventListener('click', () => {
+          if (this.currentChapterIndex > 0) this.loadChapter(this.currentChapterIndex - 1);
+        });
+      }
+      if (this.nextChapterBtn) {
+        this.nextChapterBtn.addEventListener('click', () => {
+          if (this.currentChapterIndex < this.data.chapters.length - 1) {
+            this.loadChapter(this.currentChapterIndex + 1);
+          }
+        });
+      }
+
+      // Close Modals
+      if (this.closeArtifactModalBtn && this.artifactModal) {
+        this.closeArtifactModalBtn.addEventListener('click', () => {
+          this.artifactModal.classList.add('hidden');
+          this.artifactModal.setAttribute('aria-hidden', 'true');
+        });
+      }
+
+      if (this.closeVistModalBtn && this.vistModal) {
+        this.closeVistModalBtn.addEventListener('click', () => {
+          this.vistModal.classList.add('hidden');
+          this.vistModal.setAttribute('aria-hidden', 'true');
+        });
+      }
+
+      if (this.dismissVistModalBtn && this.vistModal) {
+        this.dismissVistModalBtn.addEventListener('click', () => {
+          this.vistModal.classList.add('hidden');
+          this.vistModal.setAttribute('aria-hidden', 'true');
+        });
+      }
+
+      // Berth 44 Launch Key Slotting
+      if (this.slotKeyBtn) {
+        this.slotKeyBtn.addEventListener('click', () => {
+          this.slotKeyBtn.innerHTML = "<span>✓ TELEMETRY ACCEPTED // REACTOR ONLINE</span>";
+          this.slotKeyBtn.style.background = "rgba(78, 240, 196, 0.2)";
+          this.slotKeyBtn.style.borderColor = "var(--color-psycho)";
+          this.slotKeyBtn.style.color = "var(--color-psycho)";
+
+          if (this.consoleStream) {
+            this.consoleStream.textContent = "BERTH 44 GANTRY RELEASED // LAUNCH TUBE CLEAR // UNIT-03 DEPARTING FOR L1";
+          }
+        });
+      }
+
+      // Escape key to dismiss open modals/drawers
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if (this.lancerDrawer && this.lancerDrawer.classList.contains('open')) {
+            this.toggleDossier(false);
+          }
+          if (this.artifactModal && !this.artifactModal.classList.contains('hidden')) {
+            this.artifactModal.classList.add('hidden');
+            this.artifactModal.setAttribute('aria-hidden', 'true');
+          }
+          if (this.vistModal && !this.vistModal.classList.contains('hidden')) {
+            this.vistModal.classList.add('hidden');
+            this.vistModal.setAttribute('aria-hidden', 'true');
+          }
+        }
+      });
+    }
+
+    toggleDossier(open) {
+      if (!this.lancerDrawer) return;
+      this.lancerDrawer.classList.toggle('open', open);
+      this.lancerDrawer.setAttribute('aria-hidden', !open);
+      if (this.toggleDossierBtn) {
+        this.toggleDossierBtn.setAttribute('aria-expanded', open);
+      }
+    }
+
+    /* 3.9 Scroll Focus Monitor (Dimmable Cockpit Chrome) */
+    initScrollFocus() {
+      let scrollTimer = null;
+      window.addEventListener('scroll', () => {
+        const scrolled = window.scrollY > 180;
+        if (scrolled) {
+          document.body.classList.add('reading-active');
+        } else {
+          document.body.classList.remove('reading-active');
+        }
+
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(() => {
+          // If reading stopped for 1.8s, keep dimmed unless hovering
+        }, 1800);
+      }, { passive: true });
+    }
+
+    /* 3.10 Clocks & Tape Reel Counter */
+    startClocks() {
+      const clockEl = document.getElementById('mission-clock');
+      let tapeSeconds = 0;
+
+      setInterval(() => {
+        tapeSeconds += 0.1;
+        const mins = Math.floor(tapeSeconds / 60).toString().padStart(2, '0');
+        const secs = (tapeSeconds % 60).toFixed(1).padStart(4, '0');
+
+        if (this.tapeTime) {
+          this.tapeTime.textContent = `${mins}:${secs}`;
+        }
+
+        if (clockEl) {
+          const now = new Date();
+          const h = now.getHours().toString().padStart(2, '0');
+          const m = now.getMinutes().toString().padStart(2, '0');
+          const s = now.getSeconds().toString().padStart(2, '0');
+          clockEl.textContent = `U.C. 0099.04.18 // ${h}:${m}:${s}`;
+        }
+      }, 100);
     }
   }
 
-  initAudioControls() {
-    if (this.dom.audioToggleBtn) {
-      this.dom.audioToggleBtn.addEventListener('click', () => {
-        const isMuted = sound.toggleMute();
-        this.dom.audioToggleBtn.classList.toggle('active', !isMuted);
-        if (this.dom.audioLabel) {
-          this.dom.audioLabel.textContent = isMuted ? 'MUTED' : 'ACTIVE';
-        }
-        if (!isMuted) sound.playTone(660, 0.06, 'sine', 0.02);
-      });
-    }
-  }
+  // Initialize and expose to window for immersive.js hooks
+  document.addEventListener('DOMContentLoaded', () => {
+    window.app = new DossierApp();
+  });
 
-  /* ==========================================================================
-     PROCEDURAL OSCILLOSCOPE CANVAS (THROTTLED DURING READING)
-     ========================================================================== */
-  initOscilloscope() {
-    if (!this.dom.waveformCanvas) return;
-    const canvas = this.dom.waveformCanvas;
-    const ctx = canvas.getContext('2d');
-
-    let currentAmp = 7.0;
-    let targetAmp = 7.0;
-    let frameCount = 0;
-    let throttled = false;
-
-    const resize = () => {
-      const dpr = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      ctx.scale(dpr, dpr);
-    };
-
-    window.addEventListener('resize', resize);
-    resize();
-
-    window.addEventListener('pm:reading-focus', (e) => {
-      throttled = e.detail.active;
-      targetAmp = throttled ? 1.8 : 7.0;
-    });
-
-    const render = () => {
-      frameCount++;
-
-      // When throttled, drop frame rate to 1 frame every 6 ticks (~10fps)
-      if (throttled && frameCount % 6 !== 0) {
-        requestAnimationFrame(render);
-        return;
-      }
-
-      const rect = canvas.getBoundingClientRect();
-      const w = rect.width;
-      const h = rect.height;
-      const mid = h / 2;
-
-      ctx.clearRect(0, 0, w, h);
-
-      // Smooth amplitude easing
-      currentAmp += (targetAmp - currentAmp) * 0.1;
-
-      const accentColor = getComputedStyle(document.body).getPropertyValue('--harmonic-accent').trim() || '#3bf0ff';
-
-      ctx.beginPath();
-      ctx.lineWidth = throttled ? 1.0 : 1.5;
-      ctx.strokeStyle = accentColor;
-
-      const segments = 64;
-      const step = w / segments;
-
-      for (let i = 0; i <= segments; i++) {
-        const x = i * step;
-        const freq1 = frameCount * 0.035 + i * 0.12;
-        const freq2 = frameCount * 0.015 - i * 0.05;
-        const y = mid + Math.sin(freq1) * currentAmp + Math.cos(freq2) * (currentAmp * 0.4);
-
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-
-      ctx.stroke();
-      requestAnimationFrame(render);
-    };
-
-    requestAnimationFrame(render);
-
-    this.oscilloscope = {
-      setHarmonic: (profile) => {
-        targetAmp = throttled ? 1.8 : profile.oscilloscopeActiveAmp;
-      }
-    };
-  }
-
-  /* ==========================================================================
-     KEYBOARD SHORTCUTS & SYSTEM EVENTS
-     ========================================================================== */
-  bindKeyboardShortcuts() {
-    window.addEventListener('keydown', (e) => {
-      // 1. Never intercept typing in form inputs
-      if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
-
-      const key = e.key.toLowerCase();
-
-      // 2. Escape Hierarchy: Modals -> Drawers -> Reading Focus
-      if (e.key === 'Escape') {
-        if (this.dom.artifactModal && !this.dom.artifactModal.classList.contains('hidden')) {
-          this.closeArtifactModal();
-          return;
-        }
-        if (this.dom.vistModal && !this.dom.vistModal.classList.contains('hidden')) {
-          this.dom.vistModal.classList.add('hidden');
-          return;
-        }
-        if (this.dom.lancerDrawer && this.dom.lancerDrawer.classList.contains('open')) {
-          this.toggleDossier(false);
-          return;
-        }
-      }
-
-      // 3. Safe Bracket Navigation: '[' and ']' (or Alt + Arrows)
-      if (e.key === '[' || (e.altKey && e.key === 'ArrowLeft')) {
-        e.preventDefault();
-        if (this.currentChapterId > 1) this.loadChapter(this.currentChapterId - 1);
-      } else if (e.key === ']' || (e.altKey && e.key === 'ArrowRight')) {
-        e.preventDefault();
-        if (this.currentChapterId < CHAPTER_ARCHIVE.length) this.loadChapter(this.currentChapterId + 1);
-      }
-
-      // 4. Number Keys 1–5: Direct Chapter Jump
-      if (['1', '2', '3', '4', '5'].includes(key)) {
-        e.preventDefault();
-        const targetId = parseInt(key, 10);
-        if (targetId !== this.currentChapterId) this.loadChapter(targetId);
-      }
-
-      // 5. 'R' Key: Instant Decrypt Current Chapter
-      if (key === 'r') {
-        e.preventDefault();
-        this.decryptEngine.resolveEntireChapter(this.dom.proseViewport);
-      }
-
-      // 6. 'M' Key: Toggle Audio Mute
-      if (key === 'm') {
-        e.preventDefault();
-        if (this.dom.audioToggleBtn) this.dom.audioToggleBtn.click();
-      }
-
-      // 7. 'D' Key: Toggle LANCER Pilot Dossier Drawer
-      if (key === 'd') {
-        e.preventDefault();
-        const isOpen = this.dom.lancerDrawer?.classList.contains('open');
-        this.toggleDossier(!isOpen);
-      }
-
-      // 8. 'V' Key: Vist Dispatch Cipher Key (Chapter 5 Exclusive Gate)
-      if (key === 'v') {
-        e.preventDefault();
-        this.openVistModal();
-      }
-    });
-  }
-
-  listenToSystemEvents() {
-    window.addEventListener('pm:redaction-cleared', (e) => {
-      this.logConsole(`DECLASSIFIED // CLEARANCE CODE: ${e.detail.clearance}`);
-    });
-  }
-
-  startMissionClocks() {
-    let seconds = 0;
-    this.clockInterval = setInterval(() => {
-      seconds += 0.1;
-      const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
-      const secs = (seconds % 60).toFixed(1).padStart(4, '0');
-      if (this.dom.tapeTime) this.dom.tapeTime.textContent = `${mins}:${secs}`;
-
-      if (this.dom.missionClock) {
-        const now = new Date();
-        const h = now.getHours().toString().padStart(2, '0');
-        const m = now.getMinutes().toString().padStart(2, '0');
-        const s = now.getSeconds().toString().padStart(2, '0');
-        this.dom.missionClock.textContent = `U.C. 0099.04.18 // ${h}:${m}:${s}`;
-      }
-    }, 100);
-  }
-
-  logConsole(message) {
-    if (!this.dom.consoleStream) return;
-    this.dom.consoleStream.textContent = message;
-  }
-}
-
-// Bootstrap on DOM Ready
-document.addEventListener('DOMContentLoaded', () => {
-  window.PMApp = new CockpitAppController();
-});
+})();
