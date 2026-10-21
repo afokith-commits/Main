@@ -1,314 +1,534 @@
 /**
- * PSYCHO-MONITOR // MK-03 RES-SYNC [ANOMALY: 088-ERIA]
- * Tactical Immersion Layer: Web Audio Micro-Synth, Hotkeys & 2.5D Physics
+ * ============================================================================
+ * PSYCHO-MONITOR MK-03: IMMERSIVE ENGINE & SENSORY COGNITION LAYER
+ * Modules: DecryptEngineV2, ReadingFocusController, CockpitSynth, RedactionEngine
+ * Philosophy: "The cockpit is the frame, the story is the instrument."
+ * ============================================================================
  */
 
-(() => {
-  'use strict';
+import { HARMONIC_PROFILES } from './data.js';
 
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* ----------------------------------------------------------------------------
+   1. ZERO-ASSET PROCEDURAL ACOUSTIC SYNTHESIZER
+   ------------------------------------------------------------------------- */
+class CockpitAudioSynthesizer {
+  constructor() {
+    this.ctx = null;
+    this.muted = localStorage.getItem('pm_audio_muted') === 'true';
+    this.masterGain = null;
+  }
 
-  /* ==========================================================================
-     1. ZERO-ASSET PROCEDURAL WEB AUDIO SYNTHESIZER
-     ========================================================================== */
-  let audioCtx = null;
-
-  const getAudioContext = () => {
-    try {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-      return audioCtx;
-    } catch (e) {
-      return null;
+  ensureContext() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return null;
+      this.ctx = new AudioCtx();
+      this.masterGain = this.ctx.createGain();
+      this.masterGain.gain.setValueAtTime(this.muted ? 0 : 1, this.ctx.currentTime);
+      this.masterGain.connect(this.ctx.destination);
     }
-  };
+    if (this.ctx.state === 'suspended') {
+      this.ctx.resume().catch(() => {});
+    }
+    return this.ctx;
+  }
 
-  /**
-   * Generates a clean synthetic tactical beep or relay click
-   */
-  const beep = (freq = 440, duration = 0.07, type = 'sine', volume = 0.025) => {
-    const ctx = getAudioContext();
+  setMuted(muteState) {
+    this.muted = Boolean(muteState);
+    localStorage.setItem('pm_audio_muted', this.muted ? 'true' : 'false');
+    if (this.masterGain && this.ctx) {
+      this.masterGain.gain.setValueAtTime(this.muted ? 0 : 1, this.ctx.currentTime);
+    }
+    return this.muted;
+  }
+
+  toggleMute() {
+    return this.setMuted(!this.muted);
+  }
+
+  playTone(freq = 440, duration = 0.06, type = 'sine', peakVolume = 0.02) {
+    if (this.muted) return;
+    const ctx = this.ensureContext();
     if (!ctx) return;
 
     try {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      const t = ctx.currentTime;
+      const now = ctx.currentTime;
 
       osc.type = type;
-      osc.frequency.setValueAtTime(freq, t);
+      osc.frequency.setValueAtTime(freq, now);
 
-      gain.gain.setValueAtTime(volume, t);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.linearRampToValueAtTime(peakVolume, now + 0.008);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
 
       osc.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(this.masterGain);
 
-      osc.start(t);
-      osc.stop(t + duration);
-    } catch (err) {
+      osc.start(now);
+      osc.stop(now + duration + 0.01);
+    } catch {
       // Audio suppression fallback
     }
-  };
+  }
 
-  /**
-   * Declassification Decoder Strobe Sound
-   */
-  const playDecryptChirps = () => {
-    const ctx = getAudioContext();
-    if (!ctx) return;
-
-    const pitches = [320, 480, 640, 800, 960];
-    pitches.forEach((freq, idx) => {
+  playHarmonicChord(harmonicKey = 'alpha') {
+    if (this.muted) return;
+    const chordMap = {
+      alpha: [329.63, 493.88, 659.25], // Warm E Major triad (Sunda Reef)
+      beta:  [220.00, 311.13, 440.00], // Diminished tension (Combat Pilot)
+      gamma: [392.00, 523.25, 659.25]  // Emerald resonance (Axis Silicate)
+    };
+    const notes = chordMap[harmonicKey] || chordMap.alpha;
+    notes.forEach((freq, idx) => {
       setTimeout(() => {
-        beep(freq, 0.04, 'triangle', 0.02);
-      }, idx * 45);
+        this.playTone(freq, 0.22, 'triangle', 0.025);
+      }, idx * 55);
     });
-  };
+  }
+
+  playCipherChirp() {
+    if (this.muted) return;
+    // Micro-cadence for decrypt ticks
+    const freq = 340 + Math.random() * 180;
+    this.playTone(freq, 0.025, 'triangle', 0.008);
+  }
+
+  playDeclassifyCue() {
+    if (this.muted) return;
+    const pitches = [520, 780, 1040];
+    pitches.forEach((p, idx) => {
+      setTimeout(() => this.playTone(p, 0.08, 'sine', 0.02), idx * 60);
+    });
+  }
+}
+
+export const sound = new CockpitAudioSynthesizer();
+
+/* ----------------------------------------------------------------------------
+   2. NON-DESTRUCTIVE REDACTION CONTROLLER (Finding B.10)
+   ------------------------------------------------------------------------- */
+export class RedactionEngine {
+  constructor(soundEngine) {
+    this.sound = soundEngine;
+  }
 
   /**
-   * Tri-Harmonic Resonant Chord (Played upon shifting identity)
+   * Post-processes fully decrypted paragraphs to safely inject interactive
+   * redaction targets without mutating the underlying narrative strings.
    */
-  const playHarmonicChord = (harmonicKey) => {
-    const chords = {
-      alpha: [330, 495, 660],  // Warm E-major triad
-      beta:  [220, 311, 440],  // Cold diminished tension
-      gamma: [392, 523, 659]   // Porcelain G-major purity
-    };
+  applyRedactions(containerElement, redactionTargets = []) {
+    if (!containerElement || !redactionTargets.length) return;
 
-    const notes = chords[harmonicKey] || chords.alpha;
-    notes.forEach((f, i) => {
-      setTimeout(() => beep(f, 0.12, 'triangle', 0.028), i * 65);
+    const paragraphs = containerElement.querySelectorAll('.prose-paragraph.resolved');
+    paragraphs.forEach(p => {
+      let html = p.innerHTML;
+      let modified = false;
+
+      redactionTargets.forEach(target => {
+        if (!html.includes(target.phrase)) return;
+        // Check if already wrapped
+        if (html.includes(`data-phrase="${target.phrase}"`)) return;
+
+        const replacement = `
+          <mark class="redacted-phrase" 
+                tabindex="0" 
+                role="button" 
+                aria-label="Classified telemetry. Click to declassify: ${target.phrase}"
+                data-phrase="${target.phrase}"
+                data-clearance="${target.clearanceCode}"
+                data-revealed="false">
+            <span class="redacted-text">${target.phrase}</span>
+          </mark>
+        `;
+
+        html = html.split(target.phrase).join(replacement);
+        modified = true;
+      });
+
+      if (modified) {
+        p.innerHTML = html;
+        this.bindEvents(p);
+      }
     });
-  };
+  }
+
+  bindEvents(scopedElement) {
+    const marks = scopedElement.querySelectorAll('.redacted-phrase:not([data-bound="true"])');
+    marks.forEach(mark => {
+      mark.dataset.bound = "true";
+
+      const toggleReveal = () => {
+        const isRevealed = mark.getAttribute('data-revealed') === 'true';
+        const nextState = !isRevealed;
+        mark.setAttribute('data-revealed', String(nextState));
+
+        if (nextState) {
+          this.sound.playDeclassifyCue();
+          mark.setAttribute('aria-label', `Declassified: ${mark.dataset.phrase} [${mark.dataset.clearance}]`);
+          window.dispatchEvent(new CustomEvent('pm:redaction-cleared', {
+            detail: {
+              phrase: mark.dataset.phrase,
+              clearance: mark.dataset.clearance
+            }
+          }));
+        } else {
+          this.sound.playTone(280, 0.05, 'triangle', 0.015);
+          mark.setAttribute('aria-label', `Classified telemetry: ${mark.dataset.phrase}`);
+        }
+      };
+
+      mark.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleReveal();
+      });
+
+      mark.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleReveal();
+        }
+      });
+    });
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   3. DECRYPT ENGINE V2 (STABLE GEOMETRY & ZERO LAYOUT SHIFT)
+   ------------------------------------------------------------------------- */
+export class DecryptEngineV2 {
+  constructor() {
+    this.mode = localStorage.getItem('pm_decrypt_mode') || 'ritual'; // 'ritual' | 'fast' | 'instant'
+    this.glyphBank = '0123456789ABCDEF∆∇∿⟡⌖⎔░▒▓█';
+    this.activeWorkers = new Map(); // pElement => { rafId, startTime }
+    this.redactionEngine = new RedactionEngine(sound);
+    this.currentTargets = [];
+    this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.observer = null;
+
+    this.initObserver();
+    this.listenToMotionPreference();
+  }
+
+  initObserver() {
+    if (this.observer) this.observer.disconnect();
+
+    this.observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        // Trigger decryption when paragraph crosses 15% inside lower viewport
+        if (entry.isIntersecting && entry.target.dataset.decrypted === 'false') {
+          this.decryptParagraph(entry.target);
+        }
+      });
+    }, {
+      root: null,
+      rootMargin: '0px 0px -15% 0px',
+      threshold: 0.05
+    });
+  }
+
+  listenToMotionPreference() {
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
+    query.addEventListener('change', (e) => {
+      this.reducedMotion = e.matches;
+      if (this.reducedMotion) {
+        this.resolveEntireChapter();
+      }
+    });
+  }
+
+  setRedactionTargets(targets = []) {
+    this.currentTargets = Array.isArray(targets) ? targets : [];
+  }
 
   /**
-   * Berth 44 Reactor Frequency Spool-Up
+   * Mounts stable geometry: paragraph height and linebreaks are locked from tick zero.
    */
-  const playReactorSpool = () => {
-    const ctx = getAudioContext();
-    if (!ctx) return;
+  mountParagraph(pElement) {
+    if (!pElement) return;
 
-    try {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      const t = ctx.currentTime;
+    // Cancel any running workers on this node
+    this.cancelWorker(pElement);
 
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(110, t);
-      osc.frequency.exponentialRampToValueAtTime(880, t + 1.2);
+    const rawText = pElement.textContent.trim();
+    if (!rawText) return;
 
-      gain.gain.setValueAtTime(0.04, t);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+    pElement.dataset.raw = rawText;
+    pElement.dataset.decrypted = 'false';
+    pElement.classList.remove('resolved');
 
-      osc.connect(gain);
-      gain.connect(ctx.destination);
+    // Fast-path bypass for instant mode or reduced-motion
+    if (this.mode === 'instant' || this.reducedMotion) {
+      pElement.textContent = rawText;
+      pElement.dataset.decrypted = 'true';
+      pElement.classList.add('resolved');
+      this.redactionEngine.applyRedactions(pElement.parentElement, this.currentTargets);
+      return;
+    }
 
-      osc.start(t);
-      osc.stop(t + 1.2);
-    } catch (e) {}
-  };
+    // Three-span structural scaffold
+    pElement.innerHTML = `
+      <span class="text-resolved" aria-hidden="false"></span><span class="text-fringe" aria-hidden="true"></span><span class="text-unresolved" aria-hidden="true">${rawText}</span>
+    `;
 
-  /* ==========================================================================
-     2. DOM ENHANCEMENTS & IMMERSION BINDINGS
-     ========================================================================== */
-  document.addEventListener('DOMContentLoaded', () => {
-    const app = window.app;
-    if (!app) return;
+    this.observer.observe(pElement);
+  }
 
-    // 2.1 Ambient Cursor Glow Illumination
-    const glow = document.createElement('div');
-    glow.className = 'cursor-glow';
-    document.body.appendChild(glow);
+  decryptParagraph(pElement) {
+    if (pElement.dataset.decrypted === 'true') return;
 
-    window.addEventListener('pointermove', (e) => {
-      document.body.style.setProperty('--mx', `${e.clientX}px`);
-      document.body.style.setProperty('--my', `${e.clientY}px`);
-    }, { passive: true });
+    // Check if worker is already running for this paragraph
+    if (this.activeWorkers.has(pElement)) return;
 
-    // 2.2 Decorate Chapter Tabs with Audio
-    document.querySelectorAll('.chapter-tab').forEach(tab => {
-      tab.addEventListener('mouseenter', () => beep(880, 0.03, 'sine', 0.012));
-    });
+    const text = pElement.dataset.raw;
+    const resolvedSpan = pElement.querySelector('.text-resolved');
+    const fringeSpan = pElement.querySelector('.text-fringe');
+    const unresolvedSpan = pElement.querySelector('.text-unresolved');
 
-    // 2.3 Hook into Chapter Loading for Harmonic Audio & Oscilloscope Spike
-    const originalLoadChapter = app.loadChapter.bind(app);
-    app.loadChapter = (index) => {
-      originalLoadChapter(index);
+    if (!resolvedSpan || !fringeSpan || !unresolvedSpan) {
+      pElement.textContent = text;
+      pElement.dataset.decrypted = 'true';
+      pElement.classList.add('resolved');
+      return;
+    }
 
-      const chapter = app.data.chapters[index];
-      if (chapter) {
-        playHarmonicChord(chapter.harmonicKey);
+    const totalChars = text.length;
+    // Duration scales dynamically with character density
+    const duration = this.mode === 'fast' 
+      ? Math.min(Math.max(totalChars * 1.5, 200), 450)
+      : Math.min(Math.max(totalChars * 3.8, 480), 1350);
 
-        const scopeBox = document.querySelector('.canvas-wrapper');
-        if (scopeBox) {
-          scopeBox.classList.remove('spike');
-          void scopeBox.offsetWidth;
-          scopeBox.classList.add('spike');
+    const fringeWidth = 4;
+    const startTime = performance.now();
+    let lastSoundTick = 0;
+
+    const tick = (currentTime) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1.0);
+      const currentIndex = Math.floor(progress * totalChars);
+
+      // 1. Advance clean prose
+      resolvedSpan.textContent = text.slice(0, currentIndex);
+
+      if (progress < 1.0) {
+        // 2. Monospace cipher fringe
+        const remainingChars = totalChars - currentIndex;
+        const currentFringeLen = Math.min(fringeWidth, remainingChars);
+        let fringe = '';
+        for (let i = 0; i < currentFringeLen; i++) {
+          fringe += this.glyphBank[Math.floor(Math.random() * this.glyphBank.length)];
         }
+        fringeSpan.textContent = fringe;
+
+        // 3. Invisible unresolved text preserves exact wrapping geometry
+        unresolvedSpan.textContent = text.slice(currentIndex + currentFringeLen);
+
+        // Acoustic feedback throttled to every 45ms
+        if (currentTime - lastSoundTick > 45) {
+          sound.playCipherChirp();
+          lastSoundTick = currentTime;
+        }
+
+        const nextRaf = requestAnimationFrame(tick);
+        this.activeWorkers.set(pElement, { rafId: nextRaf, startTime });
+      } else {
+        // Clean resolution
+        this.finalizeParagraph(pElement, text);
       }
     };
 
-    // 2.4 Hook into Redaction Clicks for Audio Feedback
-    document.addEventListener('click', (e) => {
-      const bar = e.target.closest('.redaction-bar');
-      if (bar && !bar.classList.contains('declassified')) {
-        playDecryptChirps();
-      }
+    const initialRaf = requestAnimationFrame(tick);
+    this.activeWorkers.set(pElement, { rafId: initialRaf, startTime });
+  }
+
+  finalizeParagraph(pElement, text) {
+    this.cancelWorker(pElement);
+    pElement.dataset.decrypted = 'true';
+    pElement.textContent = text;
+    pElement.classList.add('resolved');
+
+    // Safe injection of redaction markers now that geometry is finalized
+    this.redactionEngine.applyRedactions(pElement.parentElement, this.currentTargets);
+    this.updateReadingProgress();
+  }
+
+  cancelWorker(pElement) {
+    if (this.activeWorkers.has(pElement)) {
+      const { rafId } = this.activeWorkers.get(pElement);
+      cancelAnimationFrame(rafId);
+      this.activeWorkers.delete(pElement);
+    }
+  }
+
+  cancelAll() {
+    this.activeWorkers.forEach((worker) => {
+      cancelAnimationFrame(worker.rafId);
+    });
+    this.activeWorkers.clear();
+  }
+
+  resolveEntireChapter(container = document.querySelector('#prose-viewport')) {
+    this.cancelAll();
+    if (this.observer) this.observer.disconnect();
+
+    const paragraphs = (container || document).querySelectorAll('.prose-paragraph');
+    paragraphs.forEach(p => {
+      const fullText = p.dataset.raw || p.textContent.trim();
+      p.textContent = fullText;
+      p.dataset.decrypted = 'true';
+      p.classList.add('resolved');
     });
 
-    // 2.5 2.5D Interactive Tilt on Anchor Items
-    if (!reduceMotion) {
-      document.querySelectorAll('.anchor-item').forEach(card => {
-        card.addEventListener('pointermove', (e) => {
-          const r = card.getBoundingClientRect();
-          const px = (e.clientX - r.left) / r.width - 0.5;
-          const py = (e.clientY - r.top) / r.height - 0.5;
-          card.style.transform = `perspective(500px) rotateY(${px * 16}deg) rotateX(${-py * 16}deg) translateY(-2px)`;
-        });
+    this.redactionEngine.applyRedactions(container, this.currentTargets);
+    this.updateReadingProgress(1.0);
+    sound.playTone(680, 0.08, 'sine', 0.02);
+  }
 
-        card.addEventListener('pointerleave', () => {
-          card.style.transform = '';
-        });
+  setMode(newMode) {
+    if (['ritual', 'fast', 'instant'].includes(newMode)) {
+      this.mode = newMode;
+      localStorage.setItem('pm_decrypt_mode', newMode);
+      if (newMode === 'instant') {
+        this.resolveEntireChapter();
+      }
+    }
+  }
 
-        card.addEventListener('click', () => {
-          beep(620, 0.08, 'triangle', 0.035);
-        });
-      });
+  updateReadingProgress(forcedRatio = null) {
+    const indicator = document.querySelector('#sticky-progress-indicator');
+    if (!indicator) return;
+
+    if (forcedRatio !== null) {
+      indicator.style.width = `${Math.min(Math.max(forcedRatio, 0), 1) * 100}%`;
+      return;
     }
 
-    // 2.6 Button Tactile Audio Feedback
-    document.querySelectorAll('.hud-button, .drawer-close, .modal-close').forEach(btn => {
-      btn.addEventListener('click', () => {
-        beep(540, 0.06, 'triangle', 0.025);
-      });
-    });
+    const total = document.querySelectorAll('.prose-paragraph').length;
+    const resolved = document.querySelectorAll('.prose-paragraph.resolved').length;
+    const ratio = total > 0 ? (resolved / total) : 0;
+    indicator.style.width = `${ratio * 100}%`;
+  }
+}
 
-    // 2.7 Berth 44 Launch Key Reactor Spool Audio
-    const slotKeyBtn = document.getElementById('slot-key-btn');
-    if (slotKeyBtn) {
-      slotKeyBtn.addEventListener('click', () => {
-        playReactorSpool();
-        const scopeBox = document.querySelector('.canvas-wrapper');
-        if (scopeBox) {
-          scopeBox.classList.add('spike');
-        }
-      });
+/* ----------------------------------------------------------------------------
+   4. READING FOCUS CONTROLLER (DIRECTIONAL HYSTERESIS)
+   ------------------------------------------------------------------------- */
+export class ReadingFocusController {
+  constructor() {
+    this.proseContainer = null;
+    this.isActive = false;
+    this.scrollThreshold = 180;
+    this.boundScrollHandler = this.handleScroll.bind(this);
+    this.boundKeyHandler = this.handleKeyDown.bind(this);
+  }
+
+  init(containerSelector = '#prose-viewport') {
+    this.proseContainer = document.querySelector(containerSelector);
+    if (!this.proseContainer) return;
+
+    window.addEventListener('scroll', this.boundScrollHandler, { passive: true });
+    window.addEventListener('keydown', this.boundKeyHandler);
+  }
+
+  destroy() {
+    window.removeEventListener('scroll', this.boundScrollHandler);
+    window.removeEventListener('keydown', this.boundKeyHandler);
+    this.setFocusMode(false);
+  }
+
+  handleScroll() {
+    if (!this.proseContainer) return;
+    const rect = this.proseContainer.getBoundingClientRect();
+    const scrollY = window.scrollY || document.documentElement.scrollTop;
+
+    // Asymmetric Hysteresis:
+    // Activate when scrolled 180px down into prose
+    if (scrollY > this.scrollThreshold && rect.top < 120 && !this.isActive) {
+      this.setFocusMode(true);
+    } 
+    // Deactivate only when scrolled back up to top boundary
+    else if ((scrollY <= this.scrollThreshold || rect.top > 160) && this.isActive) {
+      this.setFocusMode(false);
     }
+  }
 
-    // 2.8 Ignition Gate Audio
-    const gateBtn = document.getElementById('gate-ignite-btn');
-    if (gateBtn) {
-      gateBtn.addEventListener('click', () => {
-        [220, 330, 440, 660].forEach((f, i) => {
-          setTimeout(() => beep(f, 0.16, 'triangle', 0.04), i * 80);
-        });
-      });
+  handleKeyDown(e) {
+    // Esc is the universal exit hatch for reading focus
+    if (e.key === 'Escape' && this.isActive) {
+      this.setFocusMode(false);
     }
+  }
 
-    // 2.9 Subconscious Strata Node Filtering
-    document.querySelectorAll('.strata-node').forEach(node => {
-      node.addEventListener('click', () => {
-        const strata = node.getAttribute('data-strata');
-        document.querySelectorAll('.strata-node').forEach(n => n.classList.remove('active'));
-        node.classList.add('active');
+  setFocusMode(activate) {
+    if (this.isActive === activate) return;
+    this.isActive = activate;
 
-        app.setHarmonicTheme(strata);
-        playHarmonicChord(strata);
-        beep(740, 0.06, 'sine', 0.03);
+    document.body.classList.toggle('reading-active', activate);
+
+    window.dispatchEvent(new CustomEvent('pm:reading-focus', {
+      detail: { active: activate }
+    }));
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   5. TACTILE 2.5D GYRO / POINTER PARALLAX (MOTION-SAFE)
+   ------------------------------------------------------------------------- */
+export function initTactileInteractions() {
+  const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (isReduced) return;
+
+  // Subtle pointer position tracking for CSS radial gradients
+  window.addEventListener('pointermove', (e) => {
+    document.documentElement.style.setProperty('--cursor-x', `${e.clientX}px`);
+    document.documentElement.style.setProperty('--cursor-y', `${e.clientY}px`);
+  }, { passive: true });
+
+  // 2.5D Tilt on Anchor & Marginalia Cards
+  const bindTiltCards = (selector) => {
+    document.querySelectorAll(selector).forEach(card => {
+      if (card.dataset.tiltBound) return;
+      card.dataset.tiltBound = "true";
+
+      card.addEventListener('pointermove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+
+        card.style.transform = `
+          perspective(600px) 
+          rotateX(${-y * 10}deg) 
+          rotateY(${x * 10}deg) 
+          translateY(-2px)
+        `;
+      });
+
+      card.addEventListener('pointerleave', () => {
+        card.style.transform = '';
       });
     });
+  };
 
-    /* ==========================================================================
-       3. KEYBOARD HOTKEYS FOR EFFORTLESS READING & GM PREP
-       ========================================================================== */
-    window.addEventListener('keydown', (e) => {
-      // Don't intercept if inside an input or holding modifier keys
-      if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
+  bindTiltCards('.anchor-card');
+  bindTiltCards('.marginalia-card');
 
-      const k = e.key.toLowerCase();
-
-      // Number keys 1–5: Jump to chapters
-      if (['1', '2', '3', '4', '5'].includes(k)) {
-        const idx = parseInt(k, 10) - 1;
-        if (idx < app.data.chapters.length) {
-          app.loadChapter(idx);
-          beep(480 + idx * 60, 0.07, 'triangle', 0.035);
-        }
-      }
-
-      // 'D': Toggle LANCER Dossier Drawer
-      else if (k === 'd') {
-        const isOpen = app.lancerDrawer?.classList.contains('open');
-        app.toggleDossier(!isOpen);
-        beep(isOpen ? 320 : 640, 0.08, 'triangle', 0.035);
-      }
-
-      // 'M': Toggle Audio Mute / Unmute
-      else if (k === 'm') {
-        if (app.audioToggleBtn) {
-          app.audioToggleBtn.click();
-          beep(580, 0.06, 'sine', 0.025);
-        }
-      }
-
-      // 'V': Toggle Vist Foundation Black-Wax Letter Modal
-      else if (k === 'v') {
-        if (app.vistModal) {
-          const isHidden = app.vistModal.classList.contains('hidden');
-          if (isHidden) {
-            app.vistModal.classList.remove('hidden');
-            app.vistModal.setAttribute('aria-hidden', 'false');
-            beep(220, 0.35, 'sawtooth', 0.04);
-          } else {
-            app.vistModal.classList.add('hidden');
-            app.vistModal.setAttribute('aria-hidden', 'true');
-            beep(200, 0.08, 'sine', 0.025);
-          }
-        }
-      }
-
-      // Right Arrow: Next Chapter
-      else if (k === 'arrowright') {
-        if (app.currentChapterIndex < app.data.chapters.length - 1) {
-          app.loadChapter(app.currentChapterIndex + 1);
-          beep(520, 0.06, 'triangle', 0.03);
-        }
-      }
-
-      // Left Arrow: Previous Chapter
-      else if (k === 'arrowleft') {
-        if (app.currentChapterIndex > 0) {
-          app.loadChapter(app.currentChapterIndex - 1);
-          beep(420, 0.06, 'triangle', 0.03);
-        }
-      }
-    });
-
-    /* ==========================================================================
-       4. PROCEDURAL CONSOLE LOG STREAM TICKER
-       ========================================================================== */
-    const telemetryFeeds = [
-      "COCKPIT POD SEALED // BERTH 44 GANTRY ACTIVE // MINOVSKY DISPERSAL NOMINAL",
-      "PSYCHO-FRAME CARRIER WAVE DETECTED // FREQ: 528.0 HZ // SYNC 99.8%",
-      "MEMORY STRATA ALPHA ACTIVE // RESIDUAL SALINITY DRIFT: +0.012 µV",
-      "TACTICAL OVERRIDE LATENT // 99.4TH PERCENTILE KINETIC REFLEX ARMED",
-      "LUNAR DOME 1ST RING NOMINAL // STERLING RESIDENCE COMMUNICATOR QUIET",
-      "VIST FOUNDATION ENCRYPTED TELEMETRY KEY PRIMED FOR LAGRANGE POINT 1"
-    ];
-
-    setInterval(() => {
-      const consoleEl = document.getElementById('console-stream');
-      if (consoleEl && app.vistModal?.classList.contains('hidden')) {
-        const msg = telemetryFeeds[Math.floor(Math.random() * telemetryFeeds.length)];
-        consoleEl.textContent = msg;
-      }
-    }, 7000);
+  // Observer to auto-bind dynamically rendered cards
+  const observer = new MutationObserver(() => {
+    bindTiltCards('.anchor-card');
+    bindTiltCards('.marginalia-card');
   });
 
-})();
+  const rails = document.querySelector('#cockpit-workspace') || document.body;
+  observer.observe(rails, { childList: true, subtree: true });
+}
+
+/* ----------------------------------------------------------------------------
+   6. MODULE INITIALIZATION & CONVENIENCE EXPORTS
+   ------------------------------------------------------------------------- */
+export function initReadingFocusMode() {
+  const controller = new ReadingFocusController();
+  controller.init('#prose-container, #prose-viewport');
+  return controller;
+}
