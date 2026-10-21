@@ -3,271 +3,309 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Psycho-Monitor Diagnostic // Unit-03 Tri-Harmonic Resonance [Subject: Eria Sterling]">
+  <meta name="description" content="PSYCHO-MONITOR // Unit-03 Tri-Harmonic Resonance [Subject: Eria Sterling] — Character & Narrative Showcase">
   <title>PSYCHO-MONITOR // MK-03 RES-SYNC [ANOMALY: 088-ERIA]</title>
   
-  <!-- Typography: Tactical Monospace paired with Melancholic Editorial Serif -->
+  <!-- Typography: Tactical Monospace + High-Legibility Editorial Serif + Classical Display -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,400&display=swap" rel="stylesheet">
   
+  <!-- Stylesheets -->
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="immersive.css">
 </head>
-<body class="cockpit-theme-ambient">
+<body class="cockpit-theme-ambient theme-alpha">
 
   <!-- Atmospheric CRT & Optical Vignette Layers -->
   <div class="crt-scanlines" aria-hidden="true"></div>
   <div class="crt-vignette" aria-hidden="true"></div>
   <div class="glass-reflection" aria-hidden="true"></div>
 
-  <!-- Main Cockpit HUD Wrapper -->
+  <!-- Main Cockpit Container -->
   <div class="hud-container">
 
-    <!-- Top Diagnostic Status Bar -->
+    <!-- ====================================================================
+         TOP STATUS & TELEMETRY HEADER
+         ==================================================================== -->
     <header class="hud-header">
       <div class="header-left">
-        <span class="hud-tag sys-alert">TESTBED: PROTOTYPE UNIT-03</span>
+        <span class="hud-tag sys-alert">UNIT-03 // PARACAUSAL TESTBED</span>
         <span class="hud-breadcrumb">ANAHEIM BLACK-PROJECTS // SEC-088</span>
-        <span class="hud-glitch-badge">UNSHIELDED PSYCHO-FRAME</span>
+        <span class="hud-status-chip" id="dominant-harmonic-chip">DOMINANT: HARMONIC α (RIAN)</span>
       </div>
 
       <div class="header-center">
-        <h1 class="hud-title">NEURAL RESONANCE DIAGNOSTIC</h1>
-        <p class="hud-subtitle">BIOMETRIC COMPOSITION // TRIPARTITE ANOMALY</p>
+        <h1 class="hud-title">PSYCHO-MONITOR // MK-03</h1>
+        <p class="hud-subtitle">BIOMETRIC DOSSIER & NARRATIVE LOG // SUBJECT: ERIA STERLING</p>
       </div>
 
       <div class="header-right">
-        <!-- Procedural Ambient Synthesizer Controller -->
-        <button id="audio-toggle-btn" class="hud-button audio-btn" type="button" aria-pressed="false">
+        <!-- Persistent Audio Control -->
+        <button id="audio-toggle-btn" class="hud-button audio-btn" type="button" aria-pressed="false" title="Toggle Background Music (HotKey: M)">
           <span class="status-indicator"></span>
-          <span class="btn-text">RESONANCE AUDIO: <strong id="audio-label">STANDBY</strong></span>
+          <span class="btn-text">BGM: <strong id="audio-label">STANDBY</strong></span>
         </button>
+
+        <!-- Slide-out LANCER Sheet Trigger -->
+        <button id="toggle-dossier-btn" class="hud-button dossier-btn" type="button" aria-expanded="false" title="Toggle LANCER Pilot & Mech Sheet (HotKey: D)">
+          <span class="crest-icon">𐂂</span>
+          <span class="btn-text">PILOT DOSSIER</span>
+        </button>
+
         <div class="hud-clock" id="mission-clock">U.C. 0099.04.18 // 23:42:19</div>
       </div>
     </header>
 
-    <!-- Top Diagnostic Visualizer: Oscilloscope & Biometric Stream -->
+    <!-- ====================================================================
+         TOP DIAGNOSTIC OSCILLOSCOPE & TAPE-REEL STRIP
+         ==================================================================== -->
     <section class="oscilloscope-section">
       <div class="scope-card">
         <div class="scope-header">
           <div class="scope-title-group">
             <span class="scope-icon">∿</span>
-            <span class="scope-label">PSYCHO-FIELD HARMONIC DRIFT</span>
+            <span class="scope-label">PSYCHO-FIELD HARMONIC RESONANCE</span>
+            <span class="scope-tag" id="current-track-name">TRACK: Standby</span>
           </div>
           <div class="scope-metrics">
             <span class="metric-item">FREQ: <strong id="scope-freq">432.8 Hz</strong></span>
-            <span class="metric-item">SYNC: <strong id="scope-sync">94.2%</strong></span>
-            <span class="metric-item">RES-NOISE: <strong id="scope-noise">0.038 µV</strong></span>
-            <span class="metric-item status-flux">CONSCIOUSNESS: ENTANGLED</span>
+            <span class="metric-item">SYNC: <strong id="scope-sync">96.4%</strong></span>
+            <span class="metric-item">PARACAUSAL STRESS: <strong id="scope-stress" class="stress-nominal">14% [STABLE]</strong></span>
+            <span class="metric-item tape-reel-item">REEL: <strong id="tape-time">00:00.0</strong></span>
           </div>
         </div>
 
-        <!-- HTML5 Canvas for Procedural Brainwave & Tape-Flutter Waveform -->
         <div class="canvas-wrapper">
-          <canvas id="waveform-canvas" width="1200" height="140"></canvas>
+          <canvas id="waveform-canvas" width="1200" height="90"></canvas>
           <div class="canvas-grid-overlay" aria-hidden="true"></div>
           <div class="canvas-legend">
-            <span>CH-1: MEMORY SALINITY</span>
-            <span>CH-2: TRIGGER MOTOR REFLEX</span>
-            <span>CH-3: BIOLOGICAL VESSEL</span>
+            <span>CH-1: SALTWATER ORIGIN [α]</span>
+            <span>CH-2: TACTICAL SHADOW [β]</span>
+            <span>CH-3: PORCELAIN VESSEL [γ]</span>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- The 3 Identity Selectors (Harmonic Partitions) -->
-    <nav class="harmonic-nav" aria-label="Identity Partitions">
-      
-      <!-- Harmonic α: Rian -->
-      <button class="harmonic-tab active" data-harmonic="alpha" type="button">
-        <div class="tab-accent tab-accent-alpha"></div>
-        <div class="tab-meta">HARMONIC α // U.C. 0093</div>
-        <div class="tab-name">THE SALTWATER SOUL</div>
-        <div class="tab-sub">Rian — The Dock Mechanic (Lost Origin)</div>
-        <div class="tab-tags">
-          <span>SUNDA STRAIT</span>
-          <span>DISPLACED</span>
-          <span>AXIS IMPACT</span>
+    <!-- ====================================================================
+         THE 60-SECOND GM EXECUTIVE BRIEFING (COLLAPSIBLE ACCORDION)
+         Designed specifically for the DM to get high-concept hooks instantly
+         ==================================================================== -->
+    <section class="gm-briefing-section">
+      <details class="gm-accordion" id="gm-briefing-box" open>
+        <summary class="gm-summary">
+          <div class="gm-summary-title">
+            <span class="gm-badge">GM EXECUTIVE BRIEFING</span>
+            <span class="gm-heading">CHARACTER PITCH, CAMPAIGN HOOKS & ADVENTURE SEEDS</span>
+          </div>
+          <span class="gm-toggle-icon">▾</span>
+        </summary>
+        <div class="gm-content" id="gm-briefing-content">
+          <!-- Dynamically populated from data.js -->
         </div>
-      </button>
+      </details>
+    </section>
 
-      <!-- Harmonic β: Julian Ross -->
-      <button class="harmonic-tab" data-harmonic="beta" type="button">
-        <div class="tab-accent tab-accent-beta"></div>
-        <div class="tab-meta">HARMONIC β // U.C. 0095</div>
-        <div class="tab-name">THE PHANTOM ACE</div>
-        <div class="tab-sub">Lt. Julian Ross (Target Nemesis)</div>
-        <div class="tab-tags">
-          <span>ROGUE ACE</span>
-          <span>COMBAT CONDITIONED</span>
-          <span>DOGTAG 088</span>
-        </div>
-      </button>
-
-      <!-- Harmonic γ: Eria Sterling -->
-      <button class="harmonic-tab" data-harmonic="gamma" type="button">
-        <div class="tab-accent tab-accent-gamma"></div>
-        <div class="tab-meta">HARMONIC γ // U.C. 0099</div>
-        <div class="tab-name">THE PORCELAIN CAGE</div>
-        <div class="tab-sub">Eria Sterling (The Living Host)</div>
-        <div class="tab-tags">
-          <span>VON BRAUN</span>
-          <span>ANAHEIM COVER-UP</span>
-          <span>VIST SUMMONS</span>
-        </div>
-      </button>
-
+    <!-- ====================================================================
+         CHAPTER JUMP NAVIGATION BAR
+         ==================================================================== -->
+    <nav class="chapter-nav" aria-label="Story Chapters">
+      <div class="chapter-nav-label">SECTOR LOGS:</div>
+      <div class="chapter-nav-buttons" id="chapter-nav-buttons">
+        <!-- Dynamically rendered from data.js (Ch 1 to 5) -->
+      </div>
     </nav>
 
-    <!-- Main Dynamic Content Grid -->
-    <main class="dossier-grid">
+    <!-- ====================================================================
+         MAIN THREE-COLUMN READING STAGE
+         Left: Sensory Reliquary | Center: Prose Reader | Right: Marginalia
+         ==================================================================== -->
+    <main class="reading-stage-layout">
 
-      <!-- Column 1: Hard Telemetry & Identity Biometrics -->
-      <section class="hud-panel telemetry-panel">
-        <div class="panel-header">
-          <h2 class="panel-title">BIOLOGICAL & PSYCHO-METRIC FILE</h2>
-          <span class="panel-id" id="panel-file-id">FILE // SEC-0093-α</span>
+      <!-- LEFT COLUMN: The Sensory Anchor Reliquary (INFP 4w5 Anchors) -->
+      <aside class="reliquary-rail" aria-label="Sensory Anchors">
+        <div class="rail-header">
+          <span class="rail-title">SENSORY ANCHORS</span>
+          <span class="rail-sub">IDENTITY TOTEMS</span>
+        </div>
+        <div class="anchor-list" id="anchor-list">
+          <!-- Dynamically populated from data.js -->
         </div>
 
-        <div class="telemetry-body" id="telemetry-content">
-          <!-- Populated dynamically by script.js -->
-        </div>
-
-        <div class="panel-footer">
-          <span class="footer-note">ANOMALY INDEX: NON-STANDARD BIO-RECONSTRUCTION</span>
-          <span class="status-dot"></span>
-        </div>
-      </section>
-
-      <!-- Column 2: Sensory Memory Vault & INFP 4w5 Introspective Log -->
-      <section class="hud-panel memory-panel">
-        <div class="panel-header">
-          <h2 class="panel-title">SENSORY RECALL // NEURAL ECHOES</h2>
-          <span class="memory-source" id="memory-source-label">STREAM: EQUATORIAL COASTAL SUITE</span>
-        </div>
-
-        <div class="memory-body">
-          <div class="memory-quote-block">
-            <p class="memory-quote" id="memory-quote-text">
-              <!-- Dynamic introspective quote -->
-            </p>
-          </div>
-
-          <div class="memory-sensory-grid" id="memory-sensory-items">
-            <!-- Dynamic sensory items (smell, touch, sound, artifact) -->
-          </div>
-
-          <div class="internal-monologue" id="internal-monologue-text">
-            <!-- Dynamic personal reflection / diary extract -->
+        <!-- Real-time Subconscious Marginalia Feed -->
+        <div class="subconscious-box">
+          <div class="subconscious-title">SUBCONSCIOUS ECHO</div>
+          <div class="subconscious-stream" id="subconscious-text">
+            "The sea smelled like burnt two-stroke oil and salt before the sky tore open..."
           </div>
         </div>
+      </aside>
 
-        <div class="panel-footer memory-footer">
-          <span class="tape-counter">TAPE REEL COUNTER: <strong id="tape-time">04:18.09</strong></span>
-          <span class="tape-status">WARMTH / SATURATION NOMINAL</span>
-        </div>
-      </section>
+      <!-- CENTER COLUMN: Editorial Story Reader -->
+      <article class="prose-viewport" id="prose-viewport">
+        <!-- Chapter Header Banner -->
+        <header class="chapter-header" id="chapter-header">
+          <div class="chapter-meta-line">
+            <span class="chapter-num" id="chapter-num">CHAPTER 1</span>
+            <span class="chapter-year" id="chapter-year">U.C. 0093 // SUNDA STRAIT</span>
+            <span class="chapter-read-time" id="chapter-read-time">EST. READ: 4 MIN</span>
+          </div>
+          <h2 class="chapter-title" id="chapter-title">THE WATER AND THE SALT</h2>
+          <div class="chapter-audio-tag">
+            <span>SOUNDTRACK:</span>
+            <strong id="chapter-track-title">Cicada — Ocean Foam</strong>
+          </div>
+        </header>
 
-      <!-- Column 3: Physical Artifact & Classified Evidence Drawer -->
-      <section class="hud-panel artifact-panel">
-        <div class="panel-header">
-          <h2 class="panel-title">ANCHOR ARTIFACT // EVIDENCE</h2>
-          <span class="artifact-clearance">CLEARANCE: RESTRICTED</span>
+        <hr class="prose-divider">
+
+        <!-- Full Narrative Text Stage -->
+        <div class="prose-content" id="prose-content">
+          <!-- Rendered paragraph by paragraph from data.js with interactive redaction bars -->
         </div>
 
-        <div class="artifact-body" id="artifact-content">
-          <!-- Dynamic artifact view (e.g. Maya's Drawing, Julian's Tag, Vist Letter) -->
+        <!-- Chapter Bottom Pager -->
+        <footer class="prose-footer">
+          <button id="prev-chapter-btn" class="hud-button chapter-nav-btn" type="button">◀ PREVIOUS LOG</button>
+          <span class="reading-progress-pill" id="reading-progress">LOG 1 OF 5</span>
+          <button id="next-chapter-btn" class="hud-button chapter-nav-btn" type="button">NEXT LOG ▶</button>
+        </footer>
+      </article>
+
+      <!-- RIGHT COLUMN: Sub-Harmonic Marginalia Stream (Desktop view) -->
+      <aside class="marginalia-rail" aria-label="Neural Marginalia">
+        <div class="rail-header">
+          <span class="rail-title">HARMONIC STRATA</span>
+          <span class="rail-sub">TRI-CONSCIOUSNESS</span>
+        </div>
+        <div class="strata-indicators">
+          <div class="strata-node node-alpha active" data-strata="alpha">
+            <span class="strata-dot"></span>
+            <span class="strata-name">α: RIAN</span>
+            <span class="strata-desc">Civilian Marine Mechanic</span>
+          </div>
+          <div class="strata-node node-beta" data-strata="beta">
+            <span class="strata-dot"></span>
+            <span class="strata-name">β: JULIAN</span>
+            <span class="strata-desc">Guerilla Interceptor Ace</span>
+          </div>
+          <div class="strata-node node-gamma" data-strata="gamma">
+            <span class="strata-dot"></span>
+            <span class="strata-name">γ: ERIA</span>
+            <span class="strata-desc">Lunar Heiress / Reconstructed Host</span>
+          </div>
         </div>
 
-        <!-- Direct Trigger for Vist Foundation Encryption Modal -->
-        <div class="panel-footer artifact-action-footer">
-          <button id="open-vist-modal-btn" class="hud-button danger-btn" type="button">
-            <span class="warning-icon">⚠</span>
-            <span>INSPECT ENCRYPTED SUMMONS [VIST-09]</span>
-          </button>
+        <div class="margin-annotations" id="margin-annotations">
+          <!-- Contextual notes populated based on active chapter -->
         </div>
-      </section>
+      </aside>
 
     </main>
 
-    <!-- Bottom Tactical Status Bar & Active Cockpit Sub-Stream -->
+    <!-- ====================================================================
+         BOTTOM TACTICAL FOOTER
+         ==================================================================== -->
     <footer class="hud-footer">
       <div class="footer-left">
         <span class="terminal-prompt">&gt;</span>
-        <span class="footer-telemetry" id="console-stream">COCKPIT POD SEALED // MINOVSKY DRIFT NOMINAL // BERTH 44 CLEAR</span>
+        <span class="footer-telemetry" id="console-stream">COCKPIT POD SEALED // BGM STREAM NOMINAL // BERTH 44 CLEAR</span>
       </div>
       <div class="footer-center">
-        <span class="hud-pill">PSYCHO-FRAME HARMONICS: 3 NODES DETECTED</span>
-        <span class="key-hint"><b>1</b><b>2</b><b>3</b> HARMONIC &nbsp;<b>M</b> AUDIO &nbsp;<b>V</b> SUMMONS</span>
+        <span class="hud-pill">3 HARMONICS SYNCHRONIZED</span>
+        <span class="key-hint"><b>1–5</b> CHAPTERS &nbsp;<b>D</b> DOSSIER &nbsp;<b>M</b> MUTE AUDIO</span>
       </div>
       <div class="footer-right">
-        <span class="author-signature">FRACTURED CENTURY // SUBJECT: ERIA STERLING</span>
+        <span class="author-signature">FRACTURED CENTURY // PILOT ARCHIVE 088</span>
       </div>
     </footer>
 
   </div>
 
-  <!-- Encrypted Vist Foundation Black-Wax Letter Modal Drawer -->
-  <aside id="vist-modal" class="modal-overlay hidden" aria-hidden="true" role="dialog" aria-labelledby="vist-title">
+  <!-- ====================================================================
+       SLIDE-OUT LANCER PILOT & MECH SPEC DRAWER (RIGHT SIDE)
+       ==================================================================== -->
+  <aside id="lancer-drawer" class="lancer-drawer" aria-hidden="true" role="dialog" aria-labelledby="dossier-heading">
+    <div class="drawer-header">
+      <div class="drawer-title-group">
+        <span class="drawer-badge">LANCER RPG // PILOT DOSSIER</span>
+        <h2 id="dossier-heading" class="drawer-heading">CALLSIGN: GHOST SEED</h2>
+      </div>
+      <button id="close-dossier-btn" class="drawer-close" type="button" aria-label="Close dossier drawer">&times;</button>
+    </div>
+
+    <div class="drawer-body" id="lancer-drawer-content">
+      <!-- Populated dynamically from data.js -->
+    </div>
+  </aside>
+
+  <!-- ====================================================================
+       INTERACTIVE ARTIFACT DETAIL MODAL
+       ==================================================================== -->
+  <aside id="artifact-modal" class="modal-overlay hidden" aria-hidden="true" role="dialog" aria-labelledby="artifact-modal-title">
     <div class="modal-card">
       <div class="modal-header">
-        <div class="modal-crest">
-          <span class="unicorn-crest">𐂂</span>
-          <span id="vist-title" class="modal-heading">THE VIST FOUNDATION // DISCRETIONARY INTELLIGENCE</span>
-        </div>
-        <button id="close-vist-modal-btn" class="modal-close" type="button" aria-label="Close intelligence file">&times;</button>
+        <h3 id="artifact-modal-title" class="modal-heading">INSPECTING ARTIFACT</h3>
+        <button id="close-artifact-modal-btn" class="modal-close" type="button">&times;</button>
       </div>
-
-      <div class="modal-body">
-        <div class="wax-seal-graphic" aria-hidden="true">
-          <div class="wax-circle">
-            <span>VIST</span>
-          </div>
-        </div>
-
-        <div class="letter-content">
-          <div class="letter-meta">
-            <span>ORIGIN: L1 RECEPTACLE // CIPHER ALPHA-ZERO</span>
-            <span>TARGET: DIRECTOR VINCENT STERLING (PRIVATE RESIDENCE)</span>
-            <span>CLASSIFICATION: HIGH TREASON // RETRIEVAL ORDER</span>
-          </div>
-
-          <hr class="letter-divider">
-
-          <p class="letter-text">
-            <strong>DIRECTOR STERLING:</strong>
-          </p>
-          <p class="letter-text">
-            For three years, the Vist Foundation has maintained the deliberate oversight of your division's ledger. We are fully aware that <em>Lt. Julian Ross</em> was not incinerated in the Sunda sector, nor was Prototype Unit-03 vaporized in combat.
-          </p>
-          <p class="letter-text">
-            We know what you carried home to Von Braun City in your personal shuttle. We know whose face sits at your breakfast table in the 1st Ring.
-          </p>
-          <p class="letter-text letter-highlight">
-            The pilot is to report to <strong>Berth 44, Outer Docks, Von Braun Industrial Perimeter</strong> before 2400 hours tonight. She is to take the controls of Unit-03 and depart for Lagrange Point 1.
-          </p>
-          <p class="letter-text">
-            Should she fail to report, the unedited black-box telemetry—alongside DNA markers proving the living presence of Julian Ross—will be delivered simultaneously to the Anaheim Board of Directors and the UNION Military Intelligence.
-          </p>
-          <p class="letter-text letter-closing">
-            <em>The bill is now due, Vincent. Keep your house safe.</em>
-          </p>
-
-          <div class="letter-stamp">
-            <span class="stamp-box">FOUNDATION AUTHORIZED // ZERO RETRACTION</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <span class="modal-warning">TELEMETRY KEY ACCEPTED AT GANTRY CONSOLE // LAUNCH TUBE READY</span>
-        <button id="modal-acknowledge-btn" class="hud-button primary-btn" type="button">DISMISS TO COCKPIT</button>
+      <div class="modal-body" id="artifact-modal-body">
+        <!-- Rendered dynamically on click -->
       </div>
     </div>
   </aside>
 
-  <!-- Application Logic & Procedural Sound Engine -->
+  <!-- ====================================================================
+       VIST FOUNDATION BLACK-WAX LETTER & BERTH 44 LAUNCH KEY MODAL
+       ==================================================================== -->
+  <aside id="vist-modal" class="modal-overlay hidden" aria-hidden="true" role="dialog" aria-labelledby="vist-title">
+    <div class="modal-card vist-card">
+      <div class="modal-header">
+        <div class="modal-crest">
+          <span class="unicorn-crest">𐂂</span>
+          <span id="vist-title" class="modal-heading">THE VIST FOUNDATION // DISCRETIONARY CIPHER</span>
+        </div>
+        <button id="close-vist-modal-btn" class="modal-close" type="button">&times;</button>
+      </div>
+
+      <div class="modal-body vist-modal-body" id="vist-modal-content">
+        <!-- Dynamically rendered from data.js -->
+      </div>
+
+      <div class="modal-footer">
+        <button id="slot-key-btn" class="hud-button danger-btn" type="button">
+          <span>⏵ ACCEPT TELEMETRY KEY & PRIME BERTH 44</span>
+        </button>
+        <button id="dismiss-vist-modal-btn" class="hud-button" type="button">RETURN TO LOGS</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ====================================================================
+       BIG PLAY IGNITION GATE MODAL
+       Requires a deliberate click to start audio and enter the cockpit
+       ==================================================================== -->
+  <div id="big-play-gate" class="play-gate-overlay">
+    <div class="gate-card">
+      <div class="gate-badge">⚠ NEURAL AUDIO LINK STANDBY</div>
+      <h2 class="gate-title">UNIT-03 COCKPIT INITIALIZATION</h2>
+      <p class="gate-desc">
+        Welcome, Game Master. Engage the neural relay to stream the curated chapter soundtrack, load Subject 088's classified dossiers, and enter the reading viewport.
+      </p>
+      <button id="gate-ignite-btn" class="gate-btn" type="button">
+        ⏵ INITIALIZE COCKPIT & ENGAGE BGM
+      </button>
+      <div class="gate-subtext">You can mute or change volume at any time via the top status bar.</div>
+    </div>
+  </div>
+
+  <!-- Invisible YouTube IFrame Container for continuous audio -->
+  <div id="yt-player-container" class="yt-hidden-slot" aria-hidden="true">
+    <div id="yt-player-slot"></div>
+  </div>
+
+  <!-- Core Scripts in Proper Dependency Order -->
+  <script src="data.js"></script>
   <script src="script.js"></script>
   <script src="immersive.js"></script>
 </body>

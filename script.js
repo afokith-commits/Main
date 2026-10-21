@@ -1,274 +1,26 @@
 /**
  * PSYCHO-MONITOR // MK-03 RES-SYNC [ANOMALY: 088-ERIA]
- * Big Cockpit Audio Ignition, Infinite Auto-Loop, Oscilloscope & Tri-Harmonic Database
+ * Core Application Controller, Narrative Reader & Gapless Audio Engine
  */
 
 (function () {
   'use strict';
 
   /* ==========================================================================
-     1. THE TRI-HARMONIC DATA VAULT (Embeddable YouTube Tracks & Telemetry)
+     1. YOUTUBE CONTINUOUS AUDIO CONTROLLER
      ========================================================================== */
-  const HARMONICS = {
-    alpha: {
-      id: "SEC-0093-α",
-      themeClass: "theme-alpha",
-      scope: { freq: "432.8 Hz", sync: "96.4%", noise: "0.012 µV" },
-      
-      // Cicada — Ocean Foam
-      youtubeId: "QpRuSDvorBc", 
-      trackTitle: "Cicada — Ocean Foam (浪沫撫過礫石灘)",
-      
-      telemetry: {
-        designation: "ORIGIN SOUL // RIAN",
-        biologicalAge: "17 (at point of temporal termination)",
-        birthplace: "Sunda Strait Maritime Sector, Earth",
-        statusBadge: "PHYSICALLY VAPORIZED // SOUL DISPLACED",
-        fields: [
-          { label: "Temporal Origin", val: "March U.C. 0093 (The Axis Disaster)" },
-          { label: "Vocation", val: "Civilian Marine Mechanic / Apprentice" },
-          { label: "Psych Profile", val: "Deep survivor's guilt, extreme mechanical empathy, protective instinct." },
-          { label: "Cellular Trace", val: "Negative (Original physical form completely dissolved into salt-ash)." },
-          { label: "Psycho-Drift Duration", val: "32 Months unanchored within orbital Psycho-Field." }
-        ],
-        callout: "The subject retains absolute memory of the equatorial tidal surge and the exact thermal bloom that vaporized the Sunda shelf. Anchoring reflex remains tied to manual combustion engines."
-      },
-      memory: {
-        source: "STREAM: SUNDA STRAIT COASTAL PIER // U.C. 0093",
-        quote: "“The sea smelled like burnt two-stroke oil and salt before the sky tore open. I can still feel Maya’s wrist slipping away through my fingers as the seawall turned to dust.”",
-        sensory: [
-          { icon: "♨", label: "Olfactory", desc: "Burnt castor oil, fried mackerel, ozone from the incoming monsoon." },
-          { icon: "✋", label: "Tactile", desc: "Grease worked deep beneath torn fingernails, hot aluminum cylinder heads." },
-          { icon: "♬", label: "Acoustic", desc: "Tire bumpers creaking against wood pilings; blown radio speaker playing news." },
-          { icon: "👁", label: "Visual", desc: "Molten glare erasing all shadows; the mountain of burning stone falling from orbit." }
-        ],
-        monologue: "I was seventeen. I was supposed to fix Pak Usman’s outboard motor by high tide and buy Maya her blue ink pens on Saturday. Now I’m trapped inside someone else’s delicate bones on the Moon, looking at hands that never held a wrench. I didn’t want a miracle. I just wanted to go home."
-      },
-      artifact: {
-        render: () => `
-          <div class="artifact-card">
-            <div class="artifact-visual-box">
-              <div class="notebook-page">
-                <div class="notebook-lines"><strong>MAYA'S DRAWING BOOK — PAGE 14</strong></div>
-                <div class="notebook-sketch-drawing">⛵ 〰〰 ☀</div>
-                <div style="font-size: 11px; text-align: center; color: #405070; font-family: sans-serif;">
-                  "Rian's fast boat. Keep out or I will tell Mama."
-                </div>
-              </div>
-            </div>
-            <p class="artifact-caption">
-              <strong>RECOVERED DIGITAL TRACE:</strong> Scanned page from an 80-sheet sketchpad recovered from the wreckage of the Sunda pier. Preserved in personal neural telemetry cache.
-            </p>
-          </div>
-        `
-      }
-    },
-
-    beta: {
-      id: "SEC-0095-β",
-      themeClass: "theme-beta",
-      scope: { freq: "684.2 Hz", sync: "88.1%", noise: "0.089 µV" },
-      
-      // Kevin Penkin — Gallantry and Recapitulation
-      youtubeId: "T_jgBbCsdeU", 
-      trackTitle: "Kevin Penkin — Gallantry and Recapitulation",
-
-      telemetry: {
-        designation: "TACTICAL SHADOW // LT. JULIAN ROSS",
-        biologicalAge: "26 (at fatal cockpit collapse)",
-        birthplace: "Side 6 Autonomous Colonies (Unregistered)",
-        statusBadge: "TERMINATED // VESSEL RECONSTRUCTED",
-        fields: [
-          { label: "Service Record", val: "Anti-Anaheim Irregular Ace // Guerilla Interceptor" },
-          { label: "Target Ledger", val: "42M Credits Anaheim logistics damage; 14 confirmed kills" },
-          { label: "Combat Reflex Index", val: "Extreme (99.4th Percentile Kinetic Synchronization)" },
-          { label: "Fatal Injury", val: "12-inch armor shard through pelvic bulkhead; hypovolemic shock" },
-          { label: "Paracausal Anomaly", val: "Cellular condensation triggered during Psycho-Frame collapse" }
-        ],
-        callout: "The soldier’s personality dissolved upon death, but his lethal autonomic conditioning remains permanently burned into the motor cortex of the reconstructed host."
-      },
-      memory: {
-        source: "STREAM: UNIT-03 COCKPIT CRASH SITE // U.C. 0095",
-        quote: "“Anaheim bastards. You build weapons for both sides, sell the coffins, and cash the dividend. If I’m going down, I’m costing you a few billion credits first.”",
-        sensory: [
-          { icon: "♨", label: "Olfactory", desc: "Vaporized copper bus-bars, synthetic coolant, arterial blood in the footwell." },
-          { icon: "✋", label: "Tactile", desc: "G-suit constricting broken ribs; cold rubberized control yokes vibrating." },
-          { icon: "♬", label: "Acoustic", desc: "Flat, unbroken warning tone of reactor containment breach; steady rain outside." },
-          { icon: "👁", label: "Visual", desc: "Hexagonal Psycho-Frame mesh glowing blinding white, collapsing inward like a dying star." }
-        ],
-        monologue: "When the triggers click into my fingers, my chest stops aching. My heartbeat drops to forty-eight beats a minute. Julian Ross’s dead hands take the levers, calculate trajectory angles, and pull the thermal blade without hesitating. It’s terrifying how easily his violence fits into my fingers."
-      },
-      artifact: {
-        render: () => `
-          <div class="artifact-card">
-            <div class="artifact-visual-box">
-              <div class="dogtag-plate">
-                <div class="dogtag-hole"></div>
-                <div class="dogtag-text">
-                  <span>ROSS, JULIAN</span>
-                  <span>LT. // 088-921-A</span>
-                  <span>BLOOD: O-POS</span>
-                  <span>STATUS: K.I.A. [FALSIFIED]</span>
-                </div>
-              </div>
-            </div>
-            <p class="artifact-caption">
-              <strong>PHYSICAL SPECIMEN:</strong> Stamped titanium identity tag recovered from around the throat of the adolescent girl found in the wreck. Secretly preserved in Vincent Sterling's private safe.
-            </p>
-          </div>
-        `
-      }
-    },
-
-    gamma: {
-      id: "SEC-0099-γ",
-      themeClass: "theme-gamma",
-      scope: { freq: "528.0 Hz", sync: "99.8%", noise: "0.004 µV" },
-      
-      // Matryoshka — Sacred Play Secret Place
-      youtubeId: "RqtIatDmt3A", 
-      trackTitle: "Matryoshka — Sacred Play Secret Place",
-
-      telemetry: {
-        designation: "LIVING MASK // ERIA STERLING",
-        biologicalAge: "19 (Current Chronological Host)",
-        birthplace: "Von Braun City Metropolitan Core, Luna",
-        statusBadge: "ACTIVE PILOT // TREASON COVER-UP",
-        fields: [
-          { label: "Legal Identity", val: "Daughter of Anaheim Senior Director Vincent Sterling" },
-          { label: "Medical Cover", val: "Severe pulmonary trauma from terrestrial Axis ash inhalation" },
-          { label: "Social Persona", val: "Sheltered lunar heiress, private scholar, patron of chamber music" },
-          { label: "Nocturnal Anomaly", val: "Repeated unauthorized entries into subterranean garage facilities" },
-          { label: "Summons Vector", val: "Black-wax linen envelope delivered by the Vist Foundation" }
-        ],
-        callout: "Subject exhibits severe identity fragmentation. In private quarters, uses an 8mm steel wrench on antique roadster engines to prevent psychological dissociation."
-      },
-      memory: {
-        source: "STREAM: STERLING MANOR RESIDENCE // 02:40 AM U.C. 0099",
-        quote: "“I wear cashmere sweaters, pour tea from silver pots, and kiss Mama on the cheek. But every night, I stare at the dark blue scar on Earth and know that if I slip up, they’ll shoot Vincent for treason.”",
-        sensory: [
-          { icon: "♨", label: "Olfactory", desc: "Earl Grey bergamot, expensive lunar dome lavender, faint smell of brake fluid." },
-          { icon: "✋", label: "Tactile", desc: "Soft cashmere cuffs covering thin wrists; cold silver cutlery at gala dinners." },
-          { icon: "♬", label: "Acoustic", desc: "The muffled hiss of atmospheric recirculators in the dome; Evelyn's gentle footsteps." },
-          { icon: "👁", label: "Visual", desc: "The blue marble of Earth through the window—and the dark, drowned wound of Southeast Asia." }
-        ],
-        monologue: "Vincent held Clara’s empty casket six years ago. When he pulled me out of that cockpit, he didn’t see an enemy ace or a biological anomaly—he saw a child who needed a warm bed. They gave me four years of peace. If the Vist Foundation wants their ghost pilot back, I will burn half the solar system before I let them touch this family."
-      },
-      artifact: {
-        render: () => `
-          <div class="artifact-card">
-            <div class="artifact-visual-box" style="background: radial-gradient(circle, #1a1e28 0%, #080a0f 100%);">
-              <div style="border: 1px solid rgba(229,169,98,0.4); padding: 12px 18px; border-radius: 2px; text-align: center; max-width: 220px;">
-                <div style="font-size: 20px; color: #e5a962; margin-bottom: 4px;">𐂂</div>
-                <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; color: #ffd8a8;">VIST CIPHER: 088-ALPHA</div>
-                <div style="font-size: 8px; color: #8899aa; margin-top: 4px;">BERTH 44 // 2400 HRS</div>
-              </div>
-            </div>
-            <p class="artifact-caption">
-              <strong>INTERCEPTED CIPHER KEY:</strong> Solid-state silver telemetry key accompanying the black-wax summons. Accepted at the Berth 44 launch gantry console to prime Unit-03's reactor.
-            </p>
-          </div>
-        `
-      }
-    }
-  };
-
-  /* ==========================================================================
-     2. YOUTUBE STREAMING ENGINE (With Infinite Auto-Loop)
-     ========================================================================== */
-  class YouTubeStreamEngine {
+  class CockpitAudioEngine {
     constructor() {
       this.player = null;
       this.isReady = false;
       this.isPlaying = false;
-      this.pendingPlay = false;
-      this.currentHarmonic = "alpha";
+      this.currentVideoId = null;
+      this.pendingVideoId = null;
 
-      this.createBigPlayGateUI();
-      this.createTacticalMonitorUI();
-      this.initIframeAPI();
+      this.initAPI();
     }
 
-    // Creates the unmissable "Big Play" ignition screen
-    createBigPlayGateUI() {
-      const gate = document.createElement("div");
-      gate.id = "big-play-gate";
-      gate.style.cssText = `
-        position: fixed;
-        inset: 0;
-        background: rgba(5, 7, 10, 0.88);
-        backdrop-filter: blur(8px);
-        z-index: 10000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: var(--font-mono);
-        transition: opacity 0.4s ease;
-      `;
-
-      gate.innerHTML = `
-        <div style="background: rgba(14, 18, 27, 0.96); border: 2px solid var(--theme-accent); border-radius: 4px; padding: 28px 36px; text-align: center; max-width: 440px; box-shadow: 0 0 35px var(--theme-glow);">
-          <div style="font-size: 10px; color: var(--color-beta); letter-spacing: 0.14em; font-weight: 700; margin-bottom: 8px;">
-            ⚠ NEURAL AUDIO LINK DISCONNECTED
-          </div>
-          <h2 style="font-family: var(--font-display); font-size: 16px; letter-spacing: 0.12em; color: #fff; margin-bottom: 8px;">
-            UNIT-03 COCKPIT INITIALIZATION
-          </h2>
-          <p style="font-family: var(--font-serif); font-size: 14px; color: var(--text-muted); line-height: 1.5; margin-bottom: 22px;">
-            Engage the Psycho-Frame audio relay to stream continuous ambient telemetry and unlock the database.
-          </p>
-          <button id="gate-ignite-btn" style="background: var(--theme-dim); border: 1px solid var(--theme-accent); color: var(--text-primary); font-family: var(--font-mono); font-size: 12px; font-weight: 700; letter-spacing: 0.1em; padding: 12px 24px; border-radius: 2px; cursor: pointer; box-shadow: 0 0 16px var(--theme-glow); transition: all 0.2s ease;">
-            ⏵ ENGAGE BGM & INITIALIZE COCKPIT
-          </button>
-        </div>
-      `;
-
-      document.body.appendChild(gate);
-
-      // Ignition button event
-      const btn = document.getElementById("gate-ignite-btn");
-      if (btn) {
-        btn.addEventListener("click", () => {
-          this.triggerAutoplayIgnition();
-          gate.style.opacity = "0";
-          setTimeout(() => gate.remove(), 400);
-        });
-      }
-    }
-
-    createTacticalMonitorUI() {
-      const widget = document.createElement("div");
-      widget.id = "yt-hud-widget";
-      widget.style.cssText = `
-        position: fixed;
-        bottom: 16px;
-        right: 16px;
-        width: 220px;
-        background: rgba(10, 14, 22, 0.94);
-        border: 1px solid var(--theme-accent);
-        border-radius: 4px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8), 0 0 10px var(--theme-glow);
-        z-index: 998;
-        overflow: hidden;
-        font-family: var(--font-mono);
-        transition: all 0.3s ease;
-      `;
-
-      widget.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; padding: 4px 8px; background: rgba(0,0,0,0.6); border-bottom: 1px solid rgba(255,255,255,0.1);">
-          <span style="font-size: 9px; color: var(--theme-accent); letter-spacing: 0.08em; font-weight: 700;">OPTICAL AUDIO RELAY</span>
-          <span id="yt-track-badge" style="font-size: 8px; color: var(--text-dim);">STANDBY</span>
-        </div>
-        <div id="yt-iframe-slot" style="width: 220px; height: 124px; background: #000;"></div>
-        <div id="yt-track-title" style="padding: 4px 8px; font-size: 9px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-          ${HARMONICS.alpha.trackTitle}
-        </div>
-      `;
-
-      document.body.appendChild(widget);
-    }
-
-    initIframeAPI() {
+    initAPI() {
       if (!window.YT) {
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
@@ -277,83 +29,71 @@
       }
 
       window.onYouTubeIframeAPIReady = () => {
-        this.player = new YT.Player('yt-iframe-slot', {
-          height: '124',
-          width: '220',
-          videoId: HARMONICS[this.currentHarmonic].youtubeId,
+        const firstTrack = window.DOSSIER_DATA?.chapters[0]?.track?.youtubeId || "QpRuSDvorBc";
+        this.currentVideoId = firstTrack;
+
+        this.player = new YT.Player('yt-player-slot', {
+          height: '100',
+          width: '100',
+          videoId: firstTrack,
           playerVars: {
-            'autoplay': 0,
-            'controls': 1,
-            'loop': 1,
-            'playlist': HARMONICS[this.currentHarmonic].youtubeId,
-            'enablejsapi': 1,
-            'origin': window.location.origin
+            autoplay: 0,
+            controls: 0,
+            loop: 1,
+            playlist: firstTrack,
+            enablejsapi: 1,
+            origin: window.location.origin
           },
           events: {
-            'onReady': () => {
+            onReady: () => {
               this.isReady = true;
-              this.player.setVolume(85);
-              const badge = document.getElementById("yt-track-badge");
-              if (badge) badge.textContent = "READY";
+              this.player.setVolume(82);
 
-              if (this.pendingPlay) {
-                this.executePlay();
+              if (this.pendingVideoId) {
+                this.playTrack(this.pendingVideoId);
+                this.pendingVideoId = null;
               }
             },
-            // Infinite Auto-Loop: When the video ends, replay immediately
-            'onStateChange': (event) => {
+            onStateChange: (event) => {
+              // Infinite Auto-Loop: Immediate replay on end
               if (event.data === YT.PlayerState.ENDED) {
                 event.target.playVideo();
               }
-            },
-            'onError': (e) => {
-              console.warn("YouTube Playback Alert [Code " + e.data + "].");
             }
           }
         });
       };
     }
 
-    triggerAutoplayIgnition() {
-      this.isPlaying = true;
-      if (this.isReady && this.player) {
-        this.executePlay();
-      } else {
-        this.pendingPlay = true;
+    playTrack(videoId) {
+      if (!videoId) return;
+
+      if (!this.isReady || !this.player) {
+        this.pendingVideoId = videoId;
+        return;
       }
 
-      const topBtn = document.getElementById("audio-toggle-btn");
-      const topLabel = document.getElementById("audio-label");
-      if (topBtn) topBtn.classList.add("active");
-      if (topLabel) topLabel.textContent = "ACTIVE (LOOPING)";
-    }
-
-    executePlay() {
-      if (!this.player || !this.player.playVideo) return;
-      this.player.playVideo();
-      const badge = document.getElementById("yt-track-badge");
-      if (badge) {
-        badge.textContent = "ONLINE (LOOP)";
-        badge.style.color = "var(--theme-accent)";
-      }
-    }
-
-    playHarmonic(key) {
-      this.currentHarmonic = key;
-      const targetData = HARMONICS[key];
-
-      const titleEl = document.getElementById("yt-track-title");
-      if (titleEl) titleEl.textContent = targetData.trackTitle;
-
-      if (this.isReady && this.player && this.player.loadVideoById) {
+      if (this.currentVideoId !== videoId) {
+        this.currentVideoId = videoId;
         if (this.isPlaying) {
           this.player.loadVideoById({
-            videoId: targetData.youtubeId,
+            videoId: videoId,
             suggestedQuality: 'small'
           });
         } else {
-          this.player.cueVideoById(targetData.youtubeId);
+          this.player.cueVideoById(videoId);
         }
+      } else if (this.isPlaying && this.player.playVideo) {
+        this.player.playVideo();
+      }
+    }
+
+    startPlayback() {
+      this.isPlaying = true;
+      if (this.isReady && this.player && this.player.playVideo) {
+        this.player.playVideo();
+      } else {
+        this.pendingVideoId = this.currentVideoId;
       }
     }
 
@@ -361,36 +101,26 @@
       if (!this.isReady || !this.player) return false;
 
       this.isPlaying = !this.isPlaying;
-      const badge = document.getElementById("yt-track-badge");
-
       if (this.isPlaying) {
         this.player.playVideo();
-        if (badge) {
-          badge.textContent = "ONLINE (LOOP)";
-          badge.style.color = "var(--theme-accent)";
-        }
       } else {
         this.player.pauseVideo();
-        if (badge) {
-          badge.textContent = "PAUSED";
-          badge.style.color = "var(--text-dim)";
-        }
       }
-
       return this.isPlaying;
     }
   }
 
   /* ==========================================================================
-     3. PROCEDURAL OSCILLOSCOPE (Live Canvas Waveform & Flutter)
+     2. PROCEDURAL OSCILLOSCOPE & BIOMETRIC WAVEFORM VISUALIZER
      ========================================================================== */
   class OscilloscopeVisualizer {
     constructor(canvasId) {
       this.canvas = document.getElementById(canvasId);
       if (!this.canvas) return;
       this.ctx = this.canvas.getContext('2d');
-      this.currentHarmonic = "alpha";
+      this.harmonic = "alpha";
       this.phase = 0;
+
       this.resize();
       window.addEventListener('resize', () => this.resize());
       this.animate();
@@ -399,12 +129,12 @@
     resize() {
       if (!this.canvas) return;
       const rect = this.canvas.getBoundingClientRect();
-      this.canvas.width = rect.width * window.devicePixelRatio;
-      this.canvas.height = rect.height * window.devicePixelRatio;
+      this.canvas.width = rect.width * (window.devicePixelRatio || 1);
+      this.canvas.height = rect.height * (window.devicePixelRatio || 1);
     }
 
     setHarmonic(harmonicKey) {
-      this.currentHarmonic = harmonicKey;
+      this.harmonic = harmonicKey;
     }
 
     animate() {
@@ -416,46 +146,48 @@
       const mid = h / 2;
 
       this.ctx.clearRect(0, 0, w, h);
-      this.phase += 0.035;
+      this.phase += 0.038;
 
-      let strokeColor = "rgba(229, 169, 98, 0.85)";
-      let speedMult = 1.0;
+      let primaryColor = "rgba(229, 169, 98, 0.88)"; // Alpha: Amber
+      let speed = 1.0;
       let complexity = 3;
 
-      if (this.currentHarmonic === "beta") {
-        strokeColor = "rgba(240, 84, 84, 0.9)";
-        speedMult = 1.8;
+      if (this.harmonic === "beta") {
+        primaryColor = "rgba(240, 84, 84, 0.92)"; // Beta: Crimson
+        speed = 1.85;
         complexity = 5;
-      } else if (this.currentHarmonic === "gamma") {
-        strokeColor = "rgba(168, 184, 230, 0.85)";
-        speedMult = 0.8;
+      } else if (this.harmonic === "gamma") {
+        primaryColor = "rgba(168, 184, 230, 0.88)"; // Gamma: Porcelain Ice
+        speed = 0.85;
         complexity = 2;
       }
 
+      // Background Reference Baseline (Psycho-field carrier)
       this.ctx.beginPath();
-      this.ctx.strokeStyle = "rgba(78, 240, 196, 0.25)";
-      this.ctx.lineWidth = 1.5 * window.devicePixelRatio;
+      this.ctx.strokeStyle = "rgba(78, 240, 196, 0.2)";
+      this.ctx.lineWidth = 1.2 * (window.devicePixelRatio || 1);
       for (let x = 0; x < w; x += 4) {
-        const rad = (x / w) * Math.PI * 8 + this.phase * 0.7;
-        const y = mid + Math.sin(rad * 0.5) * 16 * Math.cos(this.phase * 0.3);
+        const rad = (x / w) * Math.PI * 6 + this.phase * 0.5;
+        const y = mid + Math.sin(rad) * 12 * Math.cos(this.phase * 0.2);
         if (x === 0) this.ctx.moveTo(x, y);
         else this.ctx.lineTo(x, y);
       }
       this.ctx.stroke();
 
+      // Active Synaptic Trace
       this.ctx.beginPath();
-      this.ctx.strokeStyle = strokeColor;
-      this.ctx.lineWidth = 2 * window.devicePixelRatio;
+      this.ctx.strokeStyle = primaryColor;
+      this.ctx.lineWidth = 1.8 * (window.devicePixelRatio || 1);
 
       for (let x = 0; x < w; x += 3) {
         const norm = x / w;
-        const wave1 = Math.sin(norm * Math.PI * 6 + this.phase * speedMult);
-        const wave2 = Math.cos(norm * Math.PI * 12 - this.phase * 0.5) * 0.4;
-        const wave3 = Math.sin(norm * Math.PI * 24 + this.phase * 2) * (complexity === 5 ? 0.25 : 0.08);
-        const jitter = (Math.random() - 0.5) * 2.2;
+        const w1 = Math.sin(norm * Math.PI * 6 + this.phase * speed);
+        const w2 = Math.cos(norm * Math.PI * 12 - this.phase * 0.4) * 0.35;
+        const w3 = Math.sin(norm * Math.PI * 24 + this.phase * 1.8) * (complexity === 5 ? 0.3 : 0.08);
+        const jitter = (Math.random() - 0.5) * 1.8;
 
-        const amp = (h * 0.28);
-        const y = mid + (wave1 + wave2 + wave3) * amp + jitter;
+        const amp = h * 0.26;
+        const y = mid + (w1 + w2 + w3) * amp + jitter;
 
         if (x === 0) this.ctx.moveTo(x, y);
         else this.ctx.lineTo(x, y);
@@ -465,196 +197,662 @@
   }
 
   /* ==========================================================================
-     4. APPLICATION CONTROLLER & DOM BINDINGS
+     3. MASTER DOSSIER & NARRATIVE READER CONTROLLER
      ========================================================================== */
   class DossierApp {
     constructor() {
-      this.activeHarmonicKey = "alpha";
-      this.audio = new YouTubeStreamEngine();
-      this.scope = new OscilloscopeVisualizer("waveform-canvas");
+      this.data = window.DOSSIER_DATA;
+      if (!this.data) {
+        console.error("FATAL: DOSSIER_DATA is missing. Ensure data.js loaded first.");
+        return;
+      }
 
-      // DOM Elements
-      this.tabs = document.querySelectorAll(".harmonic-tab");
-      this.audioToggleBtn = document.getElementById("audio-toggle-btn");
-      this.audioLabel = document.getElementById("audio-label");
-      
-      this.scopeFreq = document.getElementById("scope-freq");
-      this.scopeSync = document.getElementById("scope-sync");
-      this.scopeNoise = document.getElementById("scope-noise");
+      this.currentChapterIndex = 0;
+      this.audio = new CockpitAudioEngine();
+      this.scope = new OscilloscopeVisualizer('waveform-canvas');
 
-      this.panelFileId = document.getElementById("panel-file-id");
-      this.telemetryContent = document.getElementById("telemetry-content");
-      this.memorySourceLabel = document.getElementById("memory-source-label");
-      this.memoryQuoteText = document.getElementById("memory-quote-text");
-      this.memorySensoryItems = document.getElementById("memory-sensory-items");
-      this.internalMonologueText = document.getElementById("internal-monologue-text");
-      this.artifactContent = document.getElementById("artifact-content");
-      this.consoleStream = document.getElementById("console-stream");
+      // DOM Cache
+      this.dominantChip = document.getElementById('dominant-harmonic-chip');
+      this.audioToggleBtn = document.getElementById('audio-toggle-btn');
+      this.audioLabel = document.getElementById('audio-label');
+      this.currentTrackName = document.getElementById('current-track-name');
+      this.toggleDossierBtn = document.getElementById('toggle-dossier-btn');
+      this.lancerDrawer = document.getElementById('lancer-drawer');
+      this.closeDossierBtn = document.getElementById('close-dossier-btn');
+      this.lancerDrawerContent = document.getElementById('lancer-drawer-content');
 
-      this.vistModal = document.getElementById("vist-modal");
-      this.openModalBtn = document.getElementById("open-vist-modal-btn");
-      this.closeModalBtn = document.getElementById("close-vist-modal-btn");
-      this.ackModalBtn = document.getElementById("modal-acknowledge-btn");
+      this.scopeFreq = document.getElementById('scope-freq');
+      this.scopeSync = document.getElementById('scope-sync');
+      this.scopeStress = document.getElementById('scope-stress');
+      this.tapeTime = document.getElementById('tape-time');
 
-      this.initEvents();
-      this.render();
-      this.startClock();
+      this.gmBriefingContent = document.getElementById('gm-briefing-content');
+      this.chapterNavButtons = document.getElementById('chapter-nav-buttons');
+
+      this.anchorList = document.getElementById('anchor-list');
+      this.subconsciousText = document.getElementById('subconscious-text');
+      this.marginAnnotations = document.getElementById('margin-annotations');
+
+      this.chapterNum = document.getElementById('chapter-num');
+      this.chapterYear = document.getElementById('chapter-year');
+      this.chapterReadTime = document.getElementById('chapter-read-time');
+      this.chapterTitle = document.getElementById('chapter-title');
+      this.chapterTrackTitle = document.getElementById('chapter-track-title');
+      this.proseContent = document.getElementById('prose-content');
+      this.prevChapterBtn = document.getElementById('prev-chapter-btn');
+      this.nextChapterBtn = document.getElementById('next-chapter-btn');
+      this.readingProgress = document.getElementById('reading-progress');
+      this.consoleStream = document.getElementById('console-stream');
+
+      this.artifactModal = document.getElementById('artifact-modal');
+      this.artifactModalTitle = document.getElementById('artifact-modal-title');
+      this.artifactModalBody = document.getElementById('artifact-modal-body');
+      this.closeArtifactModalBtn = document.getElementById('close-artifact-modal-btn');
+
+      this.vistModal = document.getElementById('vist-modal');
+      this.vistModalContent = document.getElementById('vist-modal-content');
+      this.closeVistModalBtn = document.getElementById('close-vist-modal-btn');
+      this.slotKeyBtn = document.getElementById('slot-key-btn');
+      this.dismissVistModalBtn = document.getElementById('dismiss-vist-modal-btn');
+
+      this.bigPlayGate = document.getElementById('big-play-gate');
+      this.gateIgniteBtn = document.getElementById('gate-ignite-btn');
+
+      this.init();
     }
 
-    initEvents() {
-      this.tabs.forEach(tab => {
-        tab.addEventListener("click", () => {
-          const key = tab.getAttribute("data-harmonic");
-          if (key && HARMONICS[key]) {
-            this.switchHarmonic(key);
-          }
+    init() {
+      this.renderGMBriefing();
+      this.renderChapterNav();
+      this.renderSensoryAnchors();
+      this.renderLancerSpecs();
+      this.renderVistModalContent();
+
+      this.loadChapter(0);
+      this.bindEvents();
+      this.startClocks();
+      this.initScrollFocus();
+    }
+
+    /* 3.1 GM Executive Briefing */
+    renderGMBriefing() {
+      if (!this.gmBriefingContent) return;
+      const b = this.data.gmBriefing;
+
+      let leversHtml = b.immediateLevers.map(l => `
+        <div class="gm-lever-card">
+          <div class="gm-lever-title">⚠ LEVER: ${l.title}</div>
+          <div class="gm-lever-desc">${l.desc}</div>
+        </div>
+      `).join("");
+
+      this.gmBriefingContent.innerHTML = `
+        <div class="gm-pitch-box">
+          <div class="gm-pitch-title">HIGH CONCEPT // CALLSIGN: ${b.callsign} [${b.subjectId}]</div>
+          <p class="gm-pitch-desc">${b.highConcept}</p>
+        </div>
+
+        <div class="gm-grid-two">
+          <div class="gm-levers-list">
+            <div style="font-size:9px; font-weight:700; color:var(--text-dim); letter-spacing:0.1em; text-transform:uppercase;">
+              Campaign Pressure Points (Immediate Adventure Seeds):
+            </div>
+            ${leversHtml}
+          </div>
+
+          <div class="gm-stats-card">
+            <div style="font-size:9px; font-weight:700; color:var(--theme-accent); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px;">
+              Session 1 Tactical Baseline:
+            </div>
+            <div class="gm-stat-row">
+              <span class="gm-stat-label">License Level:</span>
+              <span class="gm-stat-val">${b.pilotQuickStats.licenseLevel}</span>
+            </div>
+            <div class="gm-stat-row">
+              <span class="gm-stat-label">Tactical Role:</span>
+              <span class="gm-stat-val">${b.pilotQuickStats.role}</span>
+            </div>
+            <div class="gm-stat-row">
+              <span class="gm-stat-label">Chassis:</span>
+              <span class="gm-stat-val">${b.pilotQuickStats.frame}</span>
+            </div>
+            <div class="gm-stat-row">
+              <span class="gm-stat-label">Allegiance:</span>
+              <span class="gm-stat-val" style="font-size:9px;">${b.pilotQuickStats.allegiance}</span>
+            </div>
+            <div style="margin-top:6px; font-family:var(--font-serif); font-size:11px; line-height:1.4; color:var(--text-muted); border-top:1px solid rgba(255,255,255,0.06); padding-top:6px;">
+              <strong>Hook:</strong> ${b.campaignHook}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    /* 3.2 Chapter Navigation Buttons */
+    renderChapterNav() {
+      if (!this.chapterNavButtons) return;
+
+      this.chapterNavButtons.innerHTML = this.data.chapters.map((ch, idx) => `
+        <button class="chapter-tab ${idx === 0 ? 'active' : ''}" data-chapter-index="${idx}" type="button">
+          <span class="chapter-tab-num">${ch.number}</span>
+          <span class="chapter-tab-title">${ch.title}</span>
+        </button>
+      `).join("");
+
+      this.chapterNavButtons.querySelectorAll('.chapter-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.getAttribute('data-chapter-index'), 10);
+          this.loadChapter(idx);
         });
       });
+    }
 
+    /* 3.3 Sensory Anchor Reliquary */
+    renderSensoryAnchors() {
+      if (!this.anchorList) return;
+
+      this.anchorList.innerHTML = this.data.anchors.map(a => `
+        <div class="anchor-item" data-anchor-id="${a.id}" tabindex="0" role="button" title="Inspect ${a.title}">
+          <div class="anchor-icon">${a.icon}</div>
+          <div class="anchor-meta">
+            <div class="anchor-title">${a.title}</div>
+            <div class="anchor-sub">${a.subtitle}</div>
+          </div>
+        </div>
+      `).join("");
+
+      this.anchorList.querySelectorAll('.anchor-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const id = item.getAttribute('data-anchor-id');
+          this.inspectAnchor(id);
+        });
+      });
+    }
+
+    inspectAnchor(anchorId) {
+      const anchor = this.data.anchors.find(a => a.id === anchorId);
+      if (!anchor || !this.artifactModal) return;
+
+      if (this.artifactModalTitle) {
+        this.artifactModalTitle.textContent = `INSPECTING // ${anchor.title.toUpperCase()}`;
+      }
+      if (this.artifactModalBody) {
+        this.artifactModalBody.innerHTML = `
+          ${anchor.detailMarkup}
+          <div style="font-size:11px; color:var(--text-dim); text-align:center; margin-top:12px; letter-spacing:0.06em;">
+            ${anchor.caption}
+          </div>
+        `;
+      }
+
+      this.artifactModal.classList.remove('hidden');
+      this.artifactModal.setAttribute('aria-hidden', 'false');
+    }
+
+    /* 3.4 LANCER TTRPG Pilot & Mech Drawer */
+    renderLancerSpecs() {
+      if (!this.lancerDrawerContent) return;
+      const l = this.data.lancer;
+
+      let triggersHtml = l.pilot.triggers.map(t => `
+        <div class="trigger-card">
+          <div class="trigger-head">
+            <span>${t.name}</span>
+            <span class="trigger-bonus">${t.bonus}</span>
+          </div>
+          <div class="trigger-desc">${t.desc}</div>
+        </div>
+      `).join("");
+
+      let mountsHtml = l.mech.mounts.map(m => `
+        <div class="mount-card">
+          <div style="font-size:9px; font-weight:700; color:var(--color-psycho); letter-spacing:0.08em; text-transform:uppercase;">${m.type}</div>
+          <div style="font-size:11px; color:#fff; font-family:var(--font-mono);">${m.weapon}</div>
+        </div>
+      `).join("");
+
+      let compendiumHtml = Object.entries(this.data.compendium).map(([term, desc]) => `
+        <div style="padding:6px 8px; background:var(--bg-surface-inset); border-left:2px solid var(--color-psycho); margin-bottom:6px; font-size:11px;">
+          <strong style="color:var(--color-psycho); font-family:var(--font-mono);">${term}:</strong>
+          <span style="font-family:var(--font-serif); color:var(--text-muted);">${desc}</span>
+        </div>
+      `).join("");
+
+      this.lancerDrawerContent.innerHTML = `
+        <!-- PILOT IDENTITY -->
+        <div>
+          <div class="lancer-section-title">PILOT BIOMETRICS & RECORD</div>
+          <div style="font-size:12px; font-weight:700; color:#fff; margin-bottom:2px;">${l.pilot.name}</div>
+          <div style="font-size:10px; color:var(--text-muted); margin-bottom:8px;">${l.pilot.background}</div>
+          <div class="lancer-grid">
+            <div class="lancer-metric-box"><span class="lancer-metric-label">LL</span><span class="lancer-metric-val">${l.pilot.licenseLevel}</span></div>
+            <div class="lancer-metric-box"><span class="lancer-metric-label">GRIT</span><span class="lancer-metric-val">${l.pilot.grit}</span></div>
+            <div class="lancer-metric-box"><span class="lancer-metric-label">HP</span><span class="lancer-metric-val">${l.pilot.hp}</span></div>
+            <div class="lancer-metric-box"><span class="lancer-metric-label">SPEED</span><span class="lancer-metric-val">${l.pilot.speed}</span></div>
+          </div>
+        </div>
+
+        <!-- PILOT TRIGGERS -->
+        <div>
+          <div class="lancer-section-title">PILOT TRIGGERS (NARRATIVE CHECKS)</div>
+          <div class="trigger-list">
+            ${triggersHtml}
+          </div>
+        </div>
+
+        <!-- MECH FRAME SPEC -->
+        <div>
+          <div class="lancer-section-title">MECH CHASSIS: ${l.mech.frame}</div>
+          <div style="font-size:10px; color:var(--text-dim); margin-bottom:8px;">CLASSIFICATION: ${l.mech.classification}</div>
+          <div class="lancer-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom:8px;">
+            <div class="lancer-metric-box"><span class="lancer-metric-label">HULL</span><span class="lancer-metric-val">${l.mech.stats.hull}</span></div>
+            <div class="lancer-metric-box"><span class="lancer-metric-label">AGI</span><span class="lancer-metric-val">${l.mech.stats.agility}</span></div>
+            <div class="lancer-metric-box"><span class="lancer-metric-label">SYS</span><span class="lancer-metric-val">${l.mech.stats.systems}</span></div>
+            <div class="lancer-metric-box"><span class="lancer-metric-label">ENG</span><span class="lancer-metric-val">${l.mech.stats.engineering}</span></div>
+          </div>
+          <div class="lancer-grid" style="grid-template-columns: repeat(4, 1fr);">
+            <div class="lancer-metric-box"><span class="lancer-metric-label">HP</span><span class="lancer-metric-val">${l.mech.hp}</span></div>
+            <div class="lancer-metric-box"><span class="lancer-metric-label">ARMOR</span><span class="lancer-metric-val">${l.mech.armor}</span></div>
+            <div class="lancer-metric-box"><span class="lancer-metric-label">EVASION</span><span class="lancer-metric-val">${l.mech.evasion}</span></div>
+            <div class="lancer-metric-box"><span class="lancer-metric-label">E-DEF</span><span class="lancer-metric-val">${l.mech.edef}</span></div>
+          </div>
+        </div>
+
+        <!-- CORE SYSTEM -->
+        <div>
+          <div class="lancer-section-title">CORE SYSTEM // PARACAUSAL</div>
+          <div style="background:var(--bg-surface-inset); border:1px solid var(--border-subtle); padding:10px; border-radius:var(--radius-sm);">
+            <div style="font-size:10px; font-weight:700; color:var(--color-psycho); margin-bottom:4px;">${l.mech.coreSystem.name}</div>
+            <div style="font-size:11px; font-family:var(--font-serif); color:var(--text-prose-secondary); line-height:1.45; margin-bottom:6px;">
+              <strong>ACTIVE:</strong> ${l.mech.coreSystem.active}
+            </div>
+            <div style="font-size:11px; font-family:var(--font-serif); color:var(--text-muted); line-height:1.45;">
+              <strong>PASSIVE:</strong> ${l.mech.coreSystem.passive}
+            </div>
+          </div>
+        </div>
+
+        <!-- WEAPON MOUNTS -->
+        <div>
+          <div class="lancer-section-title">INTEGRATED WEAPON MOUNTS</div>
+          <div class="mount-list">
+            ${mountsHtml}
+          </div>
+        </div>
+
+        <!-- QUICK CAMPAIGN GLOSSARY -->
+        <div>
+          <div class="lancer-section-title">CAMPAIGN DOSSIER GLOSSARY</div>
+          ${compendiumHtml}
+        </div>
+      `;
+    }
+
+    /* 3.5 Vist Foundation Modal Content */
+    renderVistModalContent() {
+      if (!this.vistModalContent) return;
+
+      this.vistModalContent.innerHTML = `
+        <div class="wax-seal-wrapper" aria-hidden="true">
+          <div class="wax-seal">
+            <span>VIST</span>
+          </div>
+        </div>
+
+        <div class="letter-meta-block">
+          <span>ORIGIN: L1 RECEPTACLE // CIPHER ALPHA-ZERO</span>
+          <span>TARGET: SENIOR DIRECTOR VINCENT STERLING (RESIDENCE PRIVATE TERMINAL)</span>
+          <span>CLASSIFICATION: HIGH TREASON // EXPENDABLE PILOT RETRIEVAL ORDER</span>
+        </div>
+
+        <div class="letter-body-prose">
+          <p><strong>DIRECTOR STERLING:</strong></p>
+          <p>
+            For three years, the Vist Foundation has maintained deliberate oversight of your division's ledger. We are fully aware that <em>Lt. Julian Ross</em> was not incinerated in the Sunda sector, nor was Prototype Unit-03 vaporized in combat.
+          </p>
+          <p>
+            We know what you carried home to Von Braun City in your private shuttle. We know whose face sits at your breakfast table in the 1st Ring.
+          </p>
+          <p class="letter-callout">
+            The pilot is to report to <strong>Berth 44, Outer Docks, Von Braun Industrial Perimeter</strong> before 2400 hours tonight. She is to take controls of Unit-03 and depart for Lagrange Point 1.
+          </p>
+          <p>
+            Should she fail to report, the unedited black-box telemetry—alongside DNA markers proving the living presence of Julian Ross—will be delivered simultaneously to the Anaheim Board of Directors and the UNION Military Police.
+          </p>
+          <p class="letter-signoff">
+            <em>The bill is now due, Vincent. Keep your house safe.</em>
+          </p>
+        </div>
+      `;
+    }
+
+    /* 3.6 Load Chapter & Synchronize Cockpit State */
+    loadChapter(index) {
+      if (index < 0 || index >= this.data.chapters.length) return;
+      this.currentChapterIndex = index;
+      const chapter = this.data.chapters[index];
+
+      // Update Header & Nav State
+      document.querySelectorAll('.chapter-tab').forEach((tab, idx) => {
+        tab.classList.toggle('active', idx === index);
+      });
+
+      if (this.chapterNum) this.chapterNum.textContent = chapter.number;
+      if (this.chapterYear) this.chapterYear.textContent = chapter.era;
+      if (this.chapterReadTime) this.chapterReadTime.textContent = `EST. READ: ${chapter.readTime}`;
+      if (this.chapterTitle) this.chapterTitle.textContent = chapter.title;
+      if (this.chapterTrackTitle) this.chapterTrackTitle.textContent = chapter.track.title;
+
+      // Update Harmonic Theme
+      this.setHarmonicTheme(chapter.harmonicKey);
+
+      // Render Prose with Redaction Block
+      if (this.proseContent) {
+        let paragraphsHtml = chapter.paragraphs.map(p => {
+          if (p === '***') {
+            return `<div style="text-align:center; color:var(--theme-accent); font-size:16px; margin:16px 0;">∿ ∿ ∿</div>`;
+          }
+          return `<p>${p}</p>`;
+        }).join("");
+
+        let redactionHtml = "";
+        if (chapter.redaction) {
+          const r = chapter.redaction;
+          redactionHtml = `
+            <div class="redaction-bar" id="${r.id}" data-redact-id="${r.id}" tabindex="0" role="button" title="Click to declassify classified intelligence">
+              <div class="redaction-header">
+                <span>CLASSIFIED // ${r.label}</span>
+                <span class="redaction-status">CLICK TO DECLASSIFY</span>
+              </div>
+              <div class="redaction-block">████████████████████████████████████████████████████████████</div>
+              <div class="redaction-gm-note">
+                <strong>${r.gmNote}</strong>
+              </div>
+            </div>
+          `;
+        }
+
+        this.proseContent.innerHTML = paragraphsHtml + redactionHtml;
+        this.bindRedactionEvents();
+      }
+
+      // Update Pager Status
+      if (this.readingProgress) {
+        this.readingProgress.textContent = `LOG ${index + 1} OF ${this.data.chapters.length}`;
+      }
+      if (this.prevChapterBtn) {
+        this.prevChapterBtn.disabled = index === 0;
+        this.prevChapterBtn.style.opacity = index === 0 ? "0.3" : "1";
+      }
+      if (this.nextChapterBtn) {
+        this.nextChapterBtn.disabled = index === this.data.chapters.length - 1;
+        this.nextChapterBtn.style.opacity = index === this.data.chapters.length - 1 ? "0.3" : "1";
+      }
+
+      // Update Marginalia & Subconscious Echo
+      this.updateMarginalia(chapter.id);
+
+      // Trigger Gapless Track Switch
+      this.audio.playTrack(chapter.track.youtubeId);
+      if (this.currentTrackName) {
+        this.currentTrackName.textContent = `TRACK: ${chapter.track.title}`;
+      }
+
+      // Scroll smoothly to top of prose viewport
+      const viewport = document.getElementById('prose-viewport');
+      if (viewport && index > 0) {
+        viewport.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      if (this.consoleStream) {
+        this.consoleStream.textContent = `SECTOR SYNC: [${chapter.number}] // BGM: ${chapter.track.artist} // NOMINAL`;
+      }
+    }
+
+    setHarmonicTheme(harmonicKey) {
+      document.body.className = `cockpit-theme-ambient theme-${harmonicKey}`;
+      this.scope.setHarmonic(harmonicKey);
+
+      // Trigger screen tear animation
+      document.body.classList.add('harmonic-shifting');
+      setTimeout(() => document.body.classList.remove('harmonic-shifting'), 450);
+
+      const labels = {
+        alpha: "DOMINANT: HARMONIC α (RIAN — SALTWATER SOUL)",
+        beta: "DOMINANT: HARMONIC β (JULIAN — TACTICAL ACE)",
+        gamma: "DOMINANT: HARMONIC γ (ERIA — PORCELAIN VESSEL)"
+      };
+
+      if (this.dominantChip) {
+        this.dominantChip.textContent = labels[harmonicKey] || labels.alpha;
+      }
+
+      // Update diagnostic metrics per harmonic
+      if (harmonicKey === "alpha") {
+        if (this.scopeFreq) this.scopeFreq.textContent = "432.8 Hz";
+        if (this.scopeSync) this.scopeSync.textContent = "96.4%";
+        if (this.scopeStress) {
+          this.scopeStress.textContent = "14% [STABLE]";
+          this.scopeStress.className = "metric-item stress-nominal";
+        }
+      } else if (harmonicKey === "beta") {
+        if (this.scopeFreq) this.scopeFreq.textContent = "684.2 Hz";
+        if (this.scopeSync) this.scopeSync.textContent = "88.1%";
+        if (this.scopeStress) {
+          this.scopeStress.textContent = "64% [OVERCHARGE RISK]";
+          this.scopeStress.className = "metric-item stress-critical";
+        }
+      } else {
+        if (this.scopeFreq) this.scopeFreq.textContent = "528.0 Hz";
+        if (this.scopeSync) this.scopeSync.textContent = "99.8%";
+        if (this.scopeStress) {
+          this.scopeStress.textContent = "38% [DISSOCIATING]";
+          this.scopeStress.className = "metric-item stress-elevated";
+        }
+      }
+    }
+
+    updateMarginalia(chapterId) {
+      const notes = this.data.marginalia[chapterId] || [];
+      if (this.marginAnnotations) {
+        this.marginAnnotations.innerHTML = notes.map(n => `
+          <div class="annotation-card" style="border-left-color: var(--color-${n.strata});">
+            <strong style="color: var(--color-${n.strata});">HARMONIC ${n.strata.toUpperCase()}:</strong>
+            ${n.note}
+          </div>
+        `).join("");
+      }
+
+      // Pick the primary echo for the subconscious stream box
+      if (this.subconsciousText && notes.length > 0) {
+        this.subconsciousText.textContent = `“${notes[0].note}”`;
+      }
+    }
+
+    /* 3.7 Single-Click Declassify Handler */
+    bindRedactionEvents() {
+      const chapter = this.data.chapters[this.currentChapterIndex];
+      if (!chapter || !chapter.redaction) return;
+
+      const bar = document.getElementById(chapter.redaction.id);
+      if (!bar) return;
+
+      bar.addEventListener('click', () => {
+        if (bar.classList.contains('declassified')) return;
+
+        bar.classList.add('declassifying');
+        const block = bar.querySelector('.redaction-block');
+        const status = bar.querySelector('.redaction-status');
+
+        let steps = 0;
+        const glyphs = '█▓▒░#%&*01';
+        const targetText = chapter.redaction.blackoutText;
+
+        const interval = setInterval(() => {
+          steps++;
+          if (steps < 8) {
+            block.textContent = [...targetText].map(c => (c === ' ' ? ' ' : glyphs[Math.floor(Math.random() * glyphs.length)])).join('');
+          } else {
+            clearInterval(interval);
+            block.textContent = targetText;
+            bar.classList.remove('declassifying');
+            bar.classList.add('declassified');
+            if (status) status.textContent = "DECLASSIFIED // ACCESS GRANTED";
+
+            // Trigger visualizer spike
+            const scopeBox = document.querySelector('.canvas-wrapper');
+            if (scopeBox) {
+              scopeBox.classList.remove('spike');
+              void scopeBox.offsetWidth;
+              scopeBox.classList.add('spike');
+            }
+          }
+        }, 35);
+      });
+    }
+
+    /* 3.8 Global Events & Modal Bindings */
+    bindEvents() {
+      // Big Ignition Gate
+      if (this.gateIgniteBtn && this.bigPlayGate) {
+        this.gateIgniteBtn.addEventListener('click', () => {
+          this.audio.startPlayback();
+          if (this.audioToggleBtn) this.audioToggleBtn.classList.add('active');
+          if (this.audioLabel) this.audioLabel.textContent = "ACTIVE (LOOP)";
+
+          this.bigPlayGate.style.opacity = '0';
+          setTimeout(() => {
+            this.bigPlayGate.style.display = 'none';
+          }, 400);
+        });
+      }
+
+      // Top Audio Toggle
       if (this.audioToggleBtn) {
-        this.audioToggleBtn.addEventListener("click", () => {
+        this.audioToggleBtn.addEventListener('click', () => {
           const isPlaying = this.audio.toggle();
-          this.audioToggleBtn.classList.toggle("active", isPlaying);
-          this.audioToggleBtn.setAttribute("aria-pressed", isPlaying);
+          this.audioToggleBtn.classList.toggle('active', isPlaying);
           if (this.audioLabel) {
-            this.audioLabel.textContent = isPlaying ? "ACTIVE (LOOPING)" : "STANDBY";
+            this.audioLabel.textContent = isPlaying ? "ACTIVE (LOOP)" : "MUTED";
           }
         });
       }
 
-      if (this.openModalBtn && this.vistModal) {
-        this.openModalBtn.addEventListener("click", () => this.setModalVisible(true));
+      // LANCER Drawer Toggle
+      if (this.toggleDossierBtn && this.lancerDrawer) {
+        this.toggleDossierBtn.addEventListener('click', () => this.toggleDossier(true));
       }
-      if (this.closeModalBtn && this.vistModal) {
-        this.closeModalBtn.addEventListener("click", () => this.setModalVisible(false));
+      if (this.closeDossierBtn && this.lancerDrawer) {
+        this.closeDossierBtn.addEventListener('click', () => this.toggleDossier(false));
       }
-      if (this.ackModalBtn && this.vistModal) {
-        this.ackModalBtn.addEventListener("click", () => this.setModalVisible(false));
+
+      // Pager Buttons
+      if (this.prevChapterBtn) {
+        this.prevChapterBtn.addEventListener('click', () => {
+          if (this.currentChapterIndex > 0) this.loadChapter(this.currentChapterIndex - 1);
+        });
       }
-      if (this.vistModal) {
-        this.vistModal.addEventListener("click", (e) => {
-          if (e.target === this.vistModal) this.setModalVisible(false);
+      if (this.nextChapterBtn) {
+        this.nextChapterBtn.addEventListener('click', () => {
+          if (this.currentChapterIndex < this.data.chapters.length - 1) {
+            this.loadChapter(this.currentChapterIndex + 1);
+          }
         });
       }
 
-      window.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && this.vistModal && !this.vistModal.classList.contains("hidden")) {
-          this.setModalVisible(false);
+      // Close Modals
+      if (this.closeArtifactModalBtn && this.artifactModal) {
+        this.closeArtifactModalBtn.addEventListener('click', () => {
+          this.artifactModal.classList.add('hidden');
+          this.artifactModal.setAttribute('aria-hidden', 'true');
+        });
+      }
+
+      if (this.closeVistModalBtn && this.vistModal) {
+        this.closeVistModalBtn.addEventListener('click', () => {
+          this.vistModal.classList.add('hidden');
+          this.vistModal.setAttribute('aria-hidden', 'true');
+        });
+      }
+
+      if (this.dismissVistModalBtn && this.vistModal) {
+        this.dismissVistModalBtn.addEventListener('click', () => {
+          this.vistModal.classList.add('hidden');
+          this.vistModal.setAttribute('aria-hidden', 'true');
+        });
+      }
+
+      // Berth 44 Launch Key Slotting
+      if (this.slotKeyBtn) {
+        this.slotKeyBtn.addEventListener('click', () => {
+          this.slotKeyBtn.innerHTML = "<span>✓ TELEMETRY ACCEPTED // REACTOR ONLINE</span>";
+          this.slotKeyBtn.style.background = "rgba(78, 240, 196, 0.2)";
+          this.slotKeyBtn.style.borderColor = "var(--color-psycho)";
+          this.slotKeyBtn.style.color = "var(--color-psycho)";
+
+          if (this.consoleStream) {
+            this.consoleStream.textContent = "BERTH 44 GANTRY RELEASED // LAUNCH TUBE CLEAR // UNIT-03 DEPARTING FOR L1";
+          }
+        });
+      }
+
+      // Escape key to dismiss open modals/drawers
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if (this.lancerDrawer && this.lancerDrawer.classList.contains('open')) {
+            this.toggleDossier(false);
+          }
+          if (this.artifactModal && !this.artifactModal.classList.contains('hidden')) {
+            this.artifactModal.classList.add('hidden');
+            this.artifactModal.setAttribute('aria-hidden', 'true');
+          }
+          if (this.vistModal && !this.vistModal.classList.contains('hidden')) {
+            this.vistModal.classList.add('hidden');
+            this.vistModal.setAttribute('aria-hidden', 'true');
+          }
         }
       });
     }
 
-    setModalVisible(visible) {
-      if (!this.vistModal) return;
-      this.vistModal.classList.toggle("hidden", !visible);
-      this.vistModal.setAttribute("aria-hidden", !visible);
-      if (this.consoleStream) {
-        this.consoleStream.textContent = visible 
-          ? "SECURITY BREACH // VIST CIPHER ENCRYPTED TELEMETRY INSPECTION ACTIVE"
-          : "COCKPIT POD SEALED // MINOVSKY DRIFT NOMINAL // BERTH 44 CLEAR";
+    toggleDossier(open) {
+      if (!this.lancerDrawer) return;
+      this.lancerDrawer.classList.toggle('open', open);
+      this.lancerDrawer.setAttribute('aria-hidden', !open);
+      if (this.toggleDossierBtn) {
+        this.toggleDossierBtn.setAttribute('aria-expanded', open);
       }
     }
 
-    switchHarmonic(key) {
-      if (this.activeHarmonicKey === key) return;
-      this.activeHarmonicKey = key;
+    /* 3.9 Scroll Focus Monitor (Dimmable Cockpit Chrome) */
+    initScrollFocus() {
+      let scrollTimer = null;
+      window.addEventListener('scroll', () => {
+        const scrolled = window.scrollY > 180;
+        if (scrolled) {
+          document.body.classList.add('reading-active');
+        } else {
+          document.body.classList.remove('reading-active');
+        }
 
-      document.body.className = `cockpit-theme-ambient ${HARMONICS[key].themeClass}`;
-
-      this.tabs.forEach(tab => {
-        const isCurrent = tab.getAttribute("data-harmonic") === key;
-        tab.classList.toggle("active", isCurrent);
-      });
-
-      this.scope.setHarmonic(key);
-      this.audio.playHarmonic(key);
-
-      this.render();
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(() => {
+          // If reading stopped for 1.8s, keep dimmed unless hovering
+        }, 1800);
+      }, { passive: true });
     }
 
-    render() {
-      const data = HARMONICS[this.activeHarmonicKey];
-      if (!data) return;
-
-      if (this.scopeFreq) this.scopeFreq.textContent = data.scope.freq;
-      if (this.scopeSync) this.scopeSync.textContent = data.scope.sync;
-      if (this.scopeNoise) this.scopeNoise.textContent = data.scope.noise;
-      if (this.panelFileId) this.panelFileId.textContent = `FILE // ${data.id}`;
-
-      if (this.telemetryContent) {
-        let rowsHtml = data.telemetry.fields.map(f => `
-          <tr>
-            <td class="telemetry-label">${f.label}</td>
-            <td class="telemetry-val">${f.val}</td>
-          </tr>
-        `).join("");
-
-        this.telemetryContent.innerHTML = `
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-            <div>
-              <div style="font-size: 13px; font-weight: 700; color: var(--theme-accent);">${data.telemetry.designation}</div>
-              <div style="font-size: 10px; color: var(--text-dim);">${data.telemetry.birthplace}</div>
-            </div>
-            <span class="badge-accent">${data.telemetry.statusBadge}</span>
-          </div>
-
-          <table class="telemetry-table">
-            <tbody>
-              ${rowsHtml}
-            </tbody>
-          </table>
-
-          <div class="telemetry-callout">
-            ${data.telemetry.callout}
-          </div>
-        `;
-      }
-
-      if (this.memorySourceLabel) this.memorySourceLabel.textContent = data.memory.source;
-      if (this.memoryQuoteText) this.memoryQuoteText.textContent = data.memory.quote;
-
-      if (this.memorySensoryItems) {
-        this.memorySensoryItems.innerHTML = data.memory.sensory.map(s => `
-          <div class="sensory-card">
-            <div class="sensory-card-header">
-              <span>${s.icon}</span>
-              <span>${s.label}</span>
-            </div>
-            <div class="sensory-card-content">${s.desc}</div>
-          </div>
-        `).join("");
-      }
-
-      if (this.internalMonologueText) {
-        this.internalMonologueText.innerHTML = `
-          <div style="font-size: 9px; letter-spacing: 0.1em; color: var(--theme-accent); margin-bottom: 6px; text-transform: uppercase;">
-            NEURAL RESIDUAL LOG // PRIVATE REFLECTION:
-          </div>
-          <div>${data.memory.monologue}</div>
-        `;
-      }
-
-      if (this.artifactContent) {
-        this.artifactContent.innerHTML = data.artifact.render();
-      }
-
-      if (this.consoleStream) {
-        this.consoleStream.textContent = `HARMONIC ACTIVE: [${data.id}] // SYNCHRONIZING PSYCHO-FRAME BUS... OK`;
-      }
-    }
-
-    startClock() {
-      const clockEl = document.getElementById("mission-clock");
-      const tapeEl = document.getElementById("tape-time");
-      let tapeSeconds = 258.09;
+    /* 3.10 Clocks & Tape Reel Counter */
+    startClocks() {
+      const clockEl = document.getElementById('mission-clock');
+      let tapeSeconds = 0;
 
       setInterval(() => {
         tapeSeconds += 0.1;
         const mins = Math.floor(tapeSeconds / 60).toString().padStart(2, '0');
         const secs = (tapeSeconds % 60).toFixed(1).padStart(4, '0');
 
-        if (tapeEl) {
-          tapeEl.textContent = `${mins}:${secs}`;
+        if (this.tapeTime) {
+          this.tapeTime.textContent = `${mins}:${secs}`;
         }
 
         if (clockEl) {
@@ -668,7 +866,8 @@
     }
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  // Initialize and expose to window for immersive.js hooks
+  document.addEventListener('DOMContentLoaded', () => {
     window.app = new DossierApp();
   });
 
