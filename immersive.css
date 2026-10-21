@@ -448,3 +448,35 @@ body.harmonic-shifting .reading-stage-layout {
     scroll-behavior: auto !important;
   }
 }
+
+/* --- SLOW DECRYPTION STREAM STYLING --- */
+.decrypt-control-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.decrypt-status {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--theme-accent);
+  animation: cipher-strobe 1s infinite alternate;
+}
+
+.decrypting-paragraph {
+  cursor: pointer;
+  transition: color 0.2s ease;
+  position: relative;
+}
+
+.decrypting-paragraph:hover {
+  color: #fff;
+}
+
+.decrypt-caret {
+  display: inline-block;
+  margin-left: 2px;
+  color: var(--theme-accent);
+  animation: blink-caret 0.6s steps(2) infinite;
+}

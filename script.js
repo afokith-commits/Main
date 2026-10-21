@@ -1,13 +1,59 @@
 /**
  * PSYCHO-MONITOR // MK-03 RES-SYNC [ANOMALY: 088-ERIA]
- * Core Application Controller, Narrative Reader & Gapless Audio Engine
+ * Raw Markdown Parser & Progressive Text Decryption Engine
  */
 
 (function () {
   'use strict';
 
   /* ==========================================================================
-     1. YOUTUBE CONTINUOUS AUDIO CONTROLLER
+     1. PARSER: CONVERTS RAW ERIA.MD MARKDOWN INTO LIVE CHAPTER OBJECTS
+     ========================================================================== */
+  function parseEriaMarkdown(rawMd) {
+    if (!rawMd) return [];
+    
+    // Split by # CHAPTER headers
+    const rawChapters = rawMd.split(/^#\s+/m).filter(Boolean);
+    const parsed = [];
+
+    rawChapters.forEach((block, idx) => {
+      const lines = block.trim().split('\n');
+      const headerLine = lines[0] || "";
+      const content = lines.slice(1).join('\n').trim();
+
+      // e.g. "CHAPTER 1: THE WATER AND THE SALT"
+      const parts = headerLine.split(':');
+      const number = parts[0]?.trim() || `CHAPTER ${idx + 1}`;
+      const title = parts.slice(1).join(':').trim() || "UNTITLED LOG";
+
+      // Paragraphs split by blank lines
+      const paragraphs = content
+        .split(/\n\s*\n/)
+        .map(p => p.trim())
+        .filter(Boolean);
+
+      const trackInfo = window.ERIA_SOUNDTRACKS?.[idx] || {
+        harmonicKey: idx === 0 ? "alpha" : idx < 3 ? "beta" : "gamma",
+        title: "Ambient Carrier",
+        youtubeId: "QpRuSDvorBc",
+        artist: "Unknown"
+      };
+
+      parsed.push({
+        id: `ch-${idx + 1}`,
+        number: number,
+        title: title,
+        harmonicKey: trackInfo.harmonicKey,
+        track: trackInfo,
+        paragraphs: paragraphs
+      });
+    });
+
+    return parsed;
+  }
+
+  /* ==========================================================================
+     2. CONTINUOUS AUDIO CONTROLLER
      ========================================================================== */
   class CockpitAudioEngine {
     constructor() {
@@ -24,12 +70,12 @@
       if (!window.YT) {
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        const first = document.getElementsByTagName('script')[0];
+        first.parentNode.insertBefore(tag, first);
       }
 
       window.onYouTubeIframeAPIReady = () => {
-        const firstTrack = window.DOSSIER_DATA?.chapters[0]?.track?.youtubeId || "QpRuSDvorBc";
+        const firstTrack = window.ERIA_SOUNDTRACKS?.[0]?.youtubeId || "QpRuSDvorBc";
         this.currentVideoId = firstTrack;
 
         this.player = new YT.Player('yt-player-slot', {
@@ -47,15 +93,13 @@
           events: {
             onReady: () => {
               this.isReady = true;
-              this.player.setVolume(82);
-
+              this.player.setVolume(80);
               if (this.pendingVideoId) {
                 this.playTrack(this.pendingVideoId);
                 this.pendingVideoId = null;
               }
             },
             onStateChange: (event) => {
-              // Infinite Auto-Loop: Immediate replay on end
               if (event.data === YT.PlayerState.ENDED) {
                 event.target.playVideo();
               }
@@ -67,7 +111,6 @@
 
     playTrack(videoId) {
       if (!videoId) return;
-
       if (!this.isReady || !this.player) {
         this.pendingVideoId = videoId;
         return;
@@ -76,10 +119,7 @@
       if (this.currentVideoId !== videoId) {
         this.currentVideoId = videoId;
         if (this.isPlaying) {
-          this.player.loadVideoById({
-            videoId: videoId,
-            suggestedQuality: 'small'
-          });
+          this.player.loadVideoById({ videoId: videoId, suggestedQuality: 'small' });
         } else {
           this.player.cueVideoById(videoId);
         }
@@ -90,7 +130,7 @@
 
     startPlayback() {
       this.isPlaying = true;
-      if (this.isReady && this.player && this.player.playVideo) {
+      if (this.isReady && this.player?.playVideo) {
         this.player.playVideo();
       } else {
         this.pendingVideoId = this.currentVideoId;
@@ -99,19 +139,15 @@
 
     toggle() {
       if (!this.isReady || !this.player) return false;
-
       this.isPlaying = !this.isPlaying;
-      if (this.isPlaying) {
-        this.player.playVideo();
-      } else {
-        this.player.pauseVideo();
-      }
+      if (this.isPlaying) this.player.playVideo();
+      else this.player.pauseVideo();
       return this.isPlaying;
     }
   }
 
   /* ==========================================================================
-     2. PROCEDURAL OSCILLOSCOPE & BIOMETRIC WAVEFORM VISUALIZER
+     3. PROCEDURAL OSCILLOSCOPE
      ========================================================================== */
   class OscilloscopeVisualizer {
     constructor(canvasId) {
@@ -133,8 +169,8 @@
       this.canvas.height = rect.height * (window.devicePixelRatio || 1);
     }
 
-    setHarmonic(harmonicKey) {
-      this.harmonic = harmonicKey;
+    setHarmonic(k) {
+      this.harmonic = k;
     }
 
     animate() {
@@ -146,25 +182,25 @@
       const mid = h / 2;
 
       this.ctx.clearRect(0, 0, w, h);
-      this.phase += 0.038;
+      this.phase += 0.035;
 
-      let primaryColor = "rgba(229, 169, 98, 0.88)"; // Alpha: Amber
+      let strokeColor = "rgba(229, 169, 98, 0.88)";
       let speed = 1.0;
       let complexity = 3;
 
       if (this.harmonic === "beta") {
-        primaryColor = "rgba(240, 84, 84, 0.92)"; // Beta: Crimson
-        speed = 1.85;
+        strokeColor = "rgba(240, 84, 84, 0.92)";
+        speed = 1.8;
         complexity = 5;
       } else if (this.harmonic === "gamma") {
-        primaryColor = "rgba(168, 184, 230, 0.88)"; // Gamma: Porcelain Ice
+        strokeColor = "rgba(168, 184, 230, 0.88)";
         speed = 0.85;
         complexity = 2;
       }
 
-      // Background Reference Baseline (Psycho-field carrier)
+      // Carrier line
       this.ctx.beginPath();
-      this.ctx.strokeStyle = "rgba(78, 240, 196, 0.2)";
+      this.ctx.strokeStyle = "rgba(78, 240, 196, 0.18)";
       this.ctx.lineWidth = 1.2 * (window.devicePixelRatio || 1);
       for (let x = 0; x < w; x += 4) {
         const rad = (x / w) * Math.PI * 6 + this.phase * 0.5;
@@ -174,9 +210,9 @@
       }
       this.ctx.stroke();
 
-      // Active Synaptic Trace
+      // Main harmonic line
       this.ctx.beginPath();
-      this.ctx.strokeStyle = primaryColor;
+      this.ctx.strokeStyle = strokeColor;
       this.ctx.lineWidth = 1.8 * (window.devicePixelRatio || 1);
 
       for (let x = 0; x < w; x += 3) {
@@ -184,10 +220,9 @@
         const w1 = Math.sin(norm * Math.PI * 6 + this.phase * speed);
         const w2 = Math.cos(norm * Math.PI * 12 - this.phase * 0.4) * 0.35;
         const w3 = Math.sin(norm * Math.PI * 24 + this.phase * 1.8) * (complexity === 5 ? 0.3 : 0.08);
-        const jitter = (Math.random() - 0.5) * 1.8;
 
         const amp = h * 0.26;
-        const y = mid + (w1 + w2 + w3) * amp + jitter;
+        const y = mid + (w1 + w2 + w3) * amp;
 
         if (x === 0) this.ctx.moveTo(x, y);
         else this.ctx.lineTo(x, y);
@@ -197,21 +232,17 @@
   }
 
   /* ==========================================================================
-     3. MASTER DOSSIER & NARRATIVE READER CONTROLLER
+     4. MASTER DOSSIER READER & PROGRESSIVE DECRYPTOR
      ========================================================================== */
   class DossierApp {
     constructor() {
-      this.data = window.DOSSIER_DATA;
-      if (!this.data) {
-        console.error("FATAL: DOSSIER_DATA is missing. Ensure data.js loaded first.");
-        return;
-      }
-
+      this.chapters = parseEriaMarkdown(window.ERIA_RAW_MARKDOWN);
       this.currentChapterIndex = 0;
       this.audio = new CockpitAudioEngine();
       this.scope = new OscilloscopeVisualizer('waveform-canvas');
+      this.activeDecryptions = [];
 
-      // DOM Cache
+      // DOM Elements
       this.dominantChip = document.getElementById('dominant-harmonic-chip');
       this.audioToggleBtn = document.getElementById('audio-toggle-btn');
       this.audioLabel = document.getElementById('audio-label');
@@ -229,13 +260,8 @@
       this.gmBriefingContent = document.getElementById('gm-briefing-content');
       this.chapterNavButtons = document.getElementById('chapter-nav-buttons');
 
-      this.anchorList = document.getElementById('anchor-list');
-      this.subconsciousText = document.getElementById('subconscious-text');
-      this.marginAnnotations = document.getElementById('margin-annotations');
-
       this.chapterNum = document.getElementById('chapter-num');
       this.chapterYear = document.getElementById('chapter-year');
-      this.chapterReadTime = document.getElementById('chapter-read-time');
       this.chapterTitle = document.getElementById('chapter-title');
       this.chapterTrackTitle = document.getElementById('chapter-track-title');
       this.proseContent = document.getElementById('prose-content');
@@ -243,20 +269,8 @@
       this.nextChapterBtn = document.getElementById('next-chapter-btn');
       this.readingProgress = document.getElementById('reading-progress');
       this.consoleStream = document.getElementById('console-stream');
-
-      this.artifactModal = document.getElementById('artifact-modal');
-      this.artifactModalTitle = document.getElementById('artifact-modal-title');
-      this.artifactModalBody = document.getElementById('artifact-modal-body');
-      this.closeArtifactModalBtn = document.getElementById('close-artifact-modal-btn');
-
-      this.vistModal = document.getElementById('vist-modal');
-      this.vistModalContent = document.getElementById('vist-modal-content');
-      this.closeVistModalBtn = document.getElementById('close-vist-modal-btn');
-      this.slotKeyBtn = document.getElementById('slot-key-btn');
-      this.dismissVistModalBtn = document.getElementById('dismiss-vist-modal-btn');
-
-      this.bigPlayGate = document.getElementById('big-play-gate');
-      this.gateIgniteBtn = document.getElementById('gate-ignite-btn');
+      this.decryptStatus = document.getElementById('decrypt-status');
+      this.instantDecryptBtn = document.getElementById('instant-decrypt-btn');
 
       this.init();
     }
@@ -264,75 +278,65 @@
     init() {
       this.renderGMBriefing();
       this.renderChapterNav();
-      this.renderSensoryAnchors();
-      this.renderLancerSpecs();
-      this.renderVistModalContent();
-
-      this.loadChapter(0);
+      this.renderSubjectDossier();
       this.bindEvents();
       this.startClocks();
-      this.initScrollFocus();
+
+      this.loadChapter(0);
     }
 
-    /* 3.1 GM Executive Briefing */
+    /* 4.1 GM Briefing (Direct Eria.md Story Hooks) */
     renderGMBriefing() {
       if (!this.gmBriefingContent) return;
-      const b = this.data.gmBriefing;
-
-      let leversHtml = b.immediateLevers.map(l => `
-        <div class="gm-lever-card">
-          <div class="gm-lever-title">⚠ CAMPAIGN LEVER: ${l.title}</div>
-          <div class="gm-lever-desc">${l.desc}</div>
-        </div>
-      `).join("");
 
       this.gmBriefingContent.innerHTML = `
         <div class="gm-pitch-box">
-          <div class="gm-pitch-title">HIGH CONCEPT // CALLSIGN: ${b.callsign} [${b.subjectId}]</div>
-          <p class="gm-pitch-desc">${b.highConcept}</p>
+          <div class="gm-pitch-title">HIGH CONCEPT // SUBJECT: ERIA STERLING [SEC-088]</div>
+          <p class="gm-pitch-desc">
+            A dead 17-year-old civilian marine mechanic (Rian) whose soul was pulled by unshielded Psycho-Frame resonance into a dying rogue ace (Lt. Julian Ross), physically condensing into an adolescent female host adopted by a guilt-ridden Anaheim Director (Eria Sterling).
+          </p>
         </div>
 
         <div class="gm-grid-two">
           <div class="gm-levers-list">
             <div style="font-size:9px; font-weight:700; color:var(--text-dim); letter-spacing:0.1em; text-transform:uppercase;">
-              Immediate Adventure Hooks for the GM:
+              Campaign Adventure Hooks:
             </div>
-            ${leversHtml}
+            <div class="gm-lever-card">
+              <div class="gm-lever-title">⚠ THE FORGED CASUALTY RECORD</div>
+              <div class="gm-lever-desc">Anaheim believes Julian Ross died in the crater. If military intelligence runs a DNA swab on Eria, Vincent Sterling faces execution for high treason.</div>
+            </div>
+            <div class="gm-lever-card">
+              <div class="gm-lever-title">⚠ THE UNSHIELDED PSYCHO-MESH</div>
+              <div class="gm-lever-desc">Under heavy combat stress, Subject 088 risks paracausal dissociation—where Julian's lethal combat autopilot or Rian's saltwater grief violently overrides her conscious mind.</div>
+            </div>
+            <div class="gm-lever-card">
+              <div class="gm-lever-title">⚠ THE VIST FOUNDATION BLACKMAIL</div>
+              <div class="gm-lever-desc">The Vist Foundation holds the unredacted black-box ledger. They demanded Eria report to Berth 44 before 2400 hours to pilot Unit-03 to Lagrange Point 1.</div>
+            </div>
           </div>
 
           <div class="gm-stats-card">
             <div style="font-size:9px; font-weight:700; color:var(--theme-accent); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px;">
               Dossier Summary:
             </div>
-            <div class="gm-stat-row">
-              <span class="gm-stat-label">Origin:</span>
-              <span class="gm-stat-val" style="font-size:10px;">${b.summaryPills.origin}</span>
-            </div>
-            <div class="gm-stat-row">
-              <span class="gm-stat-label">Chassis:</span>
-              <span class="gm-stat-val" style="font-size:10px;">${b.summaryPills.chassis}</span>
-            </div>
-            <div class="gm-stat-row">
-              <span class="gm-stat-label">Dogtag:</span>
-              <span class="gm-stat-val" style="font-size:10px;">${b.summaryPills.dogtag}</span>
-            </div>
-            <div class="gm-stat-row">
-              <span class="gm-stat-label">Allegiance:</span>
-              <span class="gm-stat-val" style="font-size:9px;">${b.summaryPills.allegiance}</span>
-            </div>
+            <div class="gm-stat-row"><span class="gm-stat-label">Origin:</span><span class="gm-stat-val">Sunda Strait (Earth)</span></div>
+            <div class="gm-stat-row"><span class="gm-stat-label">Sanctuary:</span><span class="gm-stat-val">Von Braun City (Luna)</span></div>
+            <div class="gm-stat-row"><span class="gm-stat-label">Dogtag:</span><span class="gm-stat-val">ROSS, JULIAN — LT. / 088-921-A</span></div>
+            <div class="gm-stat-row"><span class="gm-stat-label">Frame:</span><span class="gm-stat-val">Prototype Unit-03</span></div>
             <div style="margin-top:6px; font-family:var(--font-serif); font-size:11px; line-height:1.4; color:var(--text-muted); border-top:1px solid rgba(255,255,255,0.06); padding-top:6px;">
-              <strong>Session 1 Hook:</strong> ${b.campaignHook}
+              <strong>Session 1 Transition:</strong> Eria accepts the key at Berth 44 and launches toward Lagrange Point 1.
             </div>
           </div>
         </div>
       `;
     }
 
-    /* 3.2 Chapter Navigation Buttons */
+    /* 4.2 Chapter Navigation */
     renderChapterNav() {
       if (!this.chapterNavButtons) return;
 
-      this.chapterNavButtons.innerHTML = this.data.chapters.map((ch, idx) => `
+      this.chapterNavButtons.innerHTML = this.chapters.map((ch, idx) => `
         <button class="chapter-tab ${idx === 0 ? 'active' : ''}" data-chapter-index="${idx}" type="button">
           <span class="chapter-tab-num">${ch.number}</span>
           <span class="chapter-tab-title">${ch.title}</span>
@@ -347,221 +351,107 @@
       });
     }
 
-    /* 3.3 Sensory Anchor Reliquary */
-    renderSensoryAnchors() {
-      if (!this.anchorList) return;
-
-      this.anchorList.innerHTML = this.data.anchors.map(a => `
-        <div class="anchor-item" data-anchor-id="${a.id}" tabindex="0" role="button" title="Inspect ${a.title}">
-          <div class="anchor-icon">${a.icon}</div>
-          <div class="anchor-meta">
-            <div class="anchor-title">${a.title}</div>
-            <div class="anchor-sub">${a.subtitle}</div>
-          </div>
-        </div>
-      `).join("");
-
-      this.anchorList.querySelectorAll('.anchor-item').forEach(item => {
-        item.addEventListener('click', () => {
-          const id = item.getAttribute('data-anchor-id');
-          this.inspectAnchor(id);
-        });
-      });
-    }
-
-    inspectAnchor(anchorId) {
-      const anchor = this.data.anchors.find(a => a.id === anchorId);
-      if (!anchor || !this.artifactModal) return;
-
-      if (this.artifactModalTitle) {
-        this.artifactModalTitle.textContent = `INSPECTING // ${anchor.title.toUpperCase()}`;
-      }
-      if (this.artifactModalBody) {
-        this.artifactModalBody.innerHTML = `
-          ${anchor.detailMarkup}
-          <div style="font-size:11px; color:var(--text-dim); text-align:center; margin-top:12px; letter-spacing:0.06em;">
-            ${anchor.caption}
-          </div>
-        `;
-      }
-
-      this.artifactModal.classList.remove('hidden');
-      this.artifactModal.setAttribute('aria-hidden', 'false');
-    }
-
-    /* 3.4 Subject 088 Narrative Dossier Drawer */
-    renderLancerSpecs() {
+    /* 4.3 Subject 088 Drawer (Pure Eria.md Lore) */
+    renderSubjectDossier() {
       if (!this.lancerDrawerContent) return;
-      const d = this.data.dossierArchive;
-
-      let triadHtml = d.harmonicTriad.map(t => `
-        <div class="dossier-bio-card">
-          <div class="dossier-bio-title" style="color:var(--theme-accent); font-family:var(--font-mono);">${t.strata}</div>
-          <div class="dossier-bio-desc">${t.context}</div>
-        </div>
-      `).join("");
-
-      let compendiumHtml = Object.entries(this.data.compendium).map(([term, desc]) => `
-        <div style="padding:6px 8px; background:var(--bg-surface-inset); border-left:2px solid var(--color-psycho); margin-bottom:6px; font-size:11px;">
-          <strong style="color:var(--color-psycho); font-family:var(--font-mono);">${term}:</strong>
-          <span style="font-family:var(--font-serif); color:var(--text-muted);">${desc}</span>
-        </div>
-      `).join("");
 
       this.lancerDrawerContent.innerHTML = `
         <div>
-          <div class="dossier-section-title">SUBJECT FILE // SEC-088</div>
-          <div style="font-size:13px; font-weight:700; color:#fff; margin-bottom:2px;">${d.identity.designation}</div>
-          <div style="font-size:10px; color:var(--theme-accent); margin-bottom:6px;">${d.identity.origin}</div>
-          <div style="font-size:10px; color:var(--text-muted); line-height:1.4;">${d.identity.status}</div>
+          <div class="dossier-section-title">SUBJECT ARCHIVE // SEC-088</div>
+          <div style="font-size:13px; font-weight:700; color:#fff; margin-bottom:2px;">ERIA STERLING (HOST)</div>
+          <div style="font-size:10px; color:var(--theme-accent); margin-bottom:6px;">Tripartite Paracausal Reconstruction</div>
+          <div style="font-size:10px; color:var(--text-muted); line-height:1.4;">Biological Age: 19 // Falsified Anaheim Disposition Report #95-088</div>
         </div>
 
         <div>
-          <div class="dossier-section-title">TRIPARTITE ANOMALY (HARMONIC NODES)</div>
-          ${triadHtml}
+          <div class="dossier-section-title">THE TRIPARTITE ANOMALY</div>
+          <div class="dossier-bio-card">
+            <div class="dossier-bio-title" style="color:var(--color-alpha); font-family:var(--font-mono);">HARMONIC α: RIAN (SOUL)</div>
+            <div class="dossier-bio-desc">17-year-old civilian apprentice at Sunda Strait. Vaporized during U.C. 0093 Axis impact. Provides mechanical empathy and moral foundation.</div>
+          </div>
+          <div class="dossier-bio-card">
+            <div class="dossier-bio-title" style="color:var(--color-beta); font-family:var(--font-mono);">HARMONIC β: LT. JULIAN ROSS (REFLEX)</div>
+            <div class="dossier-bio-desc">26-year-old rogue ace responsible for 42M credits Anaheim damage. Adult body condensed into adolescent girl; lethal combat instincts burned into motor cortex.</div>
+          </div>
+          <div class="dossier-bio-card">
+            <div class="dossier-bio-title" style="color:var(--color-gamma); font-family:var(--font-mono);">HARMONIC γ: ERIA STERLING (LIVING MASK)</div>
+            <div class="dossier-bio-desc">Sheltered lunar heiress in Von Braun City. Slides under roadsters at 2:00 AM with an 8mm wrench to anchor herself against dissociative ego death.</div>
+          </div>
         </div>
 
         <div>
           <div class="dossier-section-title">PROTOTYPE UNIT-03 SPECS</div>
           <div class="dossier-bio-card">
-            <div style="font-size:10px; font-weight:700; color:var(--color-psycho); margin-bottom:4px;">CHASSIS: ${d.prototypeSpecs.chassis}</div>
+            <div style="font-size:10px; font-weight:700; color:var(--color-psycho); margin-bottom:4px;">CHASSIS: PROTOTYPE UNIT-03</div>
             <div style="font-size:11px; font-family:var(--font-serif); color:var(--text-prose-secondary); line-height:1.45; margin-bottom:4px;">
-              <strong>Cockpit:</strong> ${d.prototypeSpecs.liner}
+              <strong>Cockpit:</strong> Raw hexagonal Psycho-Frame mesh bonded along internal liner.
             </div>
             <div style="font-size:11px; font-family:var(--font-serif); color:var(--text-muted); line-height:1.45; margin-bottom:4px;">
-              <strong>Avionics:</strong> ${d.prototypeSpecs.weaponry}
+              <strong>Loadout:</strong> High-frequency thermal blade, AP interceptor cannon, Minovsky chaff canisters.
             </div>
             <div style="font-size:10px; color:var(--color-beta); font-family:var(--font-mono); margin-top:6px;">
-              ⚠ WARNING: ${d.prototypeSpecs.dangerProfile}
+              ⚠ BLACK-BOX STATUS: Unedited telemetry held by the Vist Foundation as extortion leverage.
             </div>
           </div>
         </div>
-
-        <div>
-          <div class="dossier-section-title">CAMPAIGN LORE GLOSSARY</div>
-          ${compendiumHtml}
-        </div>
       `;
     }
 
-    /* 3.5 Vist Foundation Modal Content */
-    renderVistModalContent() {
-      if (!this.vistModalContent) return;
-
-      this.vistModalContent.innerHTML = `
-        <div class="wax-seal-wrapper" aria-hidden="true">
-          <div class="wax-seal">
-            <span>VIST</span>
-          </div>
-        </div>
-
-        <div class="letter-meta-block">
-          <span>ORIGIN: L1 RECEPTACLE // CIPHER ALPHA-ZERO</span>
-          <span>TARGET: SENIOR DIRECTOR VINCENT STERLING (RESIDENCE PRIVATE TERMINAL)</span>
-          <span>CLASSIFICATION: HIGH TREASON // EXPENDABLE PILOT RETRIEVAL ORDER</span>
-        </div>
-
-        <div class="letter-body-prose">
-          <p><strong>DIRECTOR STERLING:</strong></p>
-          <p>
-            For three years, the Vist Foundation has maintained deliberate oversight of your division's ledger. We are fully aware that <em>Lt. Julian Ross</em> was not incinerated in the Sunda sector, nor was Prototype Unit-03 vaporized in combat.
-          </p>
-          <p>
-            We know what you carried home to Von Braun City in your private shuttle. We know whose face sits at your breakfast table in the 1st Ring.
-          </p>
-          <p class="letter-callout">
-            The pilot is to report to <strong>Berth 44, Outer Docks, Von Braun Industrial Perimeter</strong> before 2400 hours tonight. She is to take controls of Unit-03 and depart for Lagrange Point 1.
-          </p>
-          <p>
-            Should she fail to report, the unedited black-box telemetry—alongside DNA markers proving the living presence of Julian Ross—will be delivered simultaneously to the Anaheim Board of Directors and the UNION Military Police.
-          </p>
-          <p class="letter-signoff">
-            <em>The bill is now due, Vincent. Keep your house safe.</em>
-          </p>
-        </div>
-      `;
-    }
-
-    /* 3.6 Load Chapter & Synchronize Cockpit State */
+    /* 4.4 Load Chapter & Progressive Decrypt */
     loadChapter(index) {
-      if (index < 0 || index >= this.data.chapters.length) return;
+      if (index < 0 || index >= this.chapters.length) return;
       this.currentChapterIndex = index;
-      const chapter = this.data.chapters[index];
+      const chapter = this.chapters[index];
 
-      // Update Header & Nav State
+      // Cancel any ongoing decryption loops
+      this.clearActiveDecryptions();
+
+      // Update Nav Buttons
       document.querySelectorAll('.chapter-tab').forEach((tab, idx) => {
         tab.classList.toggle('active', idx === index);
       });
 
       if (this.chapterNum) this.chapterNum.textContent = chapter.number;
-      if (this.chapterYear) this.chapterYear.textContent = chapter.era;
-      if (this.chapterReadTime) this.chapterReadTime.textContent = `EST. READ: ${chapter.readTime}`;
       if (this.chapterTitle) this.chapterTitle.textContent = chapter.title;
       if (this.chapterTrackTitle) this.chapterTrackTitle.textContent = chapter.track.title;
 
       // Update Harmonic Theme
       this.setHarmonicTheme(chapter.harmonicKey);
 
-      // Render Prose with Redaction Block
+      // Render Empty Paragraph Containers Ready for Progressive Decryption
       if (this.proseContent) {
-        let paragraphsHtml = chapter.paragraphs.map(p => {
+        this.proseContent.innerHTML = chapter.paragraphs.map((p, pIdx) => {
           if (p === '***') {
-            return `<div style="text-align:center; color:var(--theme-accent); font-size:16px; margin:16px 0;">∿ ∿ ∿</div>`;
+            return `<div style="text-align:center; color:var(--theme-accent); font-size:18px; margin:16px 0;">∿ ∿ ∿</div>`;
           }
-          return `<p>${p}</p>`;
+          return `<p class="decrypting-paragraph" data-p-idx="${pIdx}" data-full-text="${encodeURIComponent(p)}"><span class="decrypt-text"></span><span class="decrypt-caret">▌</span></p>`;
         }).join("");
 
-        let redactionHtml = "";
-        if (chapter.redaction) {
-          const r = chapter.redaction;
-          redactionHtml = `
-            <div class="redaction-bar" id="${r.id}" data-redact-id="${r.id}" tabindex="0" role="button" title="Click to declassify classified intelligence">
-              <div class="redaction-header">
-                <span>CLASSIFIED // ${r.label}</span>
-                <span class="redaction-status">CLICK TO DECLASSIFY</span>
-              </div>
-              <div class="redaction-block">████████████████████████████████████████████████████████████</div>
-              <div class="redaction-gm-note">
-                <strong>${r.gmNote}</strong>
-              </div>
-            </div>
-          `;
-        }
-
-        this.proseContent.innerHTML = paragraphsHtml + redactionHtml;
-        this.bindRedactionEvents();
+        // Start Slow Decryption Stream
+        this.startProgressiveDecryption();
       }
 
-      // Update Pager Status
+      // Update Pager
       if (this.readingProgress) {
-        this.readingProgress.textContent = `LOG ${index + 1} OF ${this.data.chapters.length}`;
+        this.readingProgress.textContent = `LOG ${index + 1} OF ${this.chapters.length}`;
       }
       if (this.prevChapterBtn) {
         this.prevChapterBtn.disabled = index === 0;
         this.prevChapterBtn.style.opacity = index === 0 ? "0.3" : "1";
       }
       if (this.nextChapterBtn) {
-        this.nextChapterBtn.disabled = index === this.data.chapters.length - 1;
-        this.nextChapterBtn.style.opacity = index === this.data.chapters.length - 1 ? "0.3" : "1";
+        this.nextChapterBtn.disabled = index === this.chapters.length - 1;
+        this.nextChapterBtn.style.opacity = index === this.chapters.length - 1 ? "0.3" : "1";
       }
 
-      // Update Marginalia & Subconscious Echo
-      this.updateMarginalia(chapter.id);
-
-      // Trigger Gapless Track Switch
+      // Play Chapter BGM
       this.audio.playTrack(chapter.track.youtubeId);
       if (this.currentTrackName) {
         this.currentTrackName.textContent = `TRACK: ${chapter.track.title}`;
       }
 
-      // Scroll smoothly to top of prose viewport
-      const viewport = document.getElementById('prose-viewport');
-      if (viewport && index > 0) {
-        viewport.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-
       if (this.consoleStream) {
-        this.consoleStream.textContent = `SECTOR SYNC: [${chapter.number}] // BGM: ${chapter.track.artist} // NOMINAL`;
+        this.consoleStream.textContent = `DECRYPTING BLACK-BOX TELEMETRY // ${chapter.number} // ${chapter.title}`;
       }
     }
 
@@ -569,7 +459,6 @@
       document.body.className = `cockpit-theme-ambient theme-${harmonicKey}`;
       this.scope.setHarmonic(harmonicKey);
 
-      // Trigger screen tear animation
       document.body.classList.add('harmonic-shifting');
       setTimeout(() => document.body.classList.remove('harmonic-shifting'), 450);
 
@@ -583,107 +472,127 @@
         this.dominantChip.textContent = labels[harmonicKey] || labels.alpha;
       }
 
-      // Update diagnostic metrics per harmonic
       if (harmonicKey === "alpha") {
         if (this.scopeFreq) this.scopeFreq.textContent = "432.8 Hz";
         if (this.scopeSync) this.scopeSync.textContent = "96.4%";
-        if (this.scopeStress) {
-          this.scopeStress.textContent = "14% [STABLE]";
-          this.scopeStress.className = "metric-item stress-nominal";
-        }
+        if (this.scopeStress) this.scopeStress.textContent = "14% [STABLE]";
       } else if (harmonicKey === "beta") {
         if (this.scopeFreq) this.scopeFreq.textContent = "684.2 Hz";
         if (this.scopeSync) this.scopeSync.textContent = "88.1%";
-        if (this.scopeStress) {
-          this.scopeStress.textContent = "64% [OVERCHARGE RISK]";
-          this.scopeStress.className = "metric-item stress-critical";
-        }
+        if (this.scopeStress) this.scopeStress.textContent = "64% [OVERCHARGE]";
       } else {
         if (this.scopeFreq) this.scopeFreq.textContent = "528.0 Hz";
         if (this.scopeSync) this.scopeSync.textContent = "99.8%";
-        if (this.scopeStress) {
-          this.scopeStress.textContent = "38% [DISSOCIATING]";
-          this.scopeStress.className = "metric-item stress-elevated";
+        if (this.scopeStress) this.scopeStress.textContent = "38% [DISSOCIATING]";
+      }
+    }
+
+    /* 4.5 PROGRESSIVE SLOW DECRYPTION ENGINE */
+    clearActiveDecryptions() {
+      this.activeDecryptions.forEach(id => clearInterval(id));
+      this.activeDecryptions = [];
+    }
+
+    startProgressiveDecryption() {
+      const pElements = Array.from(document.querySelectorAll('.decrypting-paragraph'));
+      if (pElements.length === 0) return;
+
+      if (this.decryptStatus) this.decryptStatus.textContent = "STREAM: DECRYPTING TELEMETRY...";
+
+      let currentP = 0;
+      const glyphs = '█▓▒░#%&*01∿';
+
+      const decryptNextParagraph = () => {
+        if (currentP >= pElements.length) {
+          if (this.decryptStatus) this.decryptStatus.textContent = "STREAM: ALL TELEMETRY RESOLVED";
+          return;
         }
-      }
-    }
 
-    updateMarginalia(chapterId) {
-      const notes = this.data.marginalia[chapterId] || [];
-      if (this.marginAnnotations) {
-        this.marginAnnotations.innerHTML = notes.map(n => `
-          <div class="annotation-card" style="border-left-color: var(--color-${n.strata});">
-            <strong style="color: var(--color-${n.strata});">HARMONIC ${n.strata.toUpperCase()}:</strong>
-            ${n.note}
-          </div>
-        `).join("");
-      }
+        const el = pElements[currentP];
+        const textSpan = el.querySelector('.decrypt-text');
+        const caret = el.querySelector('.decrypt-caret');
+        const rawText = decodeURIComponent(el.getAttribute('data-full-text') || "");
 
-      // Pick the primary echo for the subconscious stream box
-      if (this.subconsciousText && notes.length > 0) {
-        this.subconsciousText.textContent = `“${notes[0].note}”`;
-      }
-    }
-
-    /* 3.7 Single-Click Declassify Handler */
-    bindRedactionEvents() {
-      const chapter = this.data.chapters[this.currentChapterIndex];
-      if (!chapter || !chapter.redaction) return;
-
-      const bar = document.getElementById(chapter.redaction.id);
-      if (!bar) return;
-
-      bar.addEventListener('click', () => {
-        if (bar.classList.contains('declassified')) return;
-
-        bar.classList.add('declassifying');
-        const block = bar.querySelector('.redaction-block');
-        const status = bar.querySelector('.redaction-status');
-
-        let steps = 0;
-        const glyphs = '█▓▒░#%&*01';
-        const targetText = chapter.redaction.blackoutText;
+        let charIndex = 0;
+        const speedMs = 14; // Cadence for smooth, atmospheric decrypt
 
         const interval = setInterval(() => {
-          steps++;
-          if (steps < 8) {
-            block.textContent = [...targetText].map(c => (c === ' ' ? ' ' : glyphs[Math.floor(Math.random() * glyphs.length)])).join('');
-          } else {
-            clearInterval(interval);
-            block.textContent = targetText;
-            bar.classList.remove('declassifying');
-            bar.classList.add('declassified');
-            if (status) status.textContent = "DECLASSIFIED // ACCESS GRANTED";
+          charIndex += 2; // Resolve 2 characters per tick for steady reading pace
 
-            // Trigger visualizer spike
-            const scopeBox = document.querySelector('.canvas-wrapper');
-            if (scopeBox) {
-              scopeBox.classList.remove('spike');
-              void scopeBox.offsetWidth;
-              scopeBox.classList.add('spike');
-            }
+          if (charIndex >= rawText.length) {
+            clearInterval(interval);
+            textSpan.textContent = rawText;
+            if (caret) caret.style.display = 'none';
+            el.classList.add('decrypted');
+            currentP++;
+            decryptNextParagraph();
+          } else {
+            // Unscrambling cipher tail
+            const resolved = rawText.slice(0, charIndex);
+            const cipherTail = glyphs[Math.floor(Math.random() * glyphs.length)] + glyphs[Math.floor(Math.random() * glyphs.length)];
+            textSpan.textContent = resolved + cipherTail;
           }
-        }, 35);
+        }, speedMs);
+
+        this.activeDecryptions.push(interval);
+      };
+
+      // Start first paragraph decrypt
+      decryptNextParagraph();
+
+      // Click on any paragraph to instantly finish that single paragraph
+      pElements.forEach(el => {
+        el.addEventListener('click', () => {
+          const textSpan = el.querySelector('.decrypt-text');
+          const caret = el.querySelector('.decrypt-caret');
+          const rawText = decodeURIComponent(el.getAttribute('data-full-text') || "");
+          textSpan.textContent = rawText;
+          if (caret) caret.style.display = 'none';
+          el.classList.add('decrypted');
+        });
       });
     }
 
-    /* 3.8 Global Events & Modal Bindings */
+    instantDecryptAll() {
+      this.clearActiveDecryptions();
+      document.querySelectorAll('.decrypting-paragraph').forEach(el => {
+        const textSpan = el.querySelector('.decrypt-text');
+        const caret = el.querySelector('.decrypt-caret');
+        const rawText = decodeURIComponent(el.getAttribute('data-full-text') || "");
+        if (textSpan) textSpan.textContent = rawText;
+        if (caret) caret.style.display = 'none';
+        el.classList.add('decrypted');
+      });
+
+      if (this.decryptStatus) this.decryptStatus.textContent = "STREAM: ALL TELEMETRY RESOLVED";
+    }
+
+    /* 4.6 Events & Controls */
     bindEvents() {
-      // Big Ignition Gate
-      if (this.gateIgniteBtn && this.bigPlayGate) {
-        this.gateIgniteBtn.addEventListener('click', () => {
+      // Instant Decrypt Button
+      if (this.instantDecryptBtn) {
+        this.instantDecryptBtn.addEventListener('click', () => {
+          this.instantDecryptAll();
+        });
+      }
+
+      // Gate Ignite
+      const gateBtn = document.getElementById('gate-ignite-btn');
+      const gateOverlay = document.getElementById('big-play-gate');
+      if (gateBtn && gateOverlay) {
+        gateBtn.addEventListener('click', () => {
           this.audio.startPlayback();
           if (this.audioToggleBtn) this.audioToggleBtn.classList.add('active');
           if (this.audioLabel) this.audioLabel.textContent = "ACTIVE (LOOP)";
 
-          this.bigPlayGate.style.opacity = '0';
+          gateOverlay.style.opacity = '0';
           setTimeout(() => {
-            this.bigPlayGate.style.display = 'none';
+            gateOverlay.style.display = 'none';
           }, 400);
         });
       }
 
-      // Top Audio Toggle
+      // Audio Toggle
       if (this.audioToggleBtn) {
         this.audioToggleBtn.addEventListener('click', () => {
           const isPlaying = this.audio.toggle();
@@ -694,7 +603,7 @@
         });
       }
 
-      // LANCER Drawer Toggle
+      // Dossier Drawer Toggle
       if (this.toggleDossierBtn && this.lancerDrawer) {
         this.toggleDossierBtn.addEventListener('click', () => this.toggleDossier(true));
       }
@@ -702,7 +611,7 @@
         this.closeDossierBtn.addEventListener('click', () => this.toggleDossier(false));
       }
 
-      // Pager Buttons
+      // Pager
       if (this.prevChapterBtn) {
         this.prevChapterBtn.addEventListener('click', () => {
           if (this.currentChapterIndex > 0) this.loadChapter(this.currentChapterIndex - 1);
@@ -710,64 +619,11 @@
       }
       if (this.nextChapterBtn) {
         this.nextChapterBtn.addEventListener('click', () => {
-          if (this.currentChapterIndex < this.data.chapters.length - 1) {
+          if (this.currentChapterIndex < this.chapters.length - 1) {
             this.loadChapter(this.currentChapterIndex + 1);
           }
         });
       }
-
-      // Close Modals
-      if (this.closeArtifactModalBtn && this.artifactModal) {
-        this.closeArtifactModalBtn.addEventListener('click', () => {
-          this.artifactModal.classList.add('hidden');
-          this.artifactModal.setAttribute('aria-hidden', 'true');
-        });
-      }
-
-      if (this.closeVistModalBtn && this.vistModal) {
-        this.closeVistModalBtn.addEventListener('click', () => {
-          this.vistModal.classList.add('hidden');
-          this.vistModal.setAttribute('aria-hidden', 'true');
-        });
-      }
-
-      if (this.dismissVistModalBtn && this.vistModal) {
-        this.dismissVistModalBtn.addEventListener('click', () => {
-          this.vistModal.classList.add('hidden');
-          this.vistModal.setAttribute('aria-hidden', 'true');
-        });
-      }
-
-      // Berth 44 Launch Key Slotting
-      if (this.slotKeyBtn) {
-        this.slotKeyBtn.addEventListener('click', () => {
-          this.slotKeyBtn.innerHTML = "<span>✓ TELEMETRY ACCEPTED // REACTOR ONLINE</span>";
-          this.slotKeyBtn.style.background = "rgba(78, 240, 196, 0.2)";
-          this.slotKeyBtn.style.borderColor = "var(--color-psycho)";
-          this.slotKeyBtn.style.color = "var(--color-psycho)";
-
-          if (this.consoleStream) {
-            this.consoleStream.textContent = "BERTH 44 GANTRY RELEASED // LAUNCH TUBE CLEAR // UNIT-03 DEPARTING FOR L1";
-          }
-        });
-      }
-
-      // Escape key to dismiss open modals/drawers
-      window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          if (this.lancerDrawer && this.lancerDrawer.classList.contains('open')) {
-            this.toggleDossier(false);
-          }
-          if (this.artifactModal && !this.artifactModal.classList.contains('hidden')) {
-            this.artifactModal.classList.add('hidden');
-            this.artifactModal.setAttribute('aria-hidden', 'true');
-          }
-          if (this.vistModal && !this.vistModal.classList.contains('hidden')) {
-            this.vistModal.classList.add('hidden');
-            this.vistModal.setAttribute('aria-hidden', 'true');
-          }
-        }
-      });
     }
 
     toggleDossier(open) {
@@ -779,25 +635,6 @@
       }
     }
 
-    /* 3.9 Scroll Focus Monitor (Dimmable Cockpit Chrome) */
-    initScrollFocus() {
-      let scrollTimer = null;
-      window.addEventListener('scroll', () => {
-        const scrolled = window.scrollY > 180;
-        if (scrolled) {
-          document.body.classList.add('reading-active');
-        } else {
-          document.body.classList.remove('reading-active');
-        }
-
-        clearTimeout(scrollTimer);
-        scrollTimer = setTimeout(() => {
-          // If reading stopped for 1.8s, keep dimmed unless hovering
-        }, 1800);
-      }, { passive: true });
-    }
-
-    /* 3.10 Clocks & Tape Reel Counter */
     startClocks() {
       const clockEl = document.getElementById('mission-clock');
       let tapeSeconds = 0;
@@ -807,9 +644,7 @@
         const mins = Math.floor(tapeSeconds / 60).toString().padStart(2, '0');
         const secs = (tapeSeconds % 60).toFixed(1).padStart(4, '0');
 
-        if (this.tapeTime) {
-          this.tapeTime.textContent = `${mins}:${secs}`;
-        }
+        if (this.tapeTime) this.tapeTime.textContent = `${mins}:${secs}`;
 
         if (clockEl) {
           const now = new Date();
@@ -822,7 +657,6 @@
     }
   }
 
-  // Initialize and expose to window for immersive.js hooks
   document.addEventListener('DOMContentLoaded', () => {
     window.app = new DossierApp();
   });
