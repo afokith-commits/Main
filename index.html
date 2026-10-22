@@ -3,310 +3,185 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="PSYCHO-MONITOR // Unit-03 Tri-Harmonic Resonance [Subject: Eria Sterling] — Character & Narrative Showcase">
-  <title>PSYCHO-MONITOR // MK-03 RES-SYNC [ANOMALY: 088-ERIA]</title>
-  
-  <!-- Typography: Tactical Monospace + High-Legibility Editorial Serif + Classical Display -->
+  <meta name="description" content="PSYCHO-MONITOR MK-03 // Tri-Harmonic Resonance [Subject 088: Eria Sterling] — In-cockpit narrative reader for Universal Century Gundam x LANCER setting.">
+  <meta name="theme-color" content="#05070a">
+
+  <title>PSYCHO-MONITOR MK-03 // SUBJECT 088</title>
+
+  <!-- Typography: Tactical Monospace, Melancholic Editorial Serif & Classical Display -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,400&display=swap" rel="stylesheet">
-  
-  <!-- Stylesheets -->
+
+  <!-- Core Cockpit Layout & CRT Optical Shaders -->
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="immersive.css">
 </head>
-<body class="cockpit-theme-ambient theme-alpha">
+<body data-harmonic="alpha" class="cockpit-theme-ambient">
 
-  <!-- Atmospheric CRT & Optical Vignette Layers -->
+  <!-- 1. Sticky Decrypt Reading Progress Hairline -->
+  <div id="sticky-progress-bar" role="progressbar" aria-label="Chapter Decrypt Progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+    <div id="sticky-progress-indicator"></div>
+  </div>
+
+  <!-- 2. Triple CRT & Canopy Optical Layer Suite -->
   <div class="crt-scanlines" aria-hidden="true"></div>
   <div class="crt-vignette" aria-hidden="true"></div>
   <div class="glass-reflection" aria-hidden="true"></div>
+  <div class="cursor-glow" aria-hidden="true"></div>
 
-  <!-- Main Cockpit Container -->
-  <div class="hud-container">
+  <!-- Master Cockpit Viewport Shell -->
+  <div id="cockpit-viewport">
 
     <!-- ====================================================================
-         TOP STATUS & TELEMETRY HEADER
+         TOP COCKPIT TELEMETRY STRIP (Sticky 44px Tactical Header)
          ==================================================================== -->
-    <header class="hud-header">
-      <div class="header-left">
-        <span class="hud-tag sys-alert">UNIT-03 // PARACAUSAL TESTBED</span>
-        <span class="hud-breadcrumb">ANAHEIM BLACK-PROJECTS // SEC-088</span>
-        <span class="hud-status-chip" id="dominant-harmonic-chip">DOMINANT: HARMONIC α (RIAN)</span>
+    <header id="cockpit-header" role="banner">
+      <!-- Left: Unit-03 Status & Tri-Harmonic Identity Node -->
+      <div class="hud-group left">
+        <span class="hud-tag sys-alert">TESTBED: UNIT-03</span>
+        <span class="hud-glitch-badge">UNSHIELDED PSYCHO-FRAME</span>
+        <span class="hud-separator" aria-hidden="true">//</span>
+        <span id="hud-chapter-year" class="hud-data">U.C. 0093</span>
+        <span id="hud-chapter-loc" class="hud-data loc-tag">SUNDA STRAIT</span>
+        <span id="hud-harmonic-chip" class="hud-status-chip">HARMONIC α</span>
       </div>
 
-      <div class="header-center">
-        <h1 class="hud-title">PSYCHO-MONITOR // MK-03</h1>
-        <p class="hud-subtitle">BIOMETRIC DOSSIER & NARRATIVE LOG // SUBJECT: ERIA STERLING</p>
+      <!-- Center: Active Diegetic BGM Relay -->
+      <div class="hud-group center" aria-hidden="true">
+        <div class="header-audio-info">
+          <span class="status-indicator" id="header-audio-led"></span>
+          <span id="hud-track-name" class="hud-track-name">BGM: Cicada — Ocean Foam</span>
+        </div>
       </div>
 
-      <div class="header-right">
-        <!-- Persistent Audio Control -->
-        <button id="audio-toggle-btn" class="hud-button audio-btn" type="button" aria-pressed="false" title="Toggle Background Music (HotKey: M)">
-          <span class="status-indicator"></span>
-          <span class="btn-text">BGM: <strong id="audio-label">STANDBY</strong></span>
+      <!-- Right: GM Pill Button, Read Estimate & Tactical Clock -->
+      <div class="hud-group right">
+        <button id="gm-pill-btn" class="hud-pill-btn" type="button" title="Toggle GM Mission Briefing">
+          [GM BRIEF]
         </button>
-
-        <!-- Slide-out LANCER Sheet Trigger -->
-        <button id="toggle-dossier-btn" class="hud-button dossier-btn" type="button" aria-expanded="false" title="Toggle LANCER Pilot & Mech Sheet (HotKey: D)">
-          <span class="crest-icon">𐂂</span>
-          <span class="btn-text">PILOT DOSSIER</span>
-        </button>
-
-        <div class="hud-clock" id="mission-clock">U.C. 0099.04.18 // 23:42:19</div>
+        <span id="hud-read-time" class="hud-data">EST. READ: 5 MIN</span>
+        <span id="hud-clock" class="hud-clock">23:42:19</span>
       </div>
     </header>
 
     <!-- ====================================================================
-         TOP DIAGNOSTIC OSCILLOSCOPE & TAPE-REEL STRIP
+         COLLAPSIBLE GM DIRECTIVE SLIDE-OVER (Non-Intrusive Intel)
          ==================================================================== -->
-    <section class="oscilloscope-section">
-      <div class="scope-card">
-        <div class="scope-header">
-          <div class="scope-title-group">
-            <span class="scope-icon">∿</span>
-            <span class="scope-label">PSYCHO-FIELD HARMONIC RESONANCE</span>
-            <span class="scope-tag" id="current-track-name">TRACK: Standby</span>
+    <section id="gm-briefing-drawer" aria-label="Game Master Executive Briefing">
+      <div class="briefing-inner">
+        <div class="briefing-top">
+          <div class="briefing-tag-group">
+            <span class="hud-tag sys-alert">EYES ONLY // GAME MASTER</span>
+            <span class="briefing-tag">TRANSMISSION: ANAHEIM / VIST FOUNDATION CIPHER</span>
           </div>
-          <div class="scope-metrics">
-            <span class="metric-item">FREQ: <strong id="scope-freq">432.8 Hz</strong></span>
-            <span class="metric-item">SYNC: <strong id="scope-sync">96.4%</strong></span>
-            <span class="metric-item">PARACAUSAL STRESS: <strong id="scope-stress" class="stress-nominal">14% [STABLE]</strong></span>
-            <span class="metric-item tape-reel-item">REEL: <strong id="tape-time">00:00.0</strong></span>
-          </div>
+          <button id="gm-drawer-close" class="hud-pill-btn close-btn" type="button" aria-label="Dismiss briefing">
+            DISMISS [X]
+          </button>
         </div>
-
-        <div class="canvas-wrapper">
-          <canvas id="waveform-canvas" width="1200" height="90"></canvas>
-          <div class="canvas-grid-overlay" aria-hidden="true"></div>
-          <div class="canvas-legend">
-            <span>CH-1: SALTWATER ORIGIN [α]</span>
-            <span>CH-2: TACTICAL SHADOW [β]</span>
-            <span>CH-3: PORCELAIN VESSEL [γ]</span>
-          </div>
-        </div>
+        <p class="briefing-text">
+          <strong>Subject 088 (Eria Sterling):</strong> Tripartite consciousness anomaly resulting from unshielded Psycho-Frame condensation at the U.C. 0095 crash site. 
+          Harmonics (<strong>&alpha; Rian</strong>, <strong>&beta; Julian Ross</strong>, <strong>&gamma; Eria Sterling</strong>) attune automatically as you progress through the narrative logs. Story canon is immutable from <em>Eria.md</em>. The top diagnostic visualizer charts live biometrics and active memory channels for each consciousness state.
+        </p>
       </div>
     </section>
 
     <!-- ====================================================================
-         THE 60-SECOND GM EXECUTIVE BRIEFING (COLLAPSIBLE ACCORDION)
-         Designed specifically for the DM to get high-concept hooks instantly
+         SINGLE 68ch EDITORIAL READING STAGE
          ==================================================================== -->
-    <section class="gm-briefing-section">
-      <details class="gm-accordion" id="gm-briefing-box" open>
-        <summary class="gm-summary">
-          <div class="gm-summary-title">
-            <span class="gm-badge">GM EXECUTIVE BRIEFING</span>
-            <span class="gm-heading">CHARACTER PITCH, CAMPAIGN HOOKS & ADVENTURE SEEDS</span>
+    <main id="reading-stage-wrap">
+      <article id="reading-stage" tabindex="0" aria-label="Narrative Log Viewport">
+
+        <!-- ==================================================================
+             FULL-SCALE PSYCHO-FIELD DIAGNOSTIC DECK (Inspired by Prototype Bar)
+             ================================================================== -->
+        <section class="oscilloscope-section" aria-label="Psycho-Field Harmonic Drift Visualizer">
+          <div class="scope-card">
+            <div class="scope-header">
+              <div class="scope-title-group">
+                <span class="scope-icon" aria-hidden="true">∿</span>
+                <span class="scope-label">PSYCHO-FIELD HARMONIC DRIFT</span>
+              </div>
+              <div class="scope-metrics">
+                <span class="metric-item">FREQ: <strong id="scope-freq">432.8 Hz</strong></span>
+                <span class="metric-item">SYNC: <strong id="scope-sync">96.4%</strong></span>
+                <span class="metric-item">RES-NOISE: <strong id="scope-noise">0.012 µV</strong></span>
+                <span class="metric-item status-flux" id="scope-status">CONSCIOUSNESS: ENTANGLED</span>
+              </div>
+            </div>
+
+            <!-- Full-Scale Responsive Canvas with Reticle Grid & Channel Legends -->
+            <div class="canvas-wrapper">
+              <canvas id="waveform-canvas" width="1200" height="130"></canvas>
+              <div class="canvas-grid-overlay" aria-hidden="true"></div>
+              <div class="canvas-legend">
+                <span id="channel-1" class="channel-tag active">CH-1: MEMORY SALINITY</span>
+                <span id="channel-2" class="channel-tag">CH-2: TRIGGER MOTOR REFLEX</span>
+                <span id="channel-3" class="channel-tag">CH-3: BIOLOGICAL VESSEL</span>
+              </div>
+            </div>
           </div>
-          <span class="gm-toggle-icon">▾</span>
-        </summary>
-        <div class="gm-content" id="gm-briefing-content">
-          <!-- Dynamically populated from data.js -->
-        </div>
-      </details>
-    </section>
+        </section>
 
-    <!-- ====================================================================
-         CHAPTER JUMP NAVIGATION BAR
-         ==================================================================== -->
-    <nav class="chapter-nav" aria-label="Story Chapters">
-      <div class="chapter-nav-label">SECTOR LOGS:</div>
-      <div class="chapter-nav-buttons" id="chapter-nav-buttons">
-        <!-- Dynamically rendered from data.js (Ch 1 to 5) -->
-      </div>
-    </nav>
-
-    <!-- ====================================================================
-         MAIN THREE-COLUMN READING STAGE
-         Left: Sensory Reliquary | Center: Prose Reader | Right: Marginalia
-         ==================================================================== -->
-    <main class="reading-stage-layout">
-
-      <!-- LEFT COLUMN: The Sensory Anchor Reliquary (INFP 4w5 Anchors) -->
-      <aside class="reliquary-rail" aria-label="Sensory Anchors">
-        <div class="rail-header">
-          <span class="rail-title">SENSORY ANCHORS</span>
-          <span class="rail-sub">IDENTITY TOTEMS</span>
-        </div>
-        <div class="anchor-list" id="anchor-list">
-          <!-- Dynamically populated from data.js -->
-        </div>
-
-        <!-- Real-time Subconscious Marginalia Feed -->
-        <div class="subconscious-box">
-          <div class="subconscious-title">SUBCONSCIOUS ECHO</div>
-          <div class="subconscious-stream" id="subconscious-text">
-            "The sea smelled like burnt two-stroke oil and salt before the sky tore open..."
+        <!-- Chapter Masthead -->
+        <header class="chapter-masthead">
+          <div class="masthead-pre">
+            <span id="masthead-index" class="chapter-number-display">CHAPTER 01</span>
+            <span class="masthead-dot"></span>
+            <span id="masthead-harmonic-name" class="masthead-sub-identity">RIAN // THE SALTWATER SOUL</span>
           </div>
-        </div>
-      </aside>
-
-      <!-- CENTER COLUMN: Editorial Story Reader -->
-      <article class="prose-viewport" id="prose-viewport">
-        <!-- Chapter Header Banner -->
-        <header class="chapter-header" id="chapter-header">
-          <div class="chapter-meta-line">
-            <span class="chapter-num" id="chapter-num">CHAPTER 1</span>
-            <span class="chapter-year" id="chapter-year">U.C. 0093 // SUNDA STRAIT</span>
-            <span class="chapter-read-time" id="chapter-read-time">EST. READ: 4 MIN</span>
-          </div>
-          <h2 class="chapter-title" id="chapter-title">THE WATER AND THE SALT</h2>
-          <div class="chapter-audio-tag">
-            <span>SOUNDTRACK:</span>
-            <strong id="chapter-track-title">Cicada — Ocean Foam</strong>
-          </div>
+          <h1 id="masthead-title" class="chapter-title-display">THE WATER AND THE SALT</h1>
+          <div id="masthead-theater" class="chapter-theater-tag">U.C. 0093 // SUNDA STRAIT // SINKPOINT COAST</div>
         </header>
 
-        <hr class="prose-divider">
-
-        <!-- Full Narrative Text Stage -->
-        <div class="prose-content" id="prose-content">
-          <!-- Rendered paragraph by paragraph from data.js with interactive redaction bars -->
+        <!-- Dynamic Prose Stream (Mounted & Declassified via script.js & immersive.js) -->
+        <div id="prose-flow" class="prose-content-flow">
+          <!-- Paragraphs and in-line subconscious echoes mount here -->
         </div>
 
-        <!-- Chapter Bottom Pager -->
-        <footer class="prose-footer">
-          <button id="prev-chapter-btn" class="hud-button chapter-nav-btn" type="button">◀ PREVIOUS LOG</button>
-          <span class="reading-progress-pill" id="reading-progress">LOG 1 OF 5</span>
-          <button id="next-chapter-btn" class="hud-button chapter-nav-btn" type="button">NEXT LOG ▶</button>
+        <!-- Chapter Pager Navigation -->
+        <footer class="chapter-pager">
+          <button id="pager-prev-btn" class="pager-btn" type="button" aria-label="Previous chapter">
+            ◀ PREV LOG [&lt;]
+          </button>
+          <div class="pager-center-meta">
+            <span id="pager-progress-tag" class="pager-progress">LOG 1 OF 5</span>
+            <span class="pager-hint">USE [ / ] OR KEYS 1–5 // 'R' RESOLVES ALL // 'M' TOGGLES BGM</span>
+          </div>
+          <button id="pager-next-btn" class="pager-btn" type="button" aria-label="Next chapter">
+            NEXT LOG [&gt;] ▶
+          </button>
         </footer>
+
       </article>
-
-      <!-- RIGHT COLUMN: Sub-Harmonic Marginalia Stream (Desktop view) -->
-      <aside class="marginalia-rail" aria-label="Neural Marginalia">
-        <div class="rail-header">
-          <span class="rail-title">HARMONIC STRATA</span>
-          <span class="rail-sub">TRI-CONSCIOUSNESS</span>
-        </div>
-        <div class="strata-indicators">
-          <div class="strata-node node-alpha active" data-strata="alpha">
-            <span class="strata-dot"></span>
-            <span class="strata-name">α: RIAN</span>
-            <span class="strata-desc">Civilian Marine Mechanic</span>
-          </div>
-          <div class="strata-node node-beta" data-strata="beta">
-            <span class="strata-dot"></span>
-            <span class="strata-name">β: JULIAN</span>
-            <span class="strata-desc">Guerilla Interceptor Ace</span>
-          </div>
-          <div class="strata-node node-gamma" data-strata="gamma">
-            <span class="strata-dot"></span>
-            <span class="strata-name">γ: ERIA</span>
-            <span class="strata-desc">Lunar Heiress / Reconstructed Host</span>
-          </div>
-        </div>
-
-        <div class="margin-annotations" id="margin-annotations">
-          <!-- Contextual notes populated based on active chapter -->
-        </div>
-      </aside>
-
     </main>
 
     <!-- ====================================================================
-         BOTTOM TACTICAL FOOTER
+         FLOATING DIEGETIC RETRO TAPE DECK (Bottom Right Audio Relay)
          ==================================================================== -->
-    <footer class="hud-footer">
-      <div class="footer-left">
-        <span class="terminal-prompt">&gt;</span>
-        <span class="footer-telemetry" id="console-stream">COCKPIT POD SEALED // BGM STREAM NOMINAL // BERTH 44 CLEAR</span>
+    <aside id="floating-tape-deck" aria-label="Cockpit Audio Relay">
+      <div class="tape-chassis-bevel"></div>
+      <div id="tape-reel-icon" class="tape-reel-spin paused" aria-hidden="true">∿</div>
+      <div class="tape-info">
+        <span class="tape-label-mini">DIEGETIC BGM RELAY</span>
+        <span id="tape-track-title" class="tape-track">Ocean Foam</span>
+        <span id="tape-track-artist" class="tape-artist">Cicada</span>
       </div>
-      <div class="footer-center">
-        <span class="hud-pill">3 HARMONICS SYNCHRONIZED</span>
-        <span class="key-hint"><b>1–5</b> CHAPTERS &nbsp;<b>D</b> DOSSIER &nbsp;<b>M</b> MUTE AUDIO</span>
-      </div>
-      <div class="footer-right">
-        <span class="author-signature">FRACTURED CENTURY // PILOT ARCHIVE 088</span>
-      </div>
-    </footer>
-
-  </div>
-
-  <!-- ====================================================================
-       SLIDE-OUT LANCER PILOT & MECH SPEC DRAWER (RIGHT SIDE)
-       ==================================================================== -->
-  <aside id="lancer-drawer" class="lancer-drawer" aria-hidden="true" role="dialog" aria-labelledby="dossier-heading">
-    <div class="drawer-header">
-      <div class="drawer-title-group">
-        <span class="drawer-badge">LANCER RPG // PILOT DOSSIER</span>
-        <h2 id="dossier-heading" class="drawer-heading">CALLSIGN: GHOST SEED</h2>
-      </div>
-      <button id="close-dossier-btn" class="drawer-close" type="button" aria-label="Close dossier drawer">&times;</button>
-    </div>
-
-    <div class="drawer-body" id="lancer-drawer-content">
-      <!-- Populated dynamically from data.js -->
-    </div>
-  </aside>
-
-  <!-- ====================================================================
-       INTERACTIVE ARTIFACT DETAIL MODAL
-       ==================================================================== -->
-  <aside id="artifact-modal" class="modal-overlay hidden" aria-hidden="true" role="dialog" aria-labelledby="artifact-modal-title">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 id="artifact-modal-title" class="modal-heading">INSPECTING ARTIFACT</h3>
-        <button id="close-artifact-modal-btn" class="modal-close" type="button">&times;</button>
-      </div>
-      <div class="modal-body" id="artifact-modal-body">
-        <!-- Rendered dynamically on click -->
-      </div>
-    </div>
-  </aside>
-
-  <!-- ====================================================================
-       VIST FOUNDATION BLACK-WAX LETTER & BERTH 44 LAUNCH KEY MODAL
-       ==================================================================== -->
-  <aside id="vist-modal" class="modal-overlay hidden" aria-hidden="true" role="dialog" aria-labelledby="vist-title">
-    <div class="modal-card vist-card">
-      <div class="modal-header">
-        <div class="modal-crest">
-          <span class="unicorn-crest">𐂂</span>
-          <span id="vist-title" class="modal-heading">THE VIST FOUNDATION // DISCRETIONARY CIPHER</span>
-        </div>
-        <button id="close-vist-modal-btn" class="modal-close" type="button">&times;</button>
-      </div>
-
-      <div class="modal-body vist-modal-body" id="vist-modal-content">
-        <!-- Dynamically rendered from data.js -->
-      </div>
-
-      <div class="modal-footer">
-        <button id="slot-key-btn" class="hud-button danger-btn" type="button">
-          <span>⏵ ACCEPT TELEMETRY KEY & PRIME BERTH 44</span>
-        </button>
-        <button id="dismiss-vist-modal-btn" class="hud-button" type="button">RETURN TO LOGS</button>
-      </div>
-    </div>
-  </aside>
-
-  <!-- ====================================================================
-       BIG PLAY IGNITION GATE MODAL
-       Requires a deliberate click to start audio and enter the cockpit
-       ==================================================================== -->
-  <div id="big-play-gate" class="play-gate-overlay">
-    <div class="gate-card">
-      <div class="gate-badge">⚠ NEURAL AUDIO LINK STANDBY</div>
-      <h2 class="gate-title">UNIT-03 COCKPIT INITIALIZATION</h2>
-      <p class="gate-desc">
-        Welcome, Game Master. Engage the neural relay to stream the curated chapter soundtrack, load Subject 088's classified dossiers, and enter the reading viewport.
-      </p>
-      <button id="gate-ignite-btn" class="gate-btn" type="button">
-        ⏵ INITIALIZE COCKPIT & ENGAGE BGM
+      <button id="tape-toggle-btn" class="tape-btn" type="button" aria-label="Toggle music playback">
+        PLAY
       </button>
-      <div class="gate-subtext">You can mute or change volume at any time via the top status bar.</div>
-    </div>
+    </aside>
+
   </div>
 
-  <!-- Invisible YouTube IFrame Container for continuous audio -->
-  <div id="yt-player-container" class="yt-hidden-slot" aria-hidden="true">
+  <!-- Offscreen YouTube IFrame Audio Engine Slot -->
+  <div class="yt-hidden-slot" aria-hidden="true">
     <div id="yt-player-slot"></div>
   </div>
 
-  <!-- Core Scripts in Proper Dependency Order -->
-  <script src="data.js"></script>
-  <script src="script.js"></script>
-  <script src="immersive.js"></script>
+  <!-- Application Modules in Dependency Order -->
+  <script type="module" src="data.js"></script>
+  <script type="module" src="immersive.js"></script>
+  <script type="module" src="script.js"></script>
 </body>
 </html>

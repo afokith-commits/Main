@@ -1,830 +1,547 @@
 /**
- * PSYCHO-MONITOR // MK-03 RES-SYNC [ANOMALY: 088-ERIA]
- * Core Application Controller, Narrative Reader & Gapless Audio Engine
+ * ============================================================================
+ * PSYCHO-MONITOR MK-03: MASTER APPLICATION CONTROLLER
+ * Architecture: Auto-Harmonic Attunement, Diegetic Tape Deck, Zero-Jitter Decrypt
+ * Diagnostic Deck: Anaheim Unit-03 Multi-Harmonic Oscilloscope Engine
+ * Philosophy: "The cockpit is the frame, the story is the instrument."
+ * ============================================================================
  */
 
-(function () {
-  'use strict';
+import {
+  CHAPTER_REGISTRY,
+  HARMONIC_PROFILES,
+  getChapter,
+  calculateReadingTime
+} from './data.js';
 
-  /* ==========================================================================
-     1. YOUTUBE CONTINUOUS AUDIO CONTROLLER
-     ========================================================================== */
-  class CockpitAudioEngine {
-    constructor() {
-      this.player = null;
-      this.isReady = false;
-      this.isPlaying = false;
-      this.currentVideoId = null;
-      this.pendingVideoId = null;
+import {
+  sound,
+  DecryptEngineV2,
+  initReadingFocusMode,
+  initCursorGlow
+} from './immersive.js';
 
-      this.initAPI();
-    }
+class CockpitAppController {
+  constructor() {
+    this.currentChapterId = 1;
+    this.decryptEngine = new DecryptEngineV2();
 
-    initAPI() {
-      if (!window.YT) {
-        const tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-      }
+    // YouTube Audio State
+    this.ytPlayer = null;
+    this.ytReady = false;
+    this.isPlaying = false;
+    this.pendingTrackId = null;
 
-      window.onYouTubeIframeAPIReady = () => {
-        const firstTrack = window.DOSSIER_DATA?.chapters[0]?.track?.youtubeId || "QpRuSDvorBc";
-        this.currentVideoId = firstTrack;
+    // Full-Scale Diagnostic Oscilloscope State
+    this.scopeCanvas = null;
+    this.scopeCtx = null;
+    this.scopeFrame = 0;
+    this.scopeColor = '#e5a962';
+    this.currentWavePhysics = HARMONIC_PROFILES.alpha.wavePhysics;
 
-        this.player = new YT.Player('yt-player-slot', {
-          height: '100',
-          width: '100',
-          videoId: firstTrack,
-          playerVars: {
-            autoplay: 0,
-            controls: 0,
-            loop: 1,
-            playlist: firstTrack,
-            enablejsapi: 1,
-            origin: window.location.origin
-          },
-          events: {
-            onReady: () => {
-              this.isReady = true;
-              this.player.setVolume(82);
+    // Cache DOM Elements
+    this.dom = {
+      // 44px Sticky Header Strip
+      header: document.getElementById('cockpit-header'),
+      chapterYear: document.getElementById('hud-chapter-year'),
+      chapterLocation: document.getElementById('hud-chapter-loc'),
+      harmonicChip: document.getElementById('hud-harmonic-chip'),
+      trackName: document.getElementById('hud-track-name'),
+      audioLed: document.getElementById('header-audio-led'),
+      readTime: document.getElementById('hud-read-time'),
+      missionClock: document.getElementById('hud-clock'),
+      gmPillBtn: document.getElementById('gm-pill-btn'),
 
-              if (this.pendingVideoId) {
-                this.playTrack(this.pendingVideoId);
-                this.pendingVideoId = null;
-              }
-            },
-            onStateChange: (event) => {
-              // Infinite Auto-Loop: Immediate replay on end
-              if (event.data === YT.PlayerState.ENDED) {
-                event.target.playVideo();
-              }
-            }
-          }
-        });
-      };
-    }
+      // Full-Scale Diagnostic Deck
+      scopeCard: document.querySelector('.scope-card'),
+      scopeCanvas: document.getElementById('waveform-canvas'),
+      scopeHarmonicBadge: document.getElementById('scope-harmonic-badge'),
+      scopeFreq: document.getElementById('scope-freq'),
+      scopeSync: document.getElementById('scope-sync'),
+      scopeNoise: document.getElementById('scope-noise'),
+      scopeStatus: document.getElementById('scope-status'),
+      channelTags: {
+        'channel-1': document.getElementById('channel-1'),
+        'channel-2': document.getElementById('channel-2'),
+        'channel-3': document.getElementById('channel-3')
+      },
 
-    playTrack(videoId) {
-      if (!videoId) return;
+      // GM Drawer
+      gmDrawer: document.getElementById('gm-briefing-drawer'),
+      gmCloseBtn: document.getElementById('gm-drawer-close'),
 
-      if (!this.isReady || !this.player) {
-        this.pendingVideoId = videoId;
-        return;
-      }
+      // Reading Stage
+      stage: document.getElementById('reading-stage'),
+      proseContainer: document.getElementById('prose-flow'),
+      chapterIndexDisplay: document.getElementById('masthead-index'),
+      chapterHarmonicName: document.getElementById('masthead-harmonic-name'),
+      chapterTitleDisplay: document.getElementById('masthead-title'),
+      chapterTheaterDisplay: document.getElementById('masthead-theater'),
+      prevBtn: document.getElementById('pager-prev-btn'),
+      nextBtn: document.getElementById('pager-next-btn'),
+      pagerProgress: document.getElementById('pager-progress-tag'),
 
-      if (this.currentVideoId !== videoId) {
-        this.currentVideoId = videoId;
-        if (this.isPlaying) {
-          this.player.loadVideoById({
-            videoId: videoId,
-            suggestedQuality: 'small'
-          });
-        } else {
-          this.player.cueVideoById(videoId);
-        }
-      } else if (this.isPlaying && this.player.playVideo) {
-        this.player.playVideo();
-      }
-    }
+      // Floating Retro Tape Deck
+      tapeDeck: document.getElementById('floating-tape-deck'),
+      tapeReel: document.getElementById('tape-reel-icon'),
+      tapeTrackTitle: document.getElementById('tape-track-title'),
+      tapeArtist: document.getElementById('tape-track-artist'),
+      tapePlayBtn: document.getElementById('tape-toggle-btn')
+    };
 
-    startPlayback() {
-      this.isPlaying = true;
-      if (this.isReady && this.player && this.player.playVideo) {
-        this.player.playVideo();
-      } else {
-        this.pendingVideoId = this.currentVideoId;
-      }
-    }
+    this.init();
+  }
 
-    toggle() {
-      if (!this.isReady || !this.player) return false;
+  init() {
+    // 1. Initialize Visual, Kinetic & Acoustic Sub-Engines
+    initReadingFocusMode();
+    initCursorGlow();
+    this.initDiagnosticOscilloscope();
+    this.startMissionClock();
+    this.initYouTubeAudio();
+    this.initGMBriefing();
+    this.bindKeyboardShortcuts();
 
-      this.isPlaying = !this.isPlaying;
-      if (this.isPlaying) {
-        this.player.playVideo();
-      } else {
-        this.player.pauseVideo();
-      }
-      return this.isPlaying;
-    }
+    // 2. Hydrate Default Chapter (Chapter 1: The Water and the Salt)
+    this.loadChapter(this.currentChapterId);
   }
 
   /* ==========================================================================
-     2. PROCEDURAL OSCILLOSCOPE & BIOMETRIC WAVEFORM VISUALIZER
+     ATOMIC CHAPTER HYDRATION & DIAGNOSTIC ATTUNEMENT
      ========================================================================== */
-  class OscilloscopeVisualizer {
-    constructor(canvasId) {
-      this.canvas = document.getElementById(canvasId);
-      if (!this.canvas) return;
-      this.ctx = this.canvas.getContext('2d');
-      this.harmonic = "alpha";
-      this.phase = 0;
+  loadChapter(chapterId) {
+    const chapter = getChapter(chapterId);
+    if (!chapter) return;
 
-      this.resize();
-      window.addEventListener('resize', () => this.resize());
-      this.animate();
+    this.currentChapterId = chapterId;
+
+    // 1. Instantly cancel active workers and DISCONNECT observer
+    // Prevents intersection triggers while resetting scroll position
+    this.decryptEngine.cancelAll();
+    this.decryptEngine.disconnect();
+
+    // 2. Hard instant scroll jump to top (disabling smooth-scroll sweep)
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
+    // 3. Trigger Auto-Harmonic Visual Glitch & Color Shift
+    document.body.dataset.harmonic = chapter.harmonic;
+    document.body.classList.add('switching', 'harmonic-shift');
+    setTimeout(() => {
+      document.body.classList.remove('switching', 'harmonic-shift');
+    }, 450);
+
+    // 4. Spool Harmonic Acoustic Chord
+    sound.playHarmonicChord(chapter.harmonic);
+    this.scopeColor = chapter.profile.accentColor;
+    this.currentWavePhysics = chapter.profile.wavePhysics;
+
+    // 5. Update Full-Scale Diagnostic Deck Telemetry (Single-Line Locked)
+    if (this.dom.scopeFreq) {
+      this.dom.scopeFreq.textContent = chapter.profile.scopeFreq;
+    }
+    if (this.dom.scopeSync) {
+      this.dom.scopeSync.textContent = chapter.profile.scopeSync;
+    }
+    if (this.dom.scopeNoise) {
+      this.dom.scopeNoise.textContent = chapter.profile.scopeNoise;
+    }
+    if (this.dom.scopeStatus) {
+      this.dom.scopeStatus.textContent = chapter.profile.scopeStatus;
     }
 
-    resize() {
-      if (!this.canvas) return;
-      const rect = this.canvas.getBoundingClientRect();
-      this.canvas.width = rect.width * (window.devicePixelRatio || 1);
-      this.canvas.height = rect.height * (window.devicePixelRatio || 1);
-    }
+    // Update Channel Indicators: Highlight active channel, dim the others
+    Object.keys(this.dom.channelTags).forEach(chKey => {
+      const el = this.dom.channelTags[chKey];
+      if (el) {
+        el.classList.toggle('active', chKey === chapter.profile.activeChannel);
+      }
+    });
 
-    setHarmonic(harmonicKey) {
-      this.harmonic = harmonicKey;
-    }
+    // 6. Update 44px Telemetry Strip
+    if (this.dom.chapterYear) this.dom.chapterYear.textContent = chapter.year;
+    if (this.dom.chapterLocation) this.dom.chapterLocation.textContent = chapter.theater.split('//')[0].trim();
+    if (this.dom.harmonicChip) this.dom.harmonicChip.textContent = `HARMONIC ${chapter.profile.key.toUpperCase()}`;
+    if (this.dom.trackName) this.dom.trackName.textContent = `BGM: ${chapter.soundtrack.title}`;
+    if (this.dom.readTime) this.dom.readTime.textContent = `EST. READ: ${chapter.estMinutes} MIN`;
 
-    animate() {
-      requestAnimationFrame(() => this.animate());
-      if (!this.ctx || !this.canvas) return;
+    // 7. Update Reading Stage Masthead
+    if (this.dom.chapterIndexDisplay) this.dom.chapterIndexDisplay.textContent = `CHAPTER ${chapter.index}`;
+    if (this.dom.chapterHarmonicName) this.dom.chapterHarmonicName.textContent = chapter.profile.identity;
+    if (this.dom.chapterTitleDisplay) this.dom.chapterTitleDisplay.textContent = chapter.title;
+    if (this.dom.chapterTheaterDisplay) this.dom.chapterTheaterDisplay.textContent = `${chapter.year} // ${chapter.theater}`;
 
-      const w = this.canvas.width;
-      const h = this.canvas.height;
+    // 8. Update Pager Controls
+    if (this.dom.prevBtn) this.dom.prevBtn.disabled = (chapterId === 1);
+    if (this.dom.nextBtn) this.dom.nextBtn.disabled = (chapterId === CHAPTER_REGISTRY.length);
+    if (this.dom.pagerProgress) this.dom.pagerProgress.textContent = `LOG ${chapterId} OF ${CHAPTER_REGISTRY.length}`;
+
+    // 9. Render Continuous Prose (Mounted into stochastic decrypt engine)
+    this.renderProseWithAnnotations(chapter);
+
+    // 10. Sync Tape Deck Audio Track
+    this.syncTapeDeckTrack(chapter.soundtrack);
+
+    // 11. Re-enable Observer ONLY after the DOM has laid out at scroll top 0
+    // Guarantees only the top visible paragraph decrypts; remaining stay encrypted
+    requestAnimationFrame(() => {
+      window.scrollTo(0, 0);
+      this.decryptEngine.initObserver();
+      this.decryptEngine.observeAll(this.dom.proseContainer);
+      this.decryptEngine.updateReadingProgress(0);
+    });
+  }
+
+  renderProseWithAnnotations(chapter) {
+    const container = this.dom.proseContainer;
+    if (!container) return;
+    container.innerHTML = '';
+
+    const annotationsMap = new Map();
+    chapter.annotations.forEach(item => {
+      annotationsMap.set(item.afterParagraph, item);
+    });
+
+    chapter.paragraphs.forEach((rawText, idx) => {
+      // Scene Break Marker
+      if (rawText === '***') {
+        const breakEl = document.createElement('div');
+        breakEl.className = 'scene-break';
+        breakEl.setAttribute('aria-hidden', 'true');
+        breakEl.textContent = '∿ ∿ ∿';
+        container.appendChild(breakEl);
+        return;
+      }
+
+      // 1. Render Canonical Prose Paragraph (No Spoilers/Redactions)
+      const p = document.createElement('p');
+      p.className = 'prose-paragraph';
+      if (idx === 0) p.classList.add('first-paragraph');
+      p.textContent = rawText;
+
+      container.appendChild(p);
+
+      // Mount into Zero-Jitter Decrypt Engine
+      this.decryptEngine.mountParagraph(p);
+
+      // 2. Inject Subconscious Sensory Echoes
+      if (annotationsMap.has(idx)) {
+        const item = annotationsMap.get(idx);
+        if (item.type === 'subconscious') {
+          const echoBox = document.createElement('div');
+          echoBox.className = 'inline-echo';
+          echoBox.innerHTML = `
+            <div class="echo-tag">${item.tag} // ${item.label}</div>
+            <div class="echo-body">"${item.content}"</div>
+          `;
+          container.appendChild(echoBox);
+        }
+      }
+    });
+  }
+
+  /* ==========================================================================
+     FULL-SCALE DIAGNOSTIC OSCILLOSCOPE ENGINE
+     ========================================================================== */
+  initDiagnosticOscilloscope() {
+    const canvas = this.dom.scopeCanvas;
+    if (!canvas) return;
+
+    this.scopeCtx = canvas.getContext('2d');
+
+    const handleResize = () => {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      this.scopeCtx.scale(dpr, dpr);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    const render = () => {
+      this.scopeFrame++;
+      const ctx = this.scopeCtx;
+      const rect = canvas.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
       const mid = h / 2;
 
-      this.ctx.clearRect(0, 0, w, h);
-      this.phase += 0.038;
+      ctx.clearRect(0, 0, w, h);
 
-      let primaryColor = "rgba(229, 169, 98, 0.88)"; // Alpha: Amber
-      let speed = 1.0;
-      let complexity = 3;
+      // 1. Minovsky Reference Baseline (Subtle cyan reference wire)
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(78, 240, 196, 0.22)';
+      ctx.lineWidth = 1;
+      ctx.moveTo(0, mid);
+      ctx.lineTo(w, mid);
+      ctx.stroke();
 
-      if (this.harmonic === "beta") {
-        primaryColor = "rgba(240, 84, 84, 0.92)"; // Beta: Crimson
-        speed = 1.85;
-        complexity = 5;
-      } else if (this.harmonic === "gamma") {
-        primaryColor = "rgba(168, 184, 230, 0.88)"; // Gamma: Porcelain Ice
-        speed = 0.85;
-        complexity = 2;
-      }
-
-      // Background Reference Baseline (Psycho-field carrier)
-      this.ctx.beginPath();
-      this.ctx.strokeStyle = "rgba(78, 240, 196, 0.2)";
-      this.ctx.lineWidth = 1.2 * (window.devicePixelRatio || 1);
+      // 2. Secondary Harmonic Halo Wave
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(78, 240, 196, 0.12)';
+      ctx.lineWidth = 1.2;
       for (let x = 0; x < w; x += 4) {
-        const rad = (x / w) * Math.PI * 6 + this.phase * 0.5;
-        const y = mid + Math.sin(rad) * 12 * Math.cos(this.phase * 0.2);
-        if (x === 0) this.ctx.moveTo(x, y);
-        else this.ctx.lineTo(x, y);
+        const rad = (x / w) * Math.PI * 8 + this.scopeFrame * 0.025;
+        const y = mid + Math.sin(rad * 0.5) * 14 * Math.cos(this.scopeFrame * 0.015);
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
       }
-      this.ctx.stroke();
+      ctx.stroke();
 
-      // Active Synaptic Trace
-      this.ctx.beginPath();
-      this.ctx.strokeStyle = primaryColor;
-      this.ctx.lineWidth = 1.8 * (window.devicePixelRatio || 1);
+      // 3. Primary Harmonic Consciousness Waveform
+      const p = this.currentWavePhysics;
+      const speed = p.speed || 1.0;
+      const carrierFreq = p.carrierFreq || 6;
+      const modFreq = p.modulationFreq || 12;
+      const complexity = p.complexity || 3;
+      const jitterMax = p.jitterAmp || 1.5;
+
+      ctx.beginPath();
+      ctx.strokeStyle = this.scopeColor;
+      ctx.lineWidth = 1.8;
+
+      // Amplitude boosts dynamically when BGM is playing
+      const ampBase = this.isPlaying ? (h * 0.28) : (h * 0.20);
 
       for (let x = 0; x < w; x += 3) {
         const norm = x / w;
-        const w1 = Math.sin(norm * Math.PI * 6 + this.phase * speed);
-        const w2 = Math.cos(norm * Math.PI * 12 - this.phase * 0.4) * 0.35;
-        const w3 = Math.sin(norm * Math.PI * 24 + this.phase * 1.8) * (complexity === 5 ? 0.3 : 0.08);
-        const jitter = (Math.random() - 0.5) * 1.8;
+        const phase = this.scopeFrame * 0.035 * speed;
 
-        const amp = h * 0.26;
-        const y = mid + (w1 + w2 + w3) * amp + jitter;
+        const wave1 = Math.sin(norm * Math.PI * carrierFreq + phase);
+        const wave2 = Math.cos(norm * Math.PI * modFreq - phase * 0.5) * 0.35;
+        const wave3 = Math.sin(norm * Math.PI * 24 + phase * 1.5) * (complexity >= 5 ? 0.22 : 0.06);
 
-        if (x === 0) this.ctx.moveTo(x, y);
-        else this.ctx.lineTo(x, y);
+        // Micro-jitter reflecting consciousness noise
+        const jitter = (Math.random() - 0.5) * jitterMax;
+
+        const y = mid + (wave1 + wave2 + wave3) * ampBase + jitter;
+
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
       }
-      this.ctx.stroke();
-    }
+
+      ctx.stroke();
+      requestAnimationFrame(render);
+    };
+
+    requestAnimationFrame(render);
   }
 
   /* ==========================================================================
-     3. MASTER DOSSIER & NARRATIVE READER CONTROLLER
+     DIEGETIC RETRO TAPE DECK CONTROLLER (YOUTUBE API ENGINE)
      ========================================================================== */
-  class DossierApp {
-    constructor() {
-      this.data = window.DOSSIER_DATA;
-      if (!this.data) {
-        console.error("FATAL: DOSSIER_DATA is missing. Ensure data.js loaded first.");
-        return;
-      }
-
-      this.currentChapterIndex = 0;
-      this.audio = new CockpitAudioEngine();
-      this.scope = new OscilloscopeVisualizer('waveform-canvas');
-
-      // DOM Cache
-      this.dominantChip = document.getElementById('dominant-harmonic-chip');
-      this.audioToggleBtn = document.getElementById('audio-toggle-btn');
-      this.audioLabel = document.getElementById('audio-label');
-      this.currentTrackName = document.getElementById('current-track-name');
-      this.toggleDossierBtn = document.getElementById('toggle-dossier-btn');
-      this.lancerDrawer = document.getElementById('lancer-drawer');
-      this.closeDossierBtn = document.getElementById('close-dossier-btn');
-      this.lancerDrawerContent = document.getElementById('lancer-drawer-content');
-
-      this.scopeFreq = document.getElementById('scope-freq');
-      this.scopeSync = document.getElementById('scope-sync');
-      this.scopeStress = document.getElementById('scope-stress');
-      this.tapeTime = document.getElementById('tape-time');
-
-      this.gmBriefingContent = document.getElementById('gm-briefing-content');
-      this.chapterNavButtons = document.getElementById('chapter-nav-buttons');
-
-      this.anchorList = document.getElementById('anchor-list');
-      this.subconsciousText = document.getElementById('subconscious-text');
-      this.marginAnnotations = document.getElementById('margin-annotations');
-
-      this.chapterNum = document.getElementById('chapter-num');
-      this.chapterYear = document.getElementById('chapter-year');
-      this.chapterReadTime = document.getElementById('chapter-read-time');
-      this.chapterTitle = document.getElementById('chapter-title');
-      this.chapterTrackTitle = document.getElementById('chapter-track-title');
-      this.proseContent = document.getElementById('prose-content');
-      this.prevChapterBtn = document.getElementById('prev-chapter-btn');
-      this.nextChapterBtn = document.getElementById('next-chapter-btn');
-      this.readingProgress = document.getElementById('reading-progress');
-      this.consoleStream = document.getElementById('console-stream');
-
-      this.artifactModal = document.getElementById('artifact-modal');
-      this.artifactModalTitle = document.getElementById('artifact-modal-title');
-      this.artifactModalBody = document.getElementById('artifact-modal-body');
-      this.closeArtifactModalBtn = document.getElementById('close-artifact-modal-btn');
-
-      this.vistModal = document.getElementById('vist-modal');
-      this.vistModalContent = document.getElementById('vist-modal-content');
-      this.closeVistModalBtn = document.getElementById('close-vist-modal-btn');
-      this.slotKeyBtn = document.getElementById('slot-key-btn');
-      this.dismissVistModalBtn = document.getElementById('dismiss-vist-modal-btn');
-
-      this.bigPlayGate = document.getElementById('big-play-gate');
-      this.gateIgniteBtn = document.getElementById('gate-ignite-btn');
-
-      this.init();
+  initYouTubeAudio() {
+    if (!window.YT) {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      const first = document.getElementsByTagName('script')[0];
+      first.parentNode.insertBefore(tag, first);
     }
 
-    init() {
-      this.renderGMBriefing();
-      this.renderChapterNav();
-      this.renderSensoryAnchors();
-      this.renderLancerSpecs();
-      this.renderVistModalContent();
+    window.onYouTubeIframeAPIReady = () => {
+      const initialChapter = getChapter(1);
+      const videoId = initialChapter.soundtrack.youtubeId;
 
-      this.loadChapter(0);
-      this.bindEvents();
-      this.startClocks();
-      this.initScrollFocus();
-    }
+      const originHost = (window.location.origin && window.location.origin !== 'null')
+        ? window.location.origin
+        : undefined;
 
-    /* 3.1 GM Executive Briefing */
-    renderGMBriefing() {
-      if (!this.gmBriefingContent) return;
-      const b = this.data.gmBriefing;
-
-      let leversHtml = b.immediateLevers.map(l => `
-        <div class="gm-lever-card">
-          <div class="gm-lever-title">⚠ CAMPAIGN LEVER: ${l.title}</div>
-          <div class="gm-lever-desc">${l.desc}</div>
-        </div>
-      `).join("");
-
-      this.gmBriefingContent.innerHTML = `
-        <div class="gm-pitch-box">
-          <div class="gm-pitch-title">HIGH CONCEPT // CALLSIGN: ${b.callsign} [${b.subjectId}]</div>
-          <p class="gm-pitch-desc">${b.highConcept}</p>
-        </div>
-
-        <div class="gm-grid-two">
-          <div class="gm-levers-list">
-            <div style="font-size:9px; font-weight:700; color:var(--text-dim); letter-spacing:0.1em; text-transform:uppercase;">
-              Immediate Adventure Hooks for the GM:
-            </div>
-            ${leversHtml}
-          </div>
-
-          <div class="gm-stats-card">
-            <div style="font-size:9px; font-weight:700; color:var(--theme-accent); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px;">
-              Dossier Summary:
-            </div>
-            <div class="gm-stat-row">
-              <span class="gm-stat-label">Origin:</span>
-              <span class="gm-stat-val" style="font-size:10px;">${b.summaryPills.origin}</span>
-            </div>
-            <div class="gm-stat-row">
-              <span class="gm-stat-label">Chassis:</span>
-              <span class="gm-stat-val" style="font-size:10px;">${b.summaryPills.chassis}</span>
-            </div>
-            <div class="gm-stat-row">
-              <span class="gm-stat-label">Dogtag:</span>
-              <span class="gm-stat-val" style="font-size:10px;">${b.summaryPills.dogtag}</span>
-            </div>
-            <div class="gm-stat-row">
-              <span class="gm-stat-label">Allegiance:</span>
-              <span class="gm-stat-val" style="font-size:9px;">${b.summaryPills.allegiance}</span>
-            </div>
-            <div style="margin-top:6px; font-family:var(--font-serif); font-size:11px; line-height:1.4; color:var(--text-muted); border-top:1px solid rgba(255,255,255,0.06); padding-top:6px;">
-              <strong>Session 1 Hook:</strong> ${b.campaignHook}
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    /* 3.2 Chapter Navigation Buttons */
-    renderChapterNav() {
-      if (!this.chapterNavButtons) return;
-
-      this.chapterNavButtons.innerHTML = this.data.chapters.map((ch, idx) => `
-        <button class="chapter-tab ${idx === 0 ? 'active' : ''}" data-chapter-index="${idx}" type="button">
-          <span class="chapter-tab-num">${ch.number}</span>
-          <span class="chapter-tab-title">${ch.title}</span>
-        </button>
-      `).join("");
-
-      this.chapterNavButtons.querySelectorAll('.chapter-tab').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const idx = parseInt(btn.getAttribute('data-chapter-index'), 10);
-          this.loadChapter(idx);
-        });
-      });
-    }
-
-    /* 3.3 Sensory Anchor Reliquary */
-    renderSensoryAnchors() {
-      if (!this.anchorList) return;
-
-      this.anchorList.innerHTML = this.data.anchors.map(a => `
-        <div class="anchor-item" data-anchor-id="${a.id}" tabindex="0" role="button" title="Inspect ${a.title}">
-          <div class="anchor-icon">${a.icon}</div>
-          <div class="anchor-meta">
-            <div class="anchor-title">${a.title}</div>
-            <div class="anchor-sub">${a.subtitle}</div>
-          </div>
-        </div>
-      `).join("");
-
-      this.anchorList.querySelectorAll('.anchor-item').forEach(item => {
-        item.addEventListener('click', () => {
-          const id = item.getAttribute('data-anchor-id');
-          this.inspectAnchor(id);
-        });
-      });
-    }
-
-    inspectAnchor(anchorId) {
-      const anchor = this.data.anchors.find(a => a.id === anchorId);
-      if (!anchor || !this.artifactModal) return;
-
-      if (this.artifactModalTitle) {
-        this.artifactModalTitle.textContent = `INSPECTING // ${anchor.title.toUpperCase()}`;
-      }
-      if (this.artifactModalBody) {
-        this.artifactModalBody.innerHTML = `
-          ${anchor.detailMarkup}
-          <div style="font-size:11px; color:var(--text-dim); text-align:center; margin-top:12px; letter-spacing:0.06em;">
-            ${anchor.caption}
-          </div>
-        `;
-      }
-
-      this.artifactModal.classList.remove('hidden');
-      this.artifactModal.setAttribute('aria-hidden', 'false');
-    }
-
-    /* 3.4 Subject 088 Narrative Dossier Drawer */
-    renderLancerSpecs() {
-      if (!this.lancerDrawerContent) return;
-      const d = this.data.dossierArchive;
-
-      let triadHtml = d.harmonicTriad.map(t => `
-        <div class="dossier-bio-card">
-          <div class="dossier-bio-title" style="color:var(--theme-accent); font-family:var(--font-mono);">${t.strata}</div>
-          <div class="dossier-bio-desc">${t.context}</div>
-        </div>
-      `).join("");
-
-      let compendiumHtml = Object.entries(this.data.compendium).map(([term, desc]) => `
-        <div style="padding:6px 8px; background:var(--bg-surface-inset); border-left:2px solid var(--color-psycho); margin-bottom:6px; font-size:11px;">
-          <strong style="color:var(--color-psycho); font-family:var(--font-mono);">${term}:</strong>
-          <span style="font-family:var(--font-serif); color:var(--text-muted);">${desc}</span>
-        </div>
-      `).join("");
-
-      this.lancerDrawerContent.innerHTML = `
-        <div>
-          <div class="dossier-section-title">SUBJECT FILE // SEC-088</div>
-          <div style="font-size:13px; font-weight:700; color:#fff; margin-bottom:2px;">${d.identity.designation}</div>
-          <div style="font-size:10px; color:var(--theme-accent); margin-bottom:6px;">${d.identity.origin}</div>
-          <div style="font-size:10px; color:var(--text-muted); line-height:1.4;">${d.identity.status}</div>
-        </div>
-
-        <div>
-          <div class="dossier-section-title">TRIPARTITE ANOMALY (HARMONIC NODES)</div>
-          ${triadHtml}
-        </div>
-
-        <div>
-          <div class="dossier-section-title">PROTOTYPE UNIT-03 SPECS</div>
-          <div class="dossier-bio-card">
-            <div style="font-size:10px; font-weight:700; color:var(--color-psycho); margin-bottom:4px;">CHASSIS: ${d.prototypeSpecs.chassis}</div>
-            <div style="font-size:11px; font-family:var(--font-serif); color:var(--text-prose-secondary); line-height:1.45; margin-bottom:4px;">
-              <strong>Cockpit:</strong> ${d.prototypeSpecs.liner}
-            </div>
-            <div style="font-size:11px; font-family:var(--font-serif); color:var(--text-muted); line-height:1.45; margin-bottom:4px;">
-              <strong>Avionics:</strong> ${d.prototypeSpecs.weaponry}
-            </div>
-            <div style="font-size:10px; color:var(--color-beta); font-family:var(--font-mono); margin-top:6px;">
-              ⚠ WARNING: ${d.prototypeSpecs.dangerProfile}
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div class="dossier-section-title">CAMPAIGN LORE GLOSSARY</div>
-          ${compendiumHtml}
-        </div>
-      `;
-    }
-
-    /* 3.5 Vist Foundation Modal Content */
-    renderVistModalContent() {
-      if (!this.vistModalContent) return;
-
-      this.vistModalContent.innerHTML = `
-        <div class="wax-seal-wrapper" aria-hidden="true">
-          <div class="wax-seal">
-            <span>VIST</span>
-          </div>
-        </div>
-
-        <div class="letter-meta-block">
-          <span>ORIGIN: L1 RECEPTACLE // CIPHER ALPHA-ZERO</span>
-          <span>TARGET: SENIOR DIRECTOR VINCENT STERLING (RESIDENCE PRIVATE TERMINAL)</span>
-          <span>CLASSIFICATION: HIGH TREASON // EXPENDABLE PILOT RETRIEVAL ORDER</span>
-        </div>
-
-        <div class="letter-body-prose">
-          <p><strong>DIRECTOR STERLING:</strong></p>
-          <p>
-            For three years, the Vist Foundation has maintained deliberate oversight of your division's ledger. We are fully aware that <em>Lt. Julian Ross</em> was not incinerated in the Sunda sector, nor was Prototype Unit-03 vaporized in combat.
-          </p>
-          <p>
-            We know what you carried home to Von Braun City in your private shuttle. We know whose face sits at your breakfast table in the 1st Ring.
-          </p>
-          <p class="letter-callout">
-            The pilot is to report to <strong>Berth 44, Outer Docks, Von Braun Industrial Perimeter</strong> before 2400 hours tonight. She is to take controls of Unit-03 and depart for Lagrange Point 1.
-          </p>
-          <p>
-            Should she fail to report, the unedited black-box telemetry—alongside DNA markers proving the living presence of Julian Ross—will be delivered simultaneously to the Anaheim Board of Directors and the UNION Military Police.
-          </p>
-          <p class="letter-signoff">
-            <em>The bill is now due, Vincent. Keep your house safe.</em>
-          </p>
-        </div>
-      `;
-    }
-
-    /* 3.6 Load Chapter & Synchronize Cockpit State */
-    loadChapter(index) {
-      if (index < 0 || index >= this.data.chapters.length) return;
-      this.currentChapterIndex = index;
-      const chapter = this.data.chapters[index];
-
-      // Update Header & Nav State
-      document.querySelectorAll('.chapter-tab').forEach((tab, idx) => {
-        tab.classList.toggle('active', idx === index);
-      });
-
-      if (this.chapterNum) this.chapterNum.textContent = chapter.number;
-      if (this.chapterYear) this.chapterYear.textContent = chapter.era;
-      if (this.chapterReadTime) this.chapterReadTime.textContent = `EST. READ: ${chapter.readTime}`;
-      if (this.chapterTitle) this.chapterTitle.textContent = chapter.title;
-      if (this.chapterTrackTitle) this.chapterTrackTitle.textContent = chapter.track.title;
-
-      // Update Harmonic Theme
-      this.setHarmonicTheme(chapter.harmonicKey);
-
-      // Render Prose with Redaction Block
-      if (this.proseContent) {
-        let paragraphsHtml = chapter.paragraphs.map(p => {
-          if (p === '***') {
-            return `<div style="text-align:center; color:var(--theme-accent); font-size:16px; margin:16px 0;">∿ ∿ ∿</div>`;
-          }
-          return `<p>${p}</p>`;
-        }).join("");
-
-        let redactionHtml = "";
-        if (chapter.redaction) {
-          const r = chapter.redaction;
-          redactionHtml = `
-            <div class="redaction-bar" id="${r.id}" data-redact-id="${r.id}" tabindex="0" role="button" title="Click to declassify classified intelligence">
-              <div class="redaction-header">
-                <span>CLASSIFIED // ${r.label}</span>
-                <span class="redaction-status">CLICK TO DECLASSIFY</span>
-              </div>
-              <div class="redaction-block">████████████████████████████████████████████████████████████</div>
-              <div class="redaction-gm-note">
-                <strong>${r.gmNote}</strong>
-              </div>
-            </div>
-          `;
-        }
-
-        this.proseContent.innerHTML = paragraphsHtml + redactionHtml;
-        this.bindRedactionEvents();
-      }
-
-      // Update Pager Status
-      if (this.readingProgress) {
-        this.readingProgress.textContent = `LOG ${index + 1} OF ${this.data.chapters.length}`;
-      }
-      if (this.prevChapterBtn) {
-        this.prevChapterBtn.disabled = index === 0;
-        this.prevChapterBtn.style.opacity = index === 0 ? "0.3" : "1";
-      }
-      if (this.nextChapterBtn) {
-        this.nextChapterBtn.disabled = index === this.data.chapters.length - 1;
-        this.nextChapterBtn.style.opacity = index === this.data.chapters.length - 1 ? "0.3" : "1";
-      }
-
-      // Update Marginalia & Subconscious Echo
-      this.updateMarginalia(chapter.id);
-
-      // Trigger Gapless Track Switch
-      this.audio.playTrack(chapter.track.youtubeId);
-      if (this.currentTrackName) {
-        this.currentTrackName.textContent = `TRACK: ${chapter.track.title}`;
-      }
-
-      // Scroll smoothly to top of prose viewport
-      const viewport = document.getElementById('prose-viewport');
-      if (viewport && index > 0) {
-        viewport.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-
-      if (this.consoleStream) {
-        this.consoleStream.textContent = `SECTOR SYNC: [${chapter.number}] // BGM: ${chapter.track.artist} // NOMINAL`;
-      }
-    }
-
-    setHarmonicTheme(harmonicKey) {
-      document.body.className = `cockpit-theme-ambient theme-${harmonicKey}`;
-      this.scope.setHarmonic(harmonicKey);
-
-      // Trigger screen tear animation
-      document.body.classList.add('harmonic-shifting');
-      setTimeout(() => document.body.classList.remove('harmonic-shifting'), 450);
-
-      const labels = {
-        alpha: "DOMINANT: HARMONIC α (RIAN — SALTWATER SOUL)",
-        beta: "DOMINANT: HARMONIC β (JULIAN — TACTICAL ACE)",
-        gamma: "DOMINANT: HARMONIC γ (ERIA — PORCELAIN VESSEL)"
-      };
-
-      if (this.dominantChip) {
-        this.dominantChip.textContent = labels[harmonicKey] || labels.alpha;
-      }
-
-      // Update diagnostic metrics per harmonic
-      if (harmonicKey === "alpha") {
-        if (this.scopeFreq) this.scopeFreq.textContent = "432.8 Hz";
-        if (this.scopeSync) this.scopeSync.textContent = "96.4%";
-        if (this.scopeStress) {
-          this.scopeStress.textContent = "14% [STABLE]";
-          this.scopeStress.className = "metric-item stress-nominal";
-        }
-      } else if (harmonicKey === "beta") {
-        if (this.scopeFreq) this.scopeFreq.textContent = "684.2 Hz";
-        if (this.scopeSync) this.scopeSync.textContent = "88.1%";
-        if (this.scopeStress) {
-          this.scopeStress.textContent = "64% [OVERCHARGE RISK]";
-          this.scopeStress.className = "metric-item stress-critical";
-        }
-      } else {
-        if (this.scopeFreq) this.scopeFreq.textContent = "528.0 Hz";
-        if (this.scopeSync) this.scopeSync.textContent = "99.8%";
-        if (this.scopeStress) {
-          this.scopeStress.textContent = "38% [DISSOCIATING]";
-          this.scopeStress.className = "metric-item stress-elevated";
-        }
-      }
-    }
-
-    updateMarginalia(chapterId) {
-      const notes = this.data.marginalia[chapterId] || [];
-      if (this.marginAnnotations) {
-        this.marginAnnotations.innerHTML = notes.map(n => `
-          <div class="annotation-card" style="border-left-color: var(--color-${n.strata});">
-            <strong style="color: var(--color-${n.strata});">HARMONIC ${n.strata.toUpperCase()}:</strong>
-            ${n.note}
-          </div>
-        `).join("");
-      }
-
-      // Pick the primary echo for the subconscious stream box
-      if (this.subconsciousText && notes.length > 0) {
-        this.subconsciousText.textContent = `“${notes[0].note}”`;
-      }
-    }
-
-    /* 3.7 Single-Click Declassify Handler */
-    bindRedactionEvents() {
-      const chapter = this.data.chapters[this.currentChapterIndex];
-      if (!chapter || !chapter.redaction) return;
-
-      const bar = document.getElementById(chapter.redaction.id);
-      if (!bar) return;
-
-      bar.addEventListener('click', () => {
-        if (bar.classList.contains('declassified')) return;
-
-        bar.classList.add('declassifying');
-        const block = bar.querySelector('.redaction-block');
-        const status = bar.querySelector('.redaction-status');
-
-        let steps = 0;
-        const glyphs = '█▓▒░#%&*01';
-        const targetText = chapter.redaction.blackoutText;
-
-        const interval = setInterval(() => {
-          steps++;
-          if (steps < 8) {
-            block.textContent = [...targetText].map(c => (c === ' ' ? ' ' : glyphs[Math.floor(Math.random() * glyphs.length)])).join('');
-          } else {
-            clearInterval(interval);
-            block.textContent = targetText;
-            bar.classList.remove('declassifying');
-            bar.classList.add('declassified');
-            if (status) status.textContent = "DECLASSIFIED // ACCESS GRANTED";
-
-            // Trigger visualizer spike
-            const scopeBox = document.querySelector('.canvas-wrapper');
-            if (scopeBox) {
-              scopeBox.classList.remove('spike');
-              void scopeBox.offsetWidth;
-              scopeBox.classList.add('spike');
+      this.ytPlayer = new YT.Player('yt-player-slot', {
+        height: '10',
+        width: '10',
+        videoId: videoId,
+        playerVars: {
+          autoplay: 0,
+          controls: 0,
+          loop: 1,
+          playlist: videoId,
+          enablejsapi: 1,
+          origin: originHost
+        },
+        events: {
+          onReady: () => {
+            this.ytReady = true;
+            this.ytPlayer.setVolume(80);
+            if (this.pendingTrackId) {
+              this.loadTrackIntoPlayer(this.pendingTrackId);
+              this.pendingTrackId = null;
+            }
+          },
+          onStateChange: (event) => {
+            if (event.data === YT.PlayerState.PLAYING) {
+              this.isPlaying = true;
+              this.updateTapeDeckUI(true);
+            } else if (event.data === YT.PlayerState.PAUSED) {
+              this.isPlaying = false;
+              this.updateTapeDeckUI(false);
+            } else if (event.data === YT.PlayerState.ENDED) {
+              this.ytPlayer.playVideo();
             }
           }
-        }, 35);
-      });
-    }
-
-    /* 3.8 Global Events & Modal Bindings */
-    bindEvents() {
-      // Big Ignition Gate
-      if (this.gateIgniteBtn && this.bigPlayGate) {
-        this.gateIgniteBtn.addEventListener('click', () => {
-          this.audio.startPlayback();
-          if (this.audioToggleBtn) this.audioToggleBtn.classList.add('active');
-          if (this.audioLabel) this.audioLabel.textContent = "ACTIVE (LOOP)";
-
-          this.bigPlayGate.style.opacity = '0';
-          setTimeout(() => {
-            this.bigPlayGate.style.display = 'none';
-          }, 400);
-        });
-      }
-
-      // Top Audio Toggle
-      if (this.audioToggleBtn) {
-        this.audioToggleBtn.addEventListener('click', () => {
-          const isPlaying = this.audio.toggle();
-          this.audioToggleBtn.classList.toggle('active', isPlaying);
-          if (this.audioLabel) {
-            this.audioLabel.textContent = isPlaying ? "ACTIVE (LOOP)" : "MUTED";
-          }
-        });
-      }
-
-      // LANCER Drawer Toggle
-      if (this.toggleDossierBtn && this.lancerDrawer) {
-        this.toggleDossierBtn.addEventListener('click', () => this.toggleDossier(true));
-      }
-      if (this.closeDossierBtn && this.lancerDrawer) {
-        this.closeDossierBtn.addEventListener('click', () => this.toggleDossier(false));
-      }
-
-      // Pager Buttons
-      if (this.prevChapterBtn) {
-        this.prevChapterBtn.addEventListener('click', () => {
-          if (this.currentChapterIndex > 0) this.loadChapter(this.currentChapterIndex - 1);
-        });
-      }
-      if (this.nextChapterBtn) {
-        this.nextChapterBtn.addEventListener('click', () => {
-          if (this.currentChapterIndex < this.data.chapters.length - 1) {
-            this.loadChapter(this.currentChapterIndex + 1);
-          }
-        });
-      }
-
-      // Close Modals
-      if (this.closeArtifactModalBtn && this.artifactModal) {
-        this.closeArtifactModalBtn.addEventListener('click', () => {
-          this.artifactModal.classList.add('hidden');
-          this.artifactModal.setAttribute('aria-hidden', 'true');
-        });
-      }
-
-      if (this.closeVistModalBtn && this.vistModal) {
-        this.closeVistModalBtn.addEventListener('click', () => {
-          this.vistModal.classList.add('hidden');
-          this.vistModal.setAttribute('aria-hidden', 'true');
-        });
-      }
-
-      if (this.dismissVistModalBtn && this.vistModal) {
-        this.dismissVistModalBtn.addEventListener('click', () => {
-          this.vistModal.classList.add('hidden');
-          this.vistModal.setAttribute('aria-hidden', 'true');
-        });
-      }
-
-      // Berth 44 Launch Key Slotting
-      if (this.slotKeyBtn) {
-        this.slotKeyBtn.addEventListener('click', () => {
-          this.slotKeyBtn.innerHTML = "<span>✓ TELEMETRY ACCEPTED // REACTOR ONLINE</span>";
-          this.slotKeyBtn.style.background = "rgba(78, 240, 196, 0.2)";
-          this.slotKeyBtn.style.borderColor = "var(--color-psycho)";
-          this.slotKeyBtn.style.color = "var(--color-psycho)";
-
-          if (this.consoleStream) {
-            this.consoleStream.textContent = "BERTH 44 GANTRY RELEASED // LAUNCH TUBE CLEAR // UNIT-03 DEPARTING FOR L1";
-          }
-        });
-      }
-
-      // Escape key to dismiss open modals/drawers
-      window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          if (this.lancerDrawer && this.lancerDrawer.classList.contains('open')) {
-            this.toggleDossier(false);
-          }
-          if (this.artifactModal && !this.artifactModal.classList.contains('hidden')) {
-            this.artifactModal.classList.add('hidden');
-            this.artifactModal.setAttribute('aria-hidden', 'true');
-          }
-          if (this.vistModal && !this.vistModal.classList.contains('hidden')) {
-            this.vistModal.classList.add('hidden');
-            this.vistModal.setAttribute('aria-hidden', 'true');
-          }
         }
       });
-    }
+    };
 
-    toggleDossier(open) {
-      if (!this.lancerDrawer) return;
-      this.lancerDrawer.classList.toggle('open', open);
-      this.lancerDrawer.setAttribute('aria-hidden', !open);
-      if (this.toggleDossierBtn) {
-        this.toggleDossierBtn.setAttribute('aria-expanded', open);
-      }
-    }
-
-    /* 3.9 Scroll Focus Monitor (Dimmable Cockpit Chrome) */
-    initScrollFocus() {
-      let scrollTimer = null;
-      window.addEventListener('scroll', () => {
-        const scrolled = window.scrollY > 180;
-        if (scrolled) {
-          document.body.classList.add('reading-active');
-        } else {
-          document.body.classList.remove('reading-active');
-        }
-
-        clearTimeout(scrollTimer);
-        scrollTimer = setTimeout(() => {
-          // If reading stopped for 1.8s, keep dimmed unless hovering
-        }, 1800);
-      }, { passive: true });
-    }
-
-    /* 3.10 Clocks & Tape Reel Counter */
-    startClocks() {
-      const clockEl = document.getElementById('mission-clock');
-      let tapeSeconds = 0;
-
-      setInterval(() => {
-        tapeSeconds += 0.1;
-        const mins = Math.floor(tapeSeconds / 60).toString().padStart(2, '0');
-        const secs = (tapeSeconds % 60).toFixed(1).padStart(4, '0');
-
-        if (this.tapeTime) {
-          this.tapeTime.textContent = `${mins}:${secs}`;
-        }
-
-        if (clockEl) {
-          const now = new Date();
-          const h = now.getHours().toString().padStart(2, '0');
-          const m = now.getMinutes().toString().padStart(2, '0');
-          const s = now.getSeconds().toString().padStart(2, '0');
-          clockEl.textContent = `U.C. 0099.04.18 // ${h}:${m}:${s}`;
-        }
-      }, 100);
+    if (this.dom.tapePlayBtn) {
+      this.dom.tapePlayBtn.addEventListener('click', () => {
+        sound.ensureContext();
+        this.toggleAudioPlayback();
+      });
     }
   }
 
-  // Initialize and expose to window for immersive.js hooks
-  document.addEventListener('DOMContentLoaded', () => {
-    window.app = new DossierApp();
-  });
+  toggleAudioPlayback() {
+    if (!this.ytReady || !this.ytPlayer) return;
 
-})();
+    if (this.isPlaying) {
+      this.ytPlayer.pauseVideo();
+    } else {
+      this.ytPlayer.playVideo();
+    }
+  }
+
+  syncTapeDeckTrack(soundtrack) {
+    if (this.dom.tapeTrackTitle) this.dom.tapeTrackTitle.textContent = soundtrack.title;
+    if (this.dom.tapeArtist) this.dom.tapeArtist.textContent = soundtrack.artist;
+
+    if (this.ytReady && this.ytPlayer) {
+      this.loadTrackIntoPlayer(soundtrack.youtubeId);
+    } else {
+      this.pendingTrackId = soundtrack.youtubeId;
+    }
+  }
+
+  loadTrackIntoPlayer(videoId) {
+    if (!this.ytPlayer || !this.ytPlayer.loadVideoById) return;
+
+    if (this.isPlaying) {
+      this.ytPlayer.loadVideoById({ videoId, suggestedQuality: 'small' });
+    } else {
+      this.ytPlayer.cueVideoById(videoId);
+    }
+  }
+
+  updateTapeDeckUI(playing) {
+    if (this.dom.tapeReel) {
+      this.dom.tapeReel.classList.toggle('paused', !playing);
+    }
+    if (this.dom.audioLed) {
+      this.dom.audioLed.classList.toggle('active', playing);
+    }
+    if (this.dom.tapePlayBtn) {
+      this.dom.tapePlayBtn.textContent = playing ? 'PAUSE' : 'PLAY';
+    }
+  }
+
+  startMissionClock() {
+    const clockEl = this.dom.missionClock;
+    if (!clockEl) return;
+
+    setInterval(() => {
+      const now = new Date();
+      const h = now.getHours().toString().padStart(2, '0');
+      const m = now.getMinutes().toString().padStart(2, '0');
+      const s = now.getSeconds().toString().padStart(2, '0');
+      clockEl.textContent = `${h}:${m}:${s}`;
+    }, 1000);
+  }
+
+  /* ==========================================================================
+     GM BRIEFING DRAWER & KEYBOARD SHORTCUTS
+     ========================================================================== */
+  initGMBriefing() {
+    if (this.dom.gmPillBtn && this.dom.gmDrawer) {
+      this.dom.gmPillBtn.addEventListener('click', () => {
+        sound.ensureContext();
+        sound.playTone(720, 0.04, 'sine', 0.02);
+        this.dom.gmDrawer.classList.toggle('open');
+      });
+    }
+
+    if (this.dom.gmCloseBtn && this.dom.gmDrawer) {
+      this.dom.gmCloseBtn.addEventListener('click', () => {
+        sound.playTone(320, 0.04, 'triangle', 0.02);
+        this.dom.gmDrawer.classList.remove('open');
+      });
+    }
+
+    if (this.dom.prevBtn) {
+      this.dom.prevBtn.addEventListener('click', () => {
+        if (this.currentChapterId > 1) {
+          sound.ensureContext();
+          sound.playTone(480, 0.06, 'triangle', 0.02);
+          this.loadChapter(this.currentChapterId - 1);
+        }
+      });
+    }
+
+    if (this.dom.nextBtn) {
+      this.dom.nextBtn.addEventListener('click', () => {
+        if (this.currentChapterId < CHAPTER_REGISTRY.length) {
+          sound.ensureContext();
+          sound.playTone(560, 0.06, 'triangle', 0.02);
+          this.loadChapter(this.currentChapterId + 1);
+        }
+      });
+    }
+  }
+
+  bindKeyboardShortcuts() {
+    window.addEventListener('keydown', (e) => {
+      if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+
+      const key = e.key.toLowerCase();
+
+      // Bracket Navigation: '[' (Prev) and ']' (Next)
+      if (e.key === '[' || (e.altKey && e.key === 'ArrowLeft')) {
+        e.preventDefault();
+        if (this.currentChapterId > 1) {
+          sound.ensureContext();
+          this.loadChapter(this.currentChapterId - 1);
+        }
+      } else if (e.key === ']' || (e.altKey && e.key === 'ArrowRight')) {
+        e.preventDefault();
+        if (this.currentChapterId < CHAPTER_REGISTRY.length) {
+          sound.ensureContext();
+          this.loadChapter(this.currentChapterId + 1);
+        }
+      }
+
+      // Direct Jump: Keys 1–5
+      if (['1', '2', '3', '4', '5'].includes(key)) {
+        e.preventDefault();
+        const targetId = parseInt(key, 10);
+        if (targetId !== this.currentChapterId) {
+          sound.ensureContext();
+          this.loadChapter(targetId);
+        }
+      }
+
+      // 'R' Hotkey: Instantly resolve text
+      if (key === 'r') {
+        e.preventDefault();
+        this.decryptEngine.resolveEntireChapter(this.dom.stage);
+      }
+
+      // 'M' Hotkey: Toggle Mute
+      if (key === 'm') {
+        e.preventDefault();
+        const isMuted = sound.toggleMute();
+        this.dom.trackName.textContent = isMuted ? 'BGM: MUTED' : `BGM: ${getChapter(this.currentChapterId).soundtrack.title}`;
+      }
+
+      // 'Escape': Close GM Drawer
+      if (e.key === 'Escape' && this.dom.gmDrawer?.classList.contains('open')) {
+        this.dom.gmDrawer.classList.remove('open');
+      }
+    });
+  }
+}
+
+// Bootstrap on DOM Ready
+document.addEventListener('DOMContentLoaded', () => {
+  window.PMApp = new CockpitAppController();
+});
