@@ -24,6 +24,7 @@ import {
 class CockpitAppController {
   constructor() {
     this.currentChapterId = 1;
+    this.isEngaged = false;
     this.decryptEngine = new DecryptEngineV2();
 
     // YouTube Audio State
@@ -112,11 +113,18 @@ class CockpitAppController {
     `;
     document.body.appendChild(gate);
     document.getElementById('ignition-btn')?.addEventListener('click', () => {
+      this.isEngaged = true; // <-- Flag that cockpit is active
       sound.ensureContext();
       if (this.ytReady && this.ytPlayer) this.ytPlayer.playVideo();
+
+      // START DECRYPTING NOW THAT COCKPIT IS ENGAGED:
+      this.decryptEngine.initObserver();
+      this.decryptEngine.observeAll(this.dom.proseContainer);
+
       gate.style.opacity = '0';
       setTimeout(() => gate.remove(), 400);
     });
+
   }
 
   init() {
@@ -213,12 +221,16 @@ class CockpitAppController {
 
     // 11. Re-enable Observer ONLY after the DOM has laid out at scroll top 0
     // Guarantees only the top visible paragraph decrypts; remaining stay encrypted
-    requestAnimationFrame(() => {
-      window.scrollTo(0, 0);
-      this.decryptEngine.initObserver();
-      this.decryptEngine.observeAll(this.dom.proseContainer);
+     if (this.isEngaged) {
+      requestAnimationFrame(() => {
+        window.scrollTo(0, 0);
+        this.decryptEngine.initObserver();
+        this.decryptEngine.observeAll(this.dom.proseContainer);
+        this.decryptEngine.updateReadingProgress(0);
+      });
+    } else {
       this.decryptEngine.updateReadingProgress(0);
-    });
+    }
   }
 
   renderProseWithAnnotations(chapter) {
