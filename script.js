@@ -91,6 +91,33 @@ class CockpitAppController {
 
     this.init();
   }
+  
+  initIgnitionGate() {
+    const gate = document.createElement('div');
+    gate.style.cssText = `
+      position: fixed; inset: 0; background: rgba(5,7,10,0.88);
+      backdrop-filter: blur(8px); z-index: 99999;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); transition: opacity 0.4s ease;
+    `;
+    gate.innerHTML = `
+      <div style="background: rgba(14,18,27,0.96); border: 2px solid var(--harmonic-accent); padding: 24px; text-align: center; max-width: 400px; box-shadow: 0 0 30px var(--harmonic-glow);">
+        <div style="font-size: 10px; color: var(--color-beta); margin-bottom: 8px; font-weight: 700;">⚠ NEURAL AUDIO RELAY DISCONNECTED</div>
+        <div style="font-family: var(--font-display); font-size: 15px; color: #fff; margin-bottom: 8px;">PROTOTYPE UNIT-03 COCKPIT</div>
+        <p style="font-family: var(--font-serif); font-size: 13px; color: var(--text-secondary); margin-bottom: 18px;">Initialize telemetry, calibrate oscilloscope, and spool diegetic audio.</p>
+        <button id="ignition-btn" style="background: var(--harmonic-dim); border: 1px solid var(--harmonic-accent); color: #fff; font-family: var(--font-mono); font-size: 11px; font-weight: 700; padding: 10px 18px; cursor: pointer;">
+          ⏵ ENGAGE COCKPIT & BGM
+        </button>
+      </div>
+    `;
+    document.body.appendChild(gate);
+    document.getElementById('ignition-btn')?.addEventListener('click', () => {
+      sound.ensureContext();
+      if (this.ytReady && this.ytPlayer) this.ytPlayer.playVideo();
+      gate.style.opacity = '0';
+      setTimeout(() => gate.remove(), 400);
+    });
+  }
 
   init() {
     // 1. Initialize Visual, Kinetic & Acoustic Sub-Engines
@@ -101,6 +128,7 @@ class CockpitAppController {
     this.initYouTubeAudio();
     this.initGMBriefing();
     this.bindKeyboardShortcuts();
+    this.initIgnitionGate();
 
     // 2. Hydrate Default Chapter (Chapter 1: The Water and the Salt)
     this.loadChapter(this.currentChapterId);
@@ -545,3 +573,4 @@ class CockpitAppController {
 document.addEventListener('DOMContentLoaded', () => {
   window.PMApp = new CockpitAppController();
 });
+
