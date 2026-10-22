@@ -290,7 +290,8 @@ body {
   border-bottom: 2px solid var(--harmonic-accent);
   max-height: 0;
   overflow: hidden;
-  opacity: 0;
+  overflow-y: auto;
+  opacity: 1;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
   transition: max-height 0.4s var(--ease-cockpit), opacity 0.3s ease;
 }
