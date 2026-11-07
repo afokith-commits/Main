@@ -118,8 +118,8 @@ export const CHAPTER_REGISTRY = deepFreeze([
         afterParagraph: 3,
         type: "subconscious",
         tag: "TACTILE MEMORY // TETHER 01",
-        label: "THE 8mm SOCKET WRENCH",
-        content: "Cold chrome-vanadium steel. Knurled grip bit into palm tendons. Carried in the pocket of his denim shorts to tighten Pak Usman's intake manifold."
+        label: "DRIED BRINE & TIDAL DRIFT",
+        content: "A chalky white crust drying along the wrists and knuckles. The abrasive sting of salt spray and the unconscious, rhythmic sense of balance shaped by living over moving water."
       }
     ],
     paragraphs: [
@@ -249,8 +249,8 @@ export const CHAPTER_REGISTRY = deepFreeze([
         afterParagraph: 5,
         type: "subconscious",
         tag: "OLFACTORY MEMORY // TETHER 04",
-        label: "SYNTHETIC BRAKE FLUID & CASTOR OIL",
-        content: "Sliding under vintage roadsters at 2:00 AM with an 8mm wrench. The smell of hot engine oil and synthetic brake fluid was the only thing anchoring her to reality."
+        label: "VOLATILE FUEL RESIDUE",
+        content: "Sitting in the quiet dark of the sub-level transit bays at 2:00 AM. The faint, sharp scent of unrefined terrestrial fuel—the only chemistry on the Moon that felt real."
       }
     ],
     paragraphs: [
