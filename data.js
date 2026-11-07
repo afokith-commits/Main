@@ -4,18 +4,18 @@
    ========================================================================== */
 
 export const chapters = [
-  // ========================================================================
-  // BAB 01: HARMONIC ALPHA (ADRIAN SAGARA // BAHASA INDONESIA)
+ // ========================================================================
+  // CHAPTER 01: HARMONIC ALPHA (ADRIAN SAGARA // INDONESIAN READING)
   // ========================================================================
   {
     id: 1,
     harmonic: "alpha",
-    indexDisplay: "BAB 01",
-    harmonicName: "ADRIAN // JIWA AIR ASIN",
-    title: "AIR DAN GARAM",
+    indexDisplay: "CHAPTER 01",
+    harmonicName: "ADRIAN // THE SALTWATER SOUL",
+    title: "THE WATER AND THE SALT",
     year: "U.C. 0093",
-    location: "SELAT SUNDA",
-    theater: "U.C. 0093 // SELAT SUNDA // TITIK AMBLAS PESISIR",
+    location: "SUNDA STRAIT",
+    theater: "U.C. 0093 // SUNDA STRAIT // SINKPOINT COAST",
     track: "Ocean Foam",
     artist: "Cicada",
     scopeMetrics: {
