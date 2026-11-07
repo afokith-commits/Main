@@ -181,9 +181,41 @@
   </div>
 
   <!-- Offscreen YouTube IFrame Audio Engine Slot -->
-  <div class="yt-hidden-slot" aria-hidden="true">
-    <div id="yt-player-slot"></div>
-  </div>
+<!-- ====================================================================
+       DIEGETIC TACTICAL MINI-MONITOR (Floating CRT Screen for BGM & Ads)
+       ==================================================================== -->
+  <aside id="yt-monitor-deck" aria-label="Auxiliary Cockpit Optical Feed">
+    <div class="monitor-header">
+      <div class="monitor-label-group">
+        <span class="monitor-live-dot" aria-hidden="true">●</span>
+        <span class="monitor-tag">OPTICAL FEED // BGM LINK</span>
+      </div>
+      <button id="monitor-toggle-btn" class="monitor-btn" type="button" title="Minimize/Expand Screen">
+        [MINIMIZE]
+      </button>
+    </div>
+    
+    <div class="monitor-screen-wrapper">
+      <!-- YouTube IFrame will mount directly into this element -->
+      <div id="yt-player-slot"></div>
+      <!-- Pointer-events none ensures clicks pass directly through to YouTube's "Skip Ad" button -->
+      <div class="monitor-crt-overlay" aria-hidden="true"></div>
+    </div>
+  </aside>
+
+  <!-- Script Ringan untuk Toggle Minimize/Expand Monitor -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const monitor = document.getElementById('yt-monitor-deck');
+      const toggleBtn = document.getElementById('monitor-toggle-btn');
+      if (monitor && toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+          const isCollapsed = monitor.classList.toggle('collapsed');
+          toggleBtn.textContent = isCollapsed ? '[EXPAND]' : '[MINIMIZE]';
+        });
+      }
+    });
+  </script>
 
   <!-- Application Modules in Dependency Order -->
   <script type="module" src="data.js"></script>
