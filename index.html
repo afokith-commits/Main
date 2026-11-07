@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="PSYCHO-MONITOR MK-03 // Tri-Harmonic Resonance [Subject 088: Eria Sterling] — In-cockpit narrative reader for Universal Century Gundam x LANCER setting.">
+  <meta name="description" content="PSYCHO-MONITOR MK-03 // Tri-Harmonic Resonance [Subject 088: Marian Lindemann] — In-cockpit narrative reader for Universal Century Gundam x LANCER setting.">
   <meta name="theme-color" content="#05070a">
 
   <title>PSYCHO-MONITOR MK-03 // SUBJECT 088</title>
@@ -43,7 +43,7 @@
         <span class="hud-glitch-badge">UNSHIELDED PSYCHO-FRAME</span>
         <span class="hud-separator" aria-hidden="true">//</span>
         <span id="hud-chapter-year" class="hud-data">U.C. 0093</span>
-        <span id="hud-chapter-loc" class="hud-data loc-tag">SUNDA STRAIT</span>
+        <span id="hud-chapter-loc" class="hud-data loc-tag">SELAT SUNDA</span>
         <span id="hud-harmonic-chip" class="hud-status-chip">HARMONIC α</span>
       </div>
 
@@ -60,7 +60,7 @@
         <button id="gm-pill-btn" class="hud-pill-btn" type="button" title="Toggle GM Mission Briefing">
           [GM BRIEF]
         </button>
-        <span id="hud-read-time" class="hud-data">EST. READ: 5 MIN</span>
+        <span id="hud-read-time" class="hud-data">EST. READ: 4 MIN</span>
         <span id="hud-clock" class="hud-clock">23:42:19</span>
       </div>
     </header>
@@ -78,20 +78,20 @@
           <button id="gm-drawer-close" class="hud-pill-btn close-btn" type="button" aria-label="Dismiss briefing">
             DISMISS [X]
           </button>
-        </div><!-- Closed briefing-top -->
+        </div>
 
         <div class="briefing-body">
           <p class="briefing-text" style="margin-bottom: 0.85rem;">
-            In U.C. 0093, Rian was a seventeen-year-old dock mechanic in Southeast Asia until the Axis impact destroyed his home and relatives. His soul was displaced until U.C. 0095, when a brutal skirmish left an anti-Anaheim ace, Lt. Julian Ross, dying inside an experimental Psycho-Frame prototype. The machine's resonance overcharge anchored Rian’s soul into the cockpit, physically restructuring the dying soldier's body into an adolescent girl.
+            In U.C. 0093, seventeen-year-old Adrian Sagara ("Rian") was a coastal dock mechanic in the Sunda Strait until the Axis impact destroyed his home and family. His soul was displaced until U.C. 0095, when a skirmish in the Sunda Sink left rogue black-ops ace Lt. Soren Hayes dying inside an experimental Psycho-Frame prototype commissioned by Vist and built by Anaheim. The runaway Psycho-Field caused Hayes's cellular dissolution; the cockpit's Augusta bio-amniotic gel drew in Adrian's consciousness, synthesizing an adolescent female baseline.
           </p>
           <p class="briefing-text" style="margin-bottom: 0.85rem;">
-            When an Anaheim Electronics director arrived to confirm the death of his unit's nemesis, he found an unconscious girl in an oversized, bloodied flight suit instead. Rather than hand an undocumented anomaly over to corporate labs, he wrote off the wreck, logged Julian dead, and brought her home to the Moon. There, his family took her in and gave her a clean identity as their own sheltered daughter, "Eria."
+            Anaheim Senior Director Dietrich Lindemann arrived to confirm the casualty. Finding the undocumented anomaly, he thermited the wreck, logged Hayes incinerated, and smuggled the girl to the Moon. In Von Braun City, he gave her sovereign shelter as his own daughter, "Marian Lindemann."
           </p>
           <p class="briefing-text">
-            By U.C. 0099, Eria is nineteen, living a wealthy, protected life in Von Braun City. Out of the cockpit, she is reserved and anxious, terrified that slipping up will expose the treasonous cover-up and drag her adoptive family to a firing squad. But once strapped into a frame, Julian’s combat conditioning takes over with cold, lethal precision against enemy targets. When an encrypted summons from the Vist Foundation arrives addressed to Julian, Eria returns to the battlefield to neutralize the threat herself—determined to protect the family that gave her a home and keep them safe.
+            By U.C. 0099, nineteen-year-old Marian lives a calculated existence in Von Braun, using Dietrich's executive status as a shield against Anaheim's Internal Disposal Bureau ("Cleaners") who hold an active kill-order on Hayes. When an encrypted summons arrives from the Vist Foundation addressed to Hayes's backdoor frequency, Marian slips away to Colony SF at Side 4 to preserve Dietrich's plausible deniability—ready to step into Hayes's flight suit and buy her permanent civilian freedom.
           </p>
         </div>
-      </div><!-- Closed briefing-inner -->
+      </div>
     </section>
 
     <!-- ====================================================================
@@ -100,9 +100,7 @@
     <main id="reading-stage-wrap">
       <article id="reading-stage" tabindex="0" aria-label="Narrative Log Viewport">
 
-        <!-- ==================================================================
-             FULL-SCALE PSYCHO-FIELD DIAGNOSTIC DECK (Inspired by Prototype Bar)
-             ================================================================== -->
+        <!-- Full-Scale Psycho-Field Diagnostic Deck -->
         <section class="oscilloscope-section" aria-label="Psycho-Field Harmonic Drift Visualizer">
           <div class="scope-card">
             <div class="scope-header">
@@ -118,14 +116,13 @@
               </div>
             </div>
 
-            <!-- Full-Scale Responsive Canvas with Reticle Grid & Channel Legends -->
             <div class="canvas-wrapper">
               <canvas id="waveform-canvas" width="1200" height="130"></canvas>
               <div class="canvas-grid-overlay" aria-hidden="true"></div>
               <div class="canvas-legend">
-                <span id="channel-1" class="channel-tag active">CH-1: MEMORY SALINITY</span>
-                <span id="channel-2" class="channel-tag">CH-2: TRIGGER MOTOR REFLEX</span>
-                <span id="channel-3" class="channel-tag">CH-3: BIOLOGICAL VESSEL</span>
+                <span id="channel-1" class="channel-tag active">CH-1: SALINITAS MEMORI</span>
+                <span id="channel-2" class="channel-tag">CH-2: REFLEKS MOTORIK</span>
+                <span id="channel-3" class="channel-tag">CH-3: WADAH BIOLOGIS</span>
               </div>
             </div>
           </div>
@@ -134,17 +131,26 @@
         <!-- Chapter Masthead -->
         <header class="chapter-masthead">
           <div class="masthead-pre">
-            <span id="masthead-index" class="chapter-number-display">CHAPTER 01</span>
+            <span id="masthead-index" class="chapter-number-display">BAB 01</span>
             <span class="masthead-dot"></span>
-            <span id="masthead-harmonic-name" class="masthead-sub-identity">RIAN // THE SALTWATER SOUL</span>
+            <span id="masthead-harmonic-name" class="masthead-sub-identity">ADRIAN // JIWA AIR ASIN</span>
           </div>
-          <h1 id="masthead-title" class="chapter-title-display">THE WATER AND THE SALT</h1>
-          <div id="masthead-theater" class="chapter-theater-tag">U.C. 0093 // SUNDA STRAIT // SINKPOINT COAST</div>
+          <h1 id="masthead-title" class="chapter-title-display">AIR DAN GARAM</h1>
+          <div id="masthead-theater" class="chapter-theater-tag">U.C. 0093 // SELAT SUNDA // TITIK AMBLAS PESISIR</div>
         </header>
 
-        <!-- Dynamic Prose Stream (Mounted & Declassified via script.js & immersive.js) -->
+        <!-- Dynamic Prose Stream (Mounted & Declassified via script.js & data.js) -->
         <div id="prose-flow" class="prose-content-flow">
-          <!-- Paragraphs and in-line subconscious echoes mount here -->
+          <!-- Default Indonesian Prose Fallback -->
+          <p class="prose-paragraph first-paragraph resolved">
+            Adrian duduk di atas peti kayu terbalik dengan kepala silinder motor dua tak di antara kedua lututnya, mengerok kerak karbon dari puncak piston memakai kape dempul bekas.
+          </p>
+          <p class="prose-paragraph resolved">
+            "Awas aluminiumnya kegores, Rian," tegur bapaknya tanpa menoleh. Beliau duduk di bangku kayu lima langkah dari situ, jempolnya yang hitam kena gemuk sibuk melilit kawat tembaga ke alternator generator. Bengkel itu cuma lantai semen di bawah atap seng berkarat yang menempel di dermaga, menjorok langsung ke air keruh Selat Sunda. Perahu-perahu kayu nelayan saling beradu di bawah sana, berderit menabrak ban bekas pelindung setiap kali ombak pasang siang bergulung masuk.
+          </p>
+          <p class="prose-paragraph resolved">
+            "Nggak bakal kegores, Pak," sahut Adrian. "Garamnya bikin mampet jalur pendingin lagi. Pak Usman nggak pernah bilas mesinnya sehabis melaut."
+          </p>
         </div>
 
         <!-- Chapter Pager Navigation -->
@@ -164,9 +170,7 @@
       </article>
     </main>
 
-    <!-- ====================================================================
-         FLOATING DIEGETIC RETRO TAPE DECK (Bottom Right Audio Relay)
-         ==================================================================== -->
+    <!-- Floating Retro-Military Tape Deck -->
     <aside id="floating-tape-deck" aria-label="Cockpit Audio Relay">
       <div class="tape-chassis-bevel"></div>
       <div id="tape-reel-icon" class="tape-reel-spin paused" aria-hidden="true">∿</div>
