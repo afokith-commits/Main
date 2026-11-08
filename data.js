@@ -150,7 +150,7 @@ export const CANON = deepFreeze({
     logPrefix: "LOG",
     mastheadIdentity: "ADRIAN // THE SALTWATER SOUL",
     docTitle: "PSYCHO-MONITOR MK-03 // SUBJECT 088",
-    docDescription: "PSYCHO-MONITOR MK-03 // Tri-Harmonic Resonance [Subject 088: Marianne Lindemann].",
+    docDescription: "ANAHEIM ELECTRONICS // CLASSIFIED TELEMETRY: Tri-Harmonic Psycho-Frame Synchronization Log. Subject 088 [Marianne Lindemann]. Clearance AE-088-MARIANNE.",
     themeColor: "#05070a"
   }
 });
