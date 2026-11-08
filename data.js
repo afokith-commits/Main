@@ -119,32 +119,32 @@ export const CHAPTER_REGISTRY = deepFreeze([
         type: "subconscious",
         tag: "TACTILE MEMORY // TETHER 01",
         label: "DRIED BRINE & TIDAL DRIFT",
-        content: "A chalky white crust drying along the wrists and knuckles. The abrasive sting of salt spray and the unconscious, rhythmic sense of balance shaped by living over moving water."
+        content: "White crust of dried salt along the wrists and knuckles. Salt spray stinging an open cut. The way the deck seems to tilt when the boat stops moving, so a body balanced for two years still expects the floor to rise."
       }
     ],
     paragraphs: [
-      "Adrian duduk di atas peti kayu terbalik dengan kepala silinder motor dua tak di antara kedua lututnya, mengerok kerak karbon dari puncak piston memakai kape dempul bekas.",
-      "\"Awas aluminiumnya kegores, Rian,\" tegur bapaknya tanpa menoleh. Beliau duduk di bangku kayu lima langkah dari situ, jempolnya yang hitam kena gemuk sibuk melilit kawat tembaga ke alternator generator. Bengkel itu cuma lantai semen di bawah atap seng berkarat yang menempel di dermaga, menjorok langsung ke air keruh Selat Sunda. Perahu-perahu kayu nelayan saling beradu di bawah sana, berderit menabrak ban bekas pelindung setiap kali ombak pasang siang bergulung masuk.",
-      "\"Nggak bakal kegores, Pak,\" sahut Adrian. \"Garamnya bikin mampet jalur pendingin lagi. Pak Usman nggak pernah bilas mesinnya sehabis melaut.\"",
-      "Adrian berumur tujuh belas tahun—tinggi, kurus liat, kulitnya legam terbakar matahari khatulistiwa dengan oli mesin yang sudah meresap permanen di sela-sela kukunya. Di bawah rak aki, terselip beberapa buku SMK bekas tentang mesin kapal dan kelistrikan. Tapi sejak lutut bapaknya kumat dua tahun lalu, Adrian lebih banyak pegang kunci pas daripada buka buku sekolah.",
-      "Pintu kasa dapur terbuka berderit.",
-      "\"Makan dulu, kata Emak,\" panggil Maya. Umurnya delapan tahun, bertelanjang kaki dengan lutut penuh bekas luka baret, membawa baki seng berisi nasi putih, tumis kangkung, dan ikan goreng. \"Cuci tangan dulu, Bang Rian. Kemarin buku gambarku kena cap jempol oli.\"",
-      "\"Kamu sendiri yang naruh bukumu di meja kerjaku, Cil,\" balas Adrian, tapi ia tetap membilas tangannya di bawah pompa air manual dekat pintu lalu menyambar mangkuknya.",
-      "Di rak perkakas, radio tua berbunyi kresek-kresek dari speaker yang sudah robek:",
+      "Adrian sat on an overturned wooden crate with a cylinder head between his knees, scraping carbon off the crown of a piston with a putty knife that had long outlived its purpose.",
+      "\"Awas aluminiumnya kegores, Rian.\" His father didn't look up. He sat five paces away on a wooden bench, his blackened thumb busy winding copper wire around the generator's alternator. The workshop was nothing but a cement floor under a rusted tin roof jutting straight out over the grey water of the Sunda Strait. Below them, wooden fishing boats knocked against each other, scraping their tyre fenders every time the afternoon swell came in.",
+      "\"Nggak bakal kegores, Pak,\" Adrian said. \"Garamnya bikin mampet jalur pendingin lagi. Pak Usman nggak pernah bilas mesinnya sehabis melaut.\"",
+      "He was seventeen, tall and thin, his skin the colour of something burned, sun and machine oil both soaked permanently into the creases of his knuckles. Under the battery rack lay a stack of used vocational-school books on marine engines and electrical systems. But since his father had gone lame two years back, Adrian had spent more time with a wrench than with a textbook.",
+      "The kitchen door creaked open.",
+      "\"Makan dulu, kata Emak,\" called Maya. She was eight, barefoot, both knees scarred over from old falls, carrying a tin plate of white rice, stir-fried kangkung and fried fish. \"Cuci tangan dulu, Bang Rian. Kemarin buku gambarku kena cap jempol oli.\"",
+      "\"Kamu sendiri yang naruh bukumu di meja kerjaku, Cil,\" Adrian shot back, but he washed his hands under the hand pump by the door and took the plate anyway.",
+      "On the tool rack, an old radio crackled through a speaker that had torn years ago.",
       "\"...Mengulang siaran darurat. Unit pertahanan orbital Londo Bell telah mencegat pasukan Neo-Zeon di dekat asteroid Axis. Pihak berwenang memastikan bahwa lintasan jatuh telah berhasil dialihkan. Diulangi: tidak ada perintah evakuasi untuk penduduk sipil di sektor khatulistiwa...\"",
-      "Bapaknya mendengus sambil mengibaskan tangan ke arah radio. \"Orang-orang Spacenoid. Kerjanya cuma ribut rebutan kaleng rongsok di langit. Kayak orang daratan punya waktu buat mikirin politik mereka saja.\"",
-      "\"Robot-robot itu pakai reaktor fusi, Pak,\" kata Adrian sambil mengunyah nasi ikannya. \"Satu nozel pendorongnya saja cukup buat ngaspal jalan sekabupaten.\"",
+      "His father grunted and flicked his wet hands toward the radio. \"Orang-orang Spacenoid. Kerjanya cuma ribut rebutan kaleng rongsok di langit. Kayak orang daratan punya waktu buat mikirin politik mereka saja.\"",
+      "\"Robot-robot itu pakai reaktor fusi, Pak,\" Adrian said through a mouthful of fish. \"Satu nozel pendorongnya saja cukup buat ngaspal jalan sekabupaten.\"",
       "\"Titanium nggak bisa dimakan, Tong. Habisin nasimu.\"",
-      "Adrian meneguk es teh manisnya, lalu menatap lepas ke arah laut yang tenang.",
-      "Lalu cahayanya datang.",
-      "Tanpa suara sama sekali. Bayangan di bawah atap seng mendadak lenyap, terhapus oleh kilatan yang begitu menyilaukan sampai air laut berubah putih padam. Adrian mengangkat lengan menutupi muka. Kulit wajahnya mendadak perih dan panas, seperti disodorkan langsung ke depan tungku api.",
-      "Tinggi di balik awan, langit robek. Sebongkah batu raksasa hitam pekat yang terbakar, menyeret ekor api selebar puluhan kilometer, jatuh lurus ke arah cakrawala selatan.",
-      "Bapaknya menjatuhkan kawat tembaganya. Tangannya yang kasar mencengkeram bahu Maya kuat-kuat.",
-      "\"Masuk ke balik tembok pemecah ombak,\" bisik bapaknya. Suaranya tercekat, datar dan hampa. \"Rian. Cepat.\"",
-      "\"Bapak?\" Maya mendongak sambil menyipitkan mata, tangannya meremas celana pendek abangnya. \"Mataku sakit... itu apa?\"",
-      "Gelombang kejutnya tiba.",
-      "Atap seng bengkel terkelupas dalam sekejap dengan suara derit paku tercabut yang memekakkan telinga. Air teluk mendidih menguap jadi kabut putih, dan perahu-perahu nelayan patah seperti ranting kering. Adrian mengulurkan tangannya yang belepotan oli, berusaha menggapai pergelangan tangan adiknya, tapi tanah di bawah kakinya runtuh ditelan panas dan debu yang membakar.",
-      "Lalu semuanya gelap."
+      "Adrian drank his sweet iced tea and looked out at the flat calm of the sea.",
+      "Then the light came.",
+      "No sound at all. The shadow under the tin roof vanished, wiped away by a flash so bright the sea turned white and went out. Adrian got a forearm over his face. His skin went hot and stinging, as if someone had pushed it straight into a furnace.",
+      "High above the clouds the sky tore open. A black rock the size of a building, burning, dragging a tail of fire dozens of kilometres long, came straight down toward the southern horizon.",
+      "His father dropped the copper wire. His rough hand closed hard around Maya's shoulder.",
+      "\"Masuk ke balik tembok pemecah ombak,\" his father said. His voice came out flat, drained. \"Rian. Cepat.\"",
+      "\"Bapak?\" Maya squinted upward, her hand crushing the leg of her brother's shorts. \"Mataku sakit... itu apa?\"",
+      "Then the shockwave arrived.",
+      "The tin roof peeled off the workshop in a single instant, the shriek of tearing nails loud enough to split an eardrum. The bay water boiled into white mist, and the fishing boats snapped like dry sticks. Adrian reached out with his oil-blackened hand for his sister's wrist, and the ground under his feet gave way into heat and burning dust.",
+      "Then everything went dark."
     ]
   },
   {
@@ -162,7 +162,7 @@ export const CHAPTER_REGISTRY = deepFreeze([
     },
     annotations: [
       {
-        afterParagraph: 5,
+        afterParagraph: 10,
         type: "subconscious",
         tag: "AUDITORY MEMORY // TETHER 02",
         label: "DOGTAG 088-417-H",
@@ -171,16 +171,16 @@ export const CHAPTER_REGISTRY = deepFreeze([
     ],
     paragraphs: [
       "The cockpit was full of dark, lukewarm fluid.",
-      "Lt. Soren Hayes was strapped into the linear seat of an unregistered prototype, bleeding out through shrapnel holes in his chest. The frame lay wedged in a mud-choked trench somewhere in the flooded Sunda Sink. Around him, the machine's pressurized bio-amniotic gel—an Augusta-designed life-support medium meant to sustain Cyber-Newtype pilots through catastrophic G-forces and trauma—was turning red.",
+      "Lt. Soren Hayes was strapped into the linear seat of an unregistered prototype, bleeding out through shrapnel holes in his chest. The frame lay wedged in a mud-choked trench somewhere in the flooded Sunda Sink, and around him the machine's pressurized bio-amniotic gel was already turning red. It was an Augusta-designed life-support medium, meant to sustain Cyber-Newtype pilots through catastrophic G-forces and trauma, and it was running out of time along with the man in it.",
       "The unit's Psycho-Frame was running wild.",
-      "The green hexagonal plates along the inner frame hummed at a frequency Hayes felt in his molars. It wasn't an electrical short; the psychic field was feeding on his collapsing vitals, burning out of control into a localized Psycho-Field. Under the crushing resonance, Hayes's vital signs failed, and his adult cellular structure gave out, dissolving directly into the suspension gel around him.",
+      "The green hexagonal plates along the inner frame hummed at a frequency Hayes felt in his molars. Nothing about it was an electrical fault; the psychic field was feeding on his collapsing vitals and burning out of control into a localized Psycho-Field. Under the crushing resonance his vital signs failed, and his adult cellular structure gave out, dissolving directly into the suspension gel around him.",
       "The system was left running on empty, its Psycommu receiver screaming for an input.",
-      "In the dead zone above the Sunda Sink, Adrian Sagara had been drifting for two years—a scrap of memory clinging to the smell of salt spray, fried fish, and his sister's voice. When the Psycho-Frame overcharged, it pulled him down like an undertow.",
+      "Two years in the dead zone above the Sunda Sink, Adrian Sagara had been drifting with nothing left of him but memory: salt spray, fried fish, and his sister's voice. When the Psycho-Frame overcharged, it pulled him down like an undertow.",
       "The prototype's automated medical core engaged.",
-      "Detecting an active neural imprint in the cabin, the emergency system began drawing on the bio-gel's synthetic stem cells to rebuild the pilot. But with Hayes's genetic material destabilized and the incoming brainwave signature completely different, the automated process glitched. It reconstructed an unspecialized, juvenile human baseline to house the mind it had caught.",
+      "It found an active neural imprint in the cabin and began drawing on the bio-gel's synthetic stem cells to rebuild the pilot. But Hayes's genetic material was destabilizing, and the incoming brainwave signature was nothing like what the cradle had been built around, so the automated process glitched partway through and settled for something crude. What it produced was an unspecialized, juvenile human baseline, a body assembled at random to house a mind it had caught by accident.",
       "The green glow faded.",
       "The linear seat fell quiet, save for the low hum of backup power.",
-      "Sitting in the oversized harness, buried in a soldier’s flight suit that bagged around her like an empty sack, was an adolescent girl of around fourteen or fifteen. Her breathing was faint. Her hair was matted with drying chemical gel, and around her thin neck hung Hayes's dogtag:",
+      "Sitting in the oversized harness, buried in a soldier's flight suit that bagged around her like an empty sack, was an adolescent girl of around fourteen or fifteen. Her breathing was faint. Her hair was matted with drying chemical gel, and around her thin neck hung a dog's tag that had never belonged to her.",
       "HAYES, SOREN — LT. / 088-417-H"
     ]
   },
@@ -199,11 +199,11 @@ export const CHAPTER_REGISTRY = deepFreeze([
     },
     annotations: [
       {
-        afterParagraph: 7,
+        afterParagraph: 8,
         type: "subconscious",
         tag: "VISUAL MEMORY // CLARA LINDEMANN",
         label: "THE SINGAPORE IMPACT",
-        content: "March U.C. 0093. Clara was twelve years old at boarding school outside Singapore when the Axis stone struck. An empty bronze casket buried in Von Braun Memorial Garden."
+        content: "March U.C. 0093. Clara was twelve, boarding school outside Singapore, when the Axis stone struck. They put an empty bronze casket in the Von Braun Memorial Garden."
       }
     ],
     paragraphs: [
@@ -212,14 +212,13 @@ export const CHAPTER_REGISTRY = deepFreeze([
       "The hatch gave with a wet hiss of pneumatic pressure. Gallons of pink, cloudy bio-gel poured out into the dirt.",
       "A contractor shone his rifle light into the pod, then stepped back. \"Director. Look at this.\"",
       "Lindemann stepped up to the rim.",
-      "The adult pilot he’d been tracking wasn't there. In the seat was a girl, pale, unconscious, and half-drowned in Soren Hayes’s flight suit.",
+      "The adult pilot he'd been tracking wasn't there. In the seat was a girl, pale, unconscious, and half-drowned in Soren Hayes's flight suit.",
       "\"Search the trench,\" Lindemann said. \"He swapped himself out.\"",
       "\"Canopy was sealed from the inside, Director,\" the contractor said, running a scanner over her chest. \"Sir... her cell structure is artificial. Synthetic stem-cell markers, Augusta-pattern neural spikes. It's an undocumented Cyber-Newtype anomaly. Protocol says we crate her for the Denver Arcology.\"",
       "Lindemann knew what Denver did to unstable test subjects: isolation vats, vivisection, and tissue harvests.",
-      "The girl stirred. Her head rolled against the headrest, her eyes cracking open—unfocused and bloodshot. Her small hand reached out of the oversized sleeve, fingers brushing Lindemann’s wet coat.",
+      "The girl stirred. Her head rolled against the headrest, her eyes cracking open, unfocused and bloodshot. Her small hand reached out of the oversized sleeve, fingers brushing Lindemann's wet coat.",
       "\"...Ayah...?\" she muttered, her voice thin and cracked. \"...The roof... is leaking...\"",
-      "Her hand went limp.",
-      "Lindemann stood frozen in the rain.",
+      "Her hand went limp. Lindemann stood frozen in the rain.",
       "In U.C. 0093, his twelve-year-old daughter Clara had been attending an academy outside Singapore when the Axis fragment hit. They never found anything to bury.",
       "\"Director?\" the contractor pressed. \"Do we call hazmat?\"",
       "Lindemann looked down at the girl, then reached into his jacket. He pulled out his executive cipher and shoved it into the contractor's chest plate.",
@@ -246,28 +245,28 @@ export const CHAPTER_REGISTRY = deepFreeze([
     },
     annotations: [
       {
-        afterParagraph: 5,
+        afterParagraph: 10,
         type: "subconscious",
         tag: "OLFACTORY MEMORY // TETHER 04",
         label: "VOLATILE FUEL RESIDUE",
-        content: "Sitting in the quiet dark of the sub-level transit bays at 2:00 AM. The faint, sharp scent of unrefined terrestrial fuel—the only chemistry on the Moon that felt real."
+        content: "2:00 AM in the sub-level transit bays. Cold concrete, and under it the sharp smell of unrefined terrestrial fuel. It was the only thing on the Moon that smelled like the planet she'd been pulled off."
       }
     ],
     paragraphs: [
       "It took four months in a private clinic beneath Lindemann's lunar estate to stabilize her.",
-      "The doctors were paid off the books. When Adrian finally woke up without IV lines running into his arms, he found himself looking at small, pale hands with narrow wrists and clean nails. His voice sounded like a stranger's.",
-      "Dietrich Lindemann came in alone on the second week. He placed the stamped dogtag on the nightstand: HAYES, SOREN.",
+      "The doctors were paid off the books. When Adrian finally woke without IV lines running into his arms, he found himself looking down at small, pale hands with narrow wrists and clean nails. His voice sounded like a stranger's.",
+      "Dietrich Lindemann came in alone on the second week. He placed the stamped dogtag on the nightstand. HAYES, SOREN.",
       "\"You don't have to be afraid,\" Lindemann told her quietly. \"I know Anaheim's black-ops ran an illegal Cyber-Newtype project on you and forged adult credentials. Soren Hayes is dead. From now on, your name is Marian. You are my niece, recovering from chronic illness. You don't ever have to touch a machine again.\"",
       "Adrian looked at the tag, then at Lindemann.",
-      "The man thought he was rescuing an abused child soldier. If Adrian told him the truth—that he was a dead mechanic from the Sunda Strait sitting inside an impossible body—he’d end up on an autopsy table anyway.",
+      "The man believed he was rescuing an abused child soldier. If Adrian told him the truth, that he was a dead mechanic from the Sunda Strait sitting inside an impossible body, he'd end up on an autopsy table anyway.",
       "\"I don't remember much,\" Adrian whispered.",
       "Lindemann laid a heavy, warm hand on her head. \"Then don't try to.\"",
       "Four years passed.",
-      "In the high-society circles of Von Braun City, Marian Lindemann was known as a quiet, frail heiress. Lindemann’s wife, Evelyn, bought her dresses, taught her how to hold porcelain teacups, and introduced her politely at company dinners. Marian played along. She knew exactly what she was doing: Dietrich Lindemann's executive status was the only reason Anaheim's Cleaners hadn't kicked in the door to put a bullet in her head.",
-      "At night, when the house was dark, she’d slip down to the underground garage. Dressed in old flannel, she’d crawl under Lindemann’s vintage groundcars with a wrench, tightening bolts and checking lines just to smell gasoline and motor oil again.",
-      "Yet Hayes's ghost was always there.",
-      "Whenever she passed industrial loaders or caught the high-frequency whine of a reactor, her mind twitched with things she'd never learned: combat telemetry, threat vectors, system overrides, and sudden, cold reflexes. Her body had adult stamina now, but she was a weapon sitting in a display case.",
-      "She was nineteen in U.C. 0099. And she knew she was living on borrowed time."
+      "In the high-society circles of Von Braun City, Marian Lindemann was known as a quiet, frail heiress. Lindemann's wife, Evelyn, bought her dresses, taught her how to hold porcelain teacups, and introduced her politely at company dinners. Marian played along. Dietrich Lindemann's executive status was the only thing standing between her and Anaheim's Cleaners, who held a liquidation order and did not need a warrant to use it.",
+      "At night, when the house was dark, she'd slip down to the underground garage. Dressed in old flannel, she'd crawl under Lindemann's vintage groundcars with a wrench, tightening bolts and checking lines, mostly for the smell of gasoline and motor oil.",
+      "Hayes's ghost was always there.",
+      "Whenever she passed industrial loaders or caught the high-frequency whine of a reactor, her mind surfaced things she'd never been taught: combat telemetry, threat vectors, system overrides. Her body had the stamina of a trained adult, but it belonged to a weapon nobody had issued to anyone.",
+      "She was nineteen in U.C. 0099, and she knew she was living on borrowed time."
     ]
   },
   {
@@ -285,11 +284,11 @@ export const CHAPTER_REGISTRY = deepFreeze([
     },
     annotations: [
       {
-        afterParagraph: 6,
+        afterParagraph: 14,
         type: "subconscious",
         tag: "DEPARTURE TELEMETRY // TETHER 05",
         label: "CLEARANCE AE-088-MARIAN",
-        content: "Unmarked Columbus-class freighter Althea clearing lunar orbit for Colony SF at Side 4. Plausible deniability logged for Senior Director Dietrich Lindemann."
+        content: "Unmarked Columbus-class freighter Althea, clearing lunar orbit for Colony SF at Side 4. Plausible deniability logged against Senior Director Dietrich Lindemann."
       }
     ],
     paragraphs: [
@@ -297,16 +296,16 @@ export const CHAPTER_REGISTRY = deepFreeze([
       "It was an encrypted line using the prototype's original operating code. Only the Vist Foundation had that key.",
       "[SOURCE: VIST FOUNDATION // SPECIAL OPS]\n[RECIPIENT: LT. SOREN HAYES]\n[LOCATION: VON BRAUN SECTOR 01]\n\nYOUR TELEMETRY WAS LOGGED.\nANAHEIM INTERNAL DISPOSAL HAS INITIATED A SECTOR SWEEP.\nYOU HAVE 48 HOURS BEFORE YOUR SAFE HOUSE IS FLAGGED.\n\nTERMS:\nPILOT FOR US IN OUR SCHEDULED TRIAL.\nIN EXCHANGE: THE SOREN HAYES FILE WILL BE PURGED FROM ANAHEIM REGISTRIES.\nCLEAN IDENTITY GRANTED.\n\nREPORT TO COLONY SF - SIDE 4.\nFREIGHTER 'ALTHEA', BERTH 17, DOCK 04.\nCODE: AE-088-MARIAN.",
       "Marian read it twice.",
-      "The Vist Foundation held the strings on Anaheim's board. If anyone could delete a kill order, it was them. But the reality was colder: Anaheim was already closing in. If she stayed, the Cleaners would raid the estate, and Dietrich and Evelyn would be executed for harboring an unregistered asset.",
-      "She didn't leave a note. If corporate investigators put Lindemann under a lie detector, he needed to be able to state with complete honesty that his daughter had run away and he had no idea where she went.",
+      "The Vist Foundation held the strings on Anaheim's board. If anyone could delete a kill order, it was them. But the arithmetic was cold: Anaheim was already closing in. If she stayed, the Cleaners would raid the estate, and Dietrich and Evelyn would be executed for harboring an unregistered asset.",
+      "She didn't leave a note. If corporate investigators put Lindemann under a lie detector, he needed to be able to say with complete honesty that his daughter had run away and he had no idea where she went.",
       "At midnight, she packed Hayes's old flight suit into a canvas bag, slipped through the service door, and vanished into the lunar city.",
       "Four hours later, she reached the outer commercial docks.",
       "Tied to Berth 17 was the Althea, a scarred, unmarked Columbus-class freighter. At the foot of the ramp, a purser was checking a data pad.",
       "Marian walked up and held out the clearance key. \"Transfer. Code AE-088-MARIAN.\"",
-      "The tablet chimed green. The purser gave her a quick look—taking in the plain jacket, the duffel bag, and the calm way she stood—then pointed with a thumb.",
+      "The tablet chimed green. The purser gave her a quick look, taking in the plain jacket, the duffel bag, and the calm way she stood, then pointed with a thumb.",
       "\"Deck three, cabin six. We clear lunar orbit in twenty minutes. Keep your hatch shut during burn.\"",
-      "\"Right,\" Marian said.",
-      "She walked up the ramp, her boots clicking against the steel mesh. She didn't know what kind of machine Vist had waiting for her at Side 4, or what operational role they expected her to fill in the coming conflict. But for the first time in six years, she wasn't hiding behind an old man's desk.",
+      "\"Baik,\" Marian said. The purser didn't blink.",
+      "She walked up the ramp, her boots clicking against the steel mesh. She didn't know what kind of machine Vist had waiting for her at Side 4, or what operational role they expected her to fill in the coming conflict. What she knew was that she had stopped hiding behind an old man's desk.",
       "The pressure door sealed behind her, and the engines began to hum."
     ]
   }

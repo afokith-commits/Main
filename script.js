@@ -99,15 +99,16 @@ class CockpitAppController {
       position: fixed; inset: 0; background: rgba(5,7,10,0.88);
       backdrop-filter: blur(8px); z-index: 99999;
       display: flex; align-items: center; justify-content: center;
+      padding: 1rem; box-sizing: border-box; overflow-y: auto;
       font-family: var(--font-mono); transition: opacity 0.4s ease;
     `;
     gate.innerHTML = `
-      <div style="background: rgba(14,18,27,0.96); border: 2px solid var(--harmonic-accent); padding: 24px; text-align: center; max-width: 400px; box-shadow: 0 0 30px var(--harmonic-glow);">
+      <div style="background: rgba(14,18,27,0.96); border: 2px solid var(--harmonic-accent); padding: clamp(16px, 5vw, 24px); text-align: center; width: calc(100% - 2rem); max-width: 400px; box-sizing: border-box; box-shadow: 0 0 30px var(--harmonic-glow);">
         <div style="font-size: 10px; color: var(--color-beta); margin-bottom: 8px; font-weight: 700;">⚠ NEURAL AUDIO RELAY DISCONNECTED</div>
         <div style="font-family: var(--font-display); font-size: 15px; color: #fff; margin-bottom: 8px;">PROTOTYPE UNIT-03 COCKPIT</div>
         <p style="font-family: var(--font-serif); font-size: 13px; color: var(--text-secondary); margin-bottom: 18px;">Initialize telemetry, calibrate oscilloscope, and spool diegetic audio.</p>
-        <button id="ignition-btn" style="background: var(--harmonic-dim); border: 1px solid var(--harmonic-accent); color: #fff; font-family: var(--font-mono); font-size: 11px; font-weight: 700; padding: 10px 18px; cursor: pointer;">
-          ⏵ ENGAGE COCKPIT & BGM
+        <button id="ignition-btn" style="background: var(--harmonic-dim); border: 1px solid var(--harmonic-accent); color: #fff; font-family: var(--font-mono); font-size: 11px; font-weight: 700; padding: 12px 18px; min-height: 44px; cursor: pointer; touch-action: manipulation;">
+          ⏵ ENGAGE COCKPIT &amp; BGM
         </button>
       </div>
     `;
@@ -135,11 +136,51 @@ class CockpitAppController {
     this.startMissionClock();
     this.initYouTubeAudio();
     this.initGMBriefing();
+    this.initMonitorDeck();
     this.bindKeyboardShortcuts();
     this.initIgnitionGate();
 
     // 2. Hydrate Default Chapter (Chapter 1: The Water and the Salt)
     this.loadChapter(this.currentChapterId);
+  }
+
+  /* ==========================================================================
+     AUXILIARY OPTICAL FEED DECK (MINIMIZE / EXPAND)
+     Starts collapsed on phones so it never masks the prose column, and
+     re-evaluates on rotation / viewport change.
+     ========================================================================== */
+  initMonitorDeck() {
+    const monitor = document.getElementById('yt-monitor-deck');
+    const toggleBtn = document.getElementById('monitor-toggle-btn');
+    if (!monitor || !toggleBtn) return;
+
+    const narrow = window.matchMedia('(max-width: 640px)');
+    // Once the user has made a choice by hand, stop overriding it.
+    let userOverride = false;
+
+    const applyState = (collapsed) => {
+      monitor.classList.toggle('collapsed', collapsed);
+      toggleBtn.textContent = collapsed ? '[EXPAND]' : '[MINIMIZE]';
+      toggleBtn.setAttribute('aria-expanded', String(!collapsed));
+      toggleBtn.setAttribute('aria-controls', 'yt-player-slot');
+    };
+
+    applyState(narrow.matches);
+
+    toggleBtn.addEventListener('click', () => {
+      userOverride = true;
+      applyState(!monitor.classList.contains('collapsed'));
+    });
+
+    const onBreakpointChange = () => {
+      if (!userOverride) applyState(narrow.matches);
+    };
+
+    if (typeof narrow.addEventListener === 'function') {
+      narrow.addEventListener('change', onBreakpointChange);
+    } else if (typeof narrow.addListener === 'function') {
+      narrow.addListener(onBreakpointChange);
+    }
   }
 
   /* ==========================================================================
@@ -283,91 +324,157 @@ class CockpitAppController {
 
   /* ==========================================================================
      FULL-SCALE DIAGNOSTIC OSCILLOSCOPE ENGINE
+     Phone-aware: DPR-capped backing store, ResizeObserver sync, 30fps cap on
+     touch hardware, and full suspend when hidden or scrolled off-screen.
      ========================================================================== */
   initDiagnosticOscilloscope() {
     const canvas = this.dom.scopeCanvas;
     if (!canvas) return;
 
     this.scopeCtx = canvas.getContext('2d');
+    this.scopeRafId = null;
+    this.scopeOnScreen = true;
+    this.scopeLastDraw = 0;
+    this.scopeCssW = 0;
+    this.scopeCssH = 0;
+    this.isCoarsePointer = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
 
-    const handleResize = () => {
+    // 1. High-DPI backing store — DPR capped at 2x to spare phone GPU & battery
+    const resizeCanvas = () => {
       const rect = canvas.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      this.scopeCtx.scale(dpr, dpr);
-    };
+      if (rect.width === 0 || rect.height === 0) return;
 
-    handleResize();
-    window.addEventListener('resize', handleResize);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = Math.round(rect.width * dpr);
+      const h = Math.round(rect.height * dpr);
 
-    const render = () => {
-      this.scopeFrame++;
-      const ctx = this.scopeCtx;
-      const rect = canvas.getBoundingClientRect();
-      const w = rect.width;
-      const h = rect.height;
-      const mid = h / 2;
-
-      ctx.clearRect(0, 0, w, h);
-
-      // 1. Minovsky Reference Baseline (Subtle cyan reference wire)
-      ctx.beginPath();
-      ctx.strokeStyle = 'rgba(78, 240, 196, 0.22)';
-      ctx.lineWidth = 1;
-      ctx.moveTo(0, mid);
-      ctx.lineTo(w, mid);
-      ctx.stroke();
-
-      // 2. Secondary Harmonic Halo Wave
-      ctx.beginPath();
-      ctx.strokeStyle = 'rgba(78, 240, 196, 0.12)';
-      ctx.lineWidth = 1.2;
-      for (let x = 0; x < w; x += 4) {
-        const rad = (x / w) * Math.PI * 8 + this.scopeFrame * 0.025;
-        const y = mid + Math.sin(rad * 0.5) * 14 * Math.cos(this.scopeFrame * 0.015);
-        if (x === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-
-      // 3. Primary Harmonic Consciousness Waveform
-      const p = this.currentWavePhysics;
-      const speed = p.speed || 1.0;
-      const carrierFreq = p.carrierFreq || 6;
-      const modFreq = p.modulationFreq || 12;
-      const complexity = p.complexity || 3;
-      const jitterMax = p.jitterAmp || 1.5;
-
-      ctx.beginPath();
-      ctx.strokeStyle = this.scopeColor;
-      ctx.lineWidth = 1.8;
-
-      // Amplitude boosts dynamically when BGM is playing
-      const ampBase = this.isPlaying ? (h * 0.28) : (h * 0.20);
-
-      for (let x = 0; x < w; x += 3) {
-        const norm = x / w;
-        const phase = this.scopeFrame * 0.035 * speed;
-
-        const wave1 = Math.sin(norm * Math.PI * carrierFreq + phase);
-        const wave2 = Math.cos(norm * Math.PI * modFreq - phase * 0.5) * 0.35;
-        const wave3 = Math.sin(norm * Math.PI * 24 + phase * 1.5) * (complexity >= 5 ? 0.22 : 0.06);
-
-        // Micro-jitter reflecting consciousness noise
-        const jitter = (Math.random() - 0.5) * jitterMax;
-
-        const y = mid + (wave1 + wave2 + wave3) * ampBase + jitter;
-
-        if (x === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w;
+        canvas.height = h;
       }
 
-      ctx.stroke();
-      requestAnimationFrame(render);
+      this.scopeCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      this.scopeCssW = rect.width;
+      this.scopeCssH = rect.height;
     };
 
-    requestAnimationFrame(render);
+    resizeCanvas();
+
+    // Container resize (rotation, chrome collapse) — not just window resize
+    if (typeof ResizeObserver !== 'undefined') {
+      this.scopeResizeObserver = new ResizeObserver(resizeCanvas);
+      this.scopeResizeObserver.observe(canvas);
+    } else {
+      window.addEventListener('resize', resizeCanvas);
+    }
+    window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 300));
+
+    // 2. Stop painting when the deck scrolls out of view
+    if (typeof IntersectionObserver !== 'undefined') {
+      this.scopeVisibilityObserver = new IntersectionObserver((entries) => {
+        this.scopeOnScreen = entries.some(e => e.isIntersecting);
+      }, { threshold: 0 });
+      this.scopeVisibilityObserver.observe(canvas);
+    }
+
+    // 3. Suspend the loop entirely when the tab is backgrounded
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) this.stopScopeLoop();
+      else this.startScopeLoop();
+    });
+
+    this.scopeRender = (timestamp) => {
+      this.scopeRafId = null;
+      if (document.hidden) return;
+
+      // Touch hardware renders at ~30fps — halves GPU draw with no visible loss
+      const minDelta = this.isCoarsePointer ? 32 : 16;
+      if (this.scopeOnScreen && timestamp - this.scopeLastDraw >= minDelta) {
+        this.scopeLastDraw = timestamp;
+        this.drawScopeFrame();
+      }
+
+      this.scopeRafId = requestAnimationFrame(this.scopeRender);
+    };
+
+    this.startScopeLoop();
+  }
+
+  startScopeLoop() {
+    if (this.scopeRafId !== null || !this.scopeRender) return;
+    this.scopeRafId = requestAnimationFrame(this.scopeRender);
+  }
+
+  stopScopeLoop() {
+    if (this.scopeRafId === null) return;
+    cancelAnimationFrame(this.scopeRafId);
+    this.scopeRafId = null;
+  }
+
+  drawScopeFrame() {
+    const ctx = this.scopeCtx;
+    const w = this.scopeCssW;
+    const h = this.scopeCssH;
+    if (!ctx || w === 0 || h === 0) return;
+
+    this.scopeFrame++;
+    const mid = h / 2;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // 1. Minovsky Reference Baseline (Subtle cyan reference wire)
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(78, 240, 196, 0.22)';
+    ctx.lineWidth = 1;
+    ctx.moveTo(0, mid);
+    ctx.lineTo(w, mid);
+    ctx.stroke();
+
+    // 2. Secondary Harmonic Halo Wave
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(78, 240, 196, 0.12)';
+    ctx.lineWidth = 1.2;
+    for (let x = 0; x < w; x += 4) {
+      const rad = (x / w) * Math.PI * 8 + this.scopeFrame * 0.025;
+      const y = mid + Math.sin(rad * 0.5) * 14 * Math.cos(this.scopeFrame * 0.015);
+      if (x === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // 3. Primary Harmonic Consciousness Waveform
+    const p = this.currentWavePhysics;
+    const speed = p.speed || 1.0;
+    const carrierFreq = p.carrierFreq || 6;
+    const modFreq = p.modulationFreq || 12;
+    const complexity = p.complexity || 3;
+    const jitterMax = p.jitterAmp || 1.5;
+
+    ctx.beginPath();
+    ctx.strokeStyle = this.scopeColor;
+    ctx.lineWidth = 1.8;
+
+    // Amplitude boosts dynamically when BGM is playing
+    const ampBase = this.isPlaying ? (h * 0.28) : (h * 0.20);
+
+    for (let x = 0; x < w; x += 3) {
+      const norm = x / w;
+      const phase = this.scopeFrame * 0.035 * speed;
+
+      const wave1 = Math.sin(norm * Math.PI * carrierFreq + phase);
+      const wave2 = Math.cos(norm * Math.PI * modFreq - phase * 0.5) * 0.35;
+      const wave3 = Math.sin(norm * Math.PI * 24 + phase * 1.5) * (complexity >= 5 ? 0.22 : 0.06);
+
+      // Micro-jitter reflecting consciousness noise
+      const jitter = (Math.random() - 0.5) * jitterMax;
+
+      const y = mid + (wave1 + wave2 + wave3) * ampBase + jitter;
+
+      if (x === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+
+    ctx.stroke();
   }
 
   /* ==========================================================================
@@ -385,10 +492,6 @@ class CockpitAppController {
       const initialChapter = getChapter(1);
       const videoId = initialChapter.soundtrack.youtubeId;
 
-      const originHost = (window.location.origin && window.location.origin !== 'null')
-        ? window.location.origin
-        : undefined;
-
       this.ytPlayer = new YT.Player('yt-player-slot', {
         height: '10',
         width: '10',
@@ -399,7 +502,10 @@ class CockpitAppController {
           loop: 1,
           playlist: videoId,
           enablejsapi: 1,
-          origin: originHost
+          // The YT iframe posts back to THIS origin. Passing the page origin
+          // is what lets the API bridge work over http:// (LAN testing) and
+          // file://; without it the iframe rejects every postMessage.
+          origin: window.location.origin !== 'null' ? window.location.origin : undefined
         },
         events: {
           onReady: () => {

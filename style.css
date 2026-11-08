@@ -107,10 +107,16 @@ html {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Prevent iOS Safari from inflating prose in landscape / Smart View */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* Keep anchor jumps clear of the sticky telemetry strip */
+  scroll-padding-top: calc(var(--header-height) + 16px);
 }
 
 body {
   min-height: 100vh;
+  min-height: 100svh; /* Dynamic viewport: survives mobile browser chrome */
   font-family: var(--font-mono);
   background-color: var(--bg-cockpit);
   overflow-x: hidden;
@@ -126,6 +132,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: 100svh;
   position: relative;
   z-index: 2;
 }
@@ -282,6 +289,23 @@ body {
   box-shadow: 0 0 10px var(--harmonic-glow);
 }
 
+/* Keyboard focus ring — the cockpit chrome is dense, so the ring must pop */
+.hud-pill-btn:focus-visible,
+.tape-btn:focus-visible,
+.monitor-btn:focus-visible,
+.pager-btn:focus-visible {
+  outline: 2px solid var(--harmonic-accent);
+  outline-offset: 2px;
+}
+
+/* Remove the legacy 300ms tap delay on touch hardware */
+.hud-pill-btn,
+.tape-btn,
+.monitor-btn,
+.pager-btn {
+  touch-action: manipulation;
+}
+
 /* --------------------------------------------------------------------------
    4. COLLAPSIBLE GM DIRECTIVE SLIDE-OVER
    ----------------------------------------------------------------------- */
@@ -291,13 +315,14 @@ body {
   max-height: 0;
   overflow: hidden;
   overflow-y: auto;
+  overscroll-behavior: contain;
   opacity: 1;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
   transition: max-height 0.4s var(--ease-cockpit), opacity 0.3s ease;
 }
 
 #gm-briefing-drawer.open {
-  max-height: 380px;
+  max-height: min(380px, 75vh);
   opacity: 1;
 }
 
@@ -535,6 +560,7 @@ body {
   position: relative;
   text-align: justify;
   text-justify: inter-word;
+  hyphens: auto; /* Kills rivers in justified columns on wide screens */
   transition: opacity 0.3s ease;
 }
 
@@ -851,46 +877,83 @@ body {
   #cockpit-header .hud-group.center {
     display: none; /* Sembunyikan track audio di header */
   }
+
+  /* Auxiliary feed menyempit sebelum mulai menutupi kolom bacaan */
+  #yt-monitor-deck {
+    width: 220px;
+  }
+
+  #yt-monitor-deck .monitor-screen-wrapper {
+    height: 124px;
+  }
 }
 
 /* Mobile Screens (<= 640px) */
 @media (max-width: 640px) {
   /* --- 1. Top HUD Strip Compact Mode --- */
   #cockpit-header {
-    padding: 0 0.75rem;
-    height: 42px;
+    height: 46px;
+    padding-left: max(0.6rem, env(safe-area-inset-left, 0px));
+    padding-right: max(0.6rem, env(safe-area-inset-right, 0px));
+    gap: 0.4rem;
+    overflow: hidden;
+  }
+
+  .hud-group {
+    gap: 0.45rem;
+    min-width: 0;
+  }
+
+  .hud-group.left {
+    flex: 0 1 auto; /* Boleh menyusut agar tidak menimpa jam di layar sempit */
+    overflow: hidden;
+  }
+
+  .hud-group.right {
+    flex: 0 0 auto;
   }
 
   /* Sembunyikan elemen dekoratif agar tidak overflow di layar sempit */
   .hud-glitch-badge,
   .hud-separator,
-  #hud-harmonic-chip,
-  #hud-read-time {
+  #hud-read-time,
+  #hud-chapter-loc {
     display: none !important;
   }
 
   .hud-tag.sys-alert {
     font-size: 0.55rem;
     padding: 0.12rem 0.35rem;
+    white-space: nowrap;
   }
 
   .hud-data {
     font-size: 0.65rem;
+    white-space: nowrap;
   }
 
   .hud-clock {
     font-size: 0.65rem;
   }
 
+  .hud-status-chip {
+    font-size: 0.58rem;
+    padding: 0.12rem 0.35rem;
+    white-space: nowrap;
+  }
+
   .hud-pill-btn {
     font-size: 0.6rem;
     padding: 0.25rem 0.5rem;
-    min-height: 32px; /* Lebih mudah ditekan */
+    min-height: 36px; /* Target sentuh yang layak di HP */
   }
 
   /* --- 2. Reading Stage & Typography --- */
   #reading-stage {
-    padding: 1.25rem 1rem calc(7rem + env(safe-area-inset-bottom, 0px)) 1rem;
+    padding-top: 1.1rem;
+    padding-right: max(0.9rem, env(safe-area-inset-right, 0px));
+    padding-bottom: calc(7.5rem + env(safe-area-inset-bottom, 0px));
+    padding-left: max(0.9rem, env(safe-area-inset-left, 0px));
     max-width: 100%;
   }
 
@@ -899,26 +962,34 @@ body {
     padding-bottom: 1.2rem;
   }
 
+  .masthead-pre {
+    flex-wrap: wrap;
+    row-gap: 0.35rem;
+  }
+
   .chapter-number-display {
     font-size: 0.7rem;
   }
 
   .chapter-title-display {
-    font-size: 1.65rem; /* Ukuran proporsional untuk judul panjang */
+    font-size: clamp(1.45rem, 6.2vw, 1.9rem); /* Skala otomatis untuk judul panjang */
     line-height: 1.25;
+    text-wrap: balance;
   }
 
   .chapter-theater-tag {
     font-size: 0.65rem;
+    line-height: 1.5;
   }
 
   /* Teks bacaan: Left-aligned agar tidak ada celah spasi bolong */
   .prose-paragraph {
-    font-size: 1.05rem;
-    line-height: 1.75;
+    font-size: 1.06rem;
+    line-height: 1.72;
     text-align: left;
     text-justify: auto;
-    margin-bottom: 1.5rem;
+    hyphens: none;
+    margin-bottom: 1.4rem;
   }
 
   /* Drop-cap proporsional di HP */
@@ -931,8 +1002,8 @@ body {
 
   /* Anotasi sensoris bawah sadar */
   .inline-echo {
-    margin: 1.6rem 0;
-    padding: 0.85rem 1rem;
+    margin: 1.5rem 0;
+    padding: 0.85rem 0.9rem;
   }
 
   .echo-tag {
@@ -940,8 +1011,14 @@ body {
   }
 
   .echo-body {
-    font-size: 0.92rem;
-    line-height: 1.5;
+    font-size: 0.94rem;
+    line-height: 1.55;
+  }
+
+  .scene-break {
+    margin: 2.5rem 0;
+    font-size: 0.95rem;
+    letter-spacing: 0.35em;
   }
 
   /* --- 3. Compact Diagnostic Oscilloscope --- */
@@ -955,7 +1032,7 @@ body {
   }
 
   .canvas-wrapper {
-    height: 80px; /* Lebih pendek agar tidak makan tempat */
+    height: 88px; /* Lebih pendek agar tidak makan tempat */
   }
 
   .scope-metrics {
@@ -993,45 +1070,146 @@ body {
 
   .pager-btn {
     width: 100%;
+    min-height: 48px; /* Area sentuh jempol nyaman */
     text-align: center;
-    padding: 0.75rem 1rem; /* Area sentuh jempol nyaman (44px) */
+    padding: 0.75rem 1rem;
     font-size: 0.8rem;
   }
 
   /* --- 5. Floating Cockpit Controls (Bottom Bar) --- */
   #floating-tape-deck {
-    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
-    right: 0.75rem;
-    left: 0.75rem; /* Membentang rapi di bagian bawah */
+    bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+    left: max(0.5rem, env(safe-area-inset-left, 0px));
+    right: max(0.5rem, env(safe-area-inset-right, 0px));
     width: auto;
     max-width: none;
     justify-content: space-between;
-    padding: 0.5rem 0.85rem;
+    padding: 0.45rem 0.7rem;
+    gap: 0.6rem;
   }
 
   .tape-info {
-    max-width: 160px;
+    max-width: 46vw;
+    min-width: 0;
   }
 
   .tape-track {
     font-size: 0.68rem;
   }
 
+  .tape-btn {
+    min-height: 40px;
+    padding: 0.35rem 0.7rem;
+  }
+
   /* Monitor YouTube Mini di HP */
   #yt-monitor-deck {
-    bottom: calc(3.8rem + env(safe-area-inset-bottom, 0px));
-    right: 0.75rem;
-    left: 0.75rem;
+    bottom: calc(3.9rem + env(safe-area-inset-bottom, 0px));
+    left: max(0.5rem, env(safe-area-inset-left, 0px));
+    right: max(0.5rem, env(safe-area-inset-right, 0px));
     width: auto;
-    max-width: 280px;
+    max-width: 220px;
     margin-left: auto; /* Rata kanan dengan batas lebar wajar */
   }
 
   .monitor-screen-wrapper {
-    height: 140px;
+    height: 124px;
+  }
+
+  .monitor-btn {
+    min-height: 30px;
+    padding: 2px 6px;
   }
 
   #yt-monitor-deck.collapsed {
     width: auto;
   }
+
+  /* --- 6. GM Briefing Drawer --- */
+  #gm-briefing-drawer.open {
+    max-height: 72vh;
+  }
+
+  .briefing-inner {
+    padding: 1rem 0.9rem 1.25rem;
+  }
+
+  .briefing-top {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .briefing-tag-group {
+    flex-wrap: wrap;
+    row-gap: 0.3rem;
+  }
+
+  .briefing-text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
 }
+
+/* Small Phones (<= 480px) */
+@media (max-width: 480px) {
+  .hud-tag.sys-alert,
+  #hud-harmonic-chip {
+    display: none !important;
+  }
+
+  .hud-clock {
+    display: none; /* Prioritaskan tombol GM pada layar sangat sempit */
+  }
+
+  #reading-stage {
+    padding-top: 0.9rem;
+  }
+}
+
+/* Landscape Phones (tinggi layar dibatasi) */
+@media (orientation: landscape) and (max-height: 520px) {
+  #cockpit-header {
+    height: 40px;
+  }
+
+  #reading-stage {
+    padding-top: 0.9rem;
+    padding-bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .chapter-masthead {
+    margin-bottom: 1.4rem;
+    padding-bottom: 0.9rem;
+  }
+
+  .oscilloscope-section {
+    margin-bottom: 1.2rem;
+  }
+
+  .canvas-wrapper {
+    height: 64px;
+  }
+
+  .tape-label-mini {
+    display: none;
+  }
+
+  #yt-monitor-deck {
+    max-width: 180px;
+  }
+
+  .monitor-screen-wrapper {
+    height: 100px;
+  }
+}
+
+/* Touch Devices: buang glass/blur compositing yang mahal demi baterai & fps */
+@media (hover: none) and (pointer: coarse) {
+  #cockpit-header,
+  #floating-tape-deck,
+  #yt-monitor-deck {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+

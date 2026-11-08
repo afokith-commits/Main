@@ -6,6 +6,13 @@
   <meta name="description" content="PSYCHO-MONITOR MK-03 // Tri-Harmonic Resonance [Subject 088: Marian Lindemann] — In-cockpit narrative reader for Universal Century Gundam x LANCER setting.">
   <meta name="theme-color" content="#05070a">
 
+  <!-- Home-screen / standalone viewing on iOS & Android -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PSYCHO-MONITOR">
+  <meta name="color-scheme" content="dark">
+
   <title>PSYCHO-MONITOR MK-03 // SUBJECT 088</title>
 
   <!-- Typography: Tactical Monospace, Melancholic Editorial Serif & Classical Display -->
@@ -203,18 +210,33 @@
     </div>
   </aside>
 
-  <!-- Script Ringan untuk Toggle Minimize/Expand Monitor -->
+  <!-- Script Ringan untuk Toggle Minimize/Expand Monitor (dihandle di script.js) -->
+
+  <!-- Static fallback: surfaced when the ES module graph cannot boot (e.g. file:// on a phone) -->
+  <div id="boot-fallback" role="alert"
+       style="position: fixed; inset: 0; z-index: 99999; display: none; align-items: center; justify-content: center; padding: 1.5rem; background: #05070a; font-family: 'JetBrains Mono', monospace; text-align: center;">
+    <div style="max-width: 420px;">
+      <p style="color: #e5a962; font-size: 11px; font-weight: 700; letter-spacing: 0.15em; margin-bottom: 0.75rem;">COCKPIT BOOT SEQUENCE FAILED</p>
+      <p style="color: #c2cddb; font-size: 13px; line-height: 1.7;">
+        The narrative engine loads as ES modules and cannot run from the local
+        filesystem. Serve this folder over HTTP (or open the deployed Pages URL)
+        to boot the cockpit.
+      </p>
+    </div>
+  </div>
+
+  <noscript>
+    <div style="position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 1.5rem; background: #05070a; font-family: 'JetBrains Mono', monospace; text-align: center; color: #c2cddb; font-size: 13px;">
+      This cockpit requires JavaScript to decrypt the log.
+    </div>
+  </noscript>
+
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const monitor = document.getElementById('yt-monitor-deck');
-      const toggleBtn = document.getElementById('monitor-toggle-btn');
-      if (monitor && toggleBtn) {
-        toggleBtn.addEventListener('click', () => {
-          const isCollapsed = monitor.classList.toggle('collapsed');
-          toggleBtn.textContent = isCollapsed ? '[EXPAND]' : '[MINIMIZE]';
-        });
-      }
-    });
+    // Classic (non-module) watchdog: if the module graph never boots, reveal the fallback.
+    setTimeout(function () {
+      var fb = document.getElementById('boot-fallback');
+      if (fb && !window.PMApp) fb.style.display = 'flex';
+    }, 2500);
   </script>
 
   <!-- Application Modules in Dependency Order -->

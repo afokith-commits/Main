@@ -241,6 +241,32 @@ body.switching #cockpit-viewport {
 }
 
 /* --------------------------------------------------------------------------
+   8. SMALL-SCREEN READABILITY PASS
+   On a phone the viewport is narrow AND tall, so the radial vignette bites
+   much harder than on a desktop monitor and eats contrast at the text edges.
+   ----------------------------------------------------------------------- */
+@media (max-width: 640px) {
+  .crt-vignette {
+    background: radial-gradient(
+      circle at center,
+      transparent 72%,
+      rgba(4, 5, 8, 0.32) 92%,
+      rgba(2, 3, 5, 0.6) 100%
+    );
+  }
+
+  /* Scanlines at 1px on a 3x panel shimmer — thin them out instead */
+  .crt-scanlines {
+    opacity: 0.35;
+  }
+
+  /* The reading column must never be clipped by the fixed bottom consoles */
+  #reading-stage {
+    overflow-x: visible;
+  }
+}
+
+/* --------------------------------------------------------------------------
    7. TOUCH-SCREEN & MOBILE PERFORMANCE OPTIMIZATION
    ----------------------------------------------------------------------- */
 @media (hover: none) and (pointer: coarse) {
