@@ -147,6 +147,7 @@ class CockpitAppController {
      ========================================================================== */
   requestPlayback() {
     this.playbackRequested = true;
+    this.armUserGestureUnlock();
 
     if (this.ytReady && this.ytPlayer) {
       this.startPlayback();
@@ -159,37 +160,79 @@ class CockpitAppController {
       if (this.playbackRequested && this.ytReady && this.ytPlayer) {
         this.startPlayback();
       }
-    }, 350);
+    }, 300);
+  }
+
+  /**
+   * Binds a user gesture listener across the window so that any
+   * user touch/click on mobile instantly unlocks or unmutes audio output
+   * if autoplay was deferred or muted by browser policy.
+   */
+  armUserGestureUnlock() {
+    if (this.gestureUnlockBound) return;
+    this.gestureUnlockBound = true;
+
+    const unlock = () => {
+      if (this.playbackRequested && this.ytReady && this.ytPlayer) {
+        try {
+          if (this.startedMuted || !this.isPlaying) {
+            this.ytPlayer.unMute();
+            this.ytPlayer.setVolume(80);
+            this.ytPlayer.playVideo();
+            this.startedMuted = false;
+          }
+        } catch (e) {
+          // ignore
+        }
+      }
+      window.removeEventListener('pointerdown', unlock);
+      window.removeEventListener('touchstart', unlock);
+      window.removeEventListener('click', unlock);
+      this.gestureUnlockBound = false;
+    };
+
+    window.addEventListener('pointerdown', unlock, { passive: true });
+    window.addEventListener('touchstart', unlock, { passive: true });
+    window.addEventListener('click', unlock, { passive: true });
   }
 
   /**
    * Starts the diegetic track.
-   * iOS/Safari blocks unmuted playback without a live user gesture, and a
-   * deferred start (tap landed before the API booted) has no gesture left.
-   * Start muted there, then unmute once the stream is actually running.
+   * Handles strict mobile browser autoplay restrictions (iOS Safari / Mobile Chrome)
+   * by trying unmuted playback first, and falling back to muted playback with
+   * user gesture unlock when unmuted playback is blocked.
    */
   startPlayback() {
     if (!this.ytReady || !this.ytPlayer) return;
 
-    if (this.isIOS && !this.startedMuted) {
-      this.startedMuted = true;
-      try {
-        this.ytPlayer.mute();
-        this.ytPlayer.playVideo();
-        return;
-      } catch (e) {
-        // fall through to the plain path
-      }
+    try {
+      this.ytPlayer.unMute();
+      this.ytPlayer.setVolume(80);
+      this.ytPlayer.playVideo();
+    } catch (e) {
+      // Fallback path if browser rejects unmuted direct call
     }
 
-    this.ytPlayer.playVideo();
+    // If playback did not start (e.g. mobile gesture race), attempt muted start
+    // so stream begins buffering, then unmute on user interaction.
+    setTimeout(() => {
+      if (this.playbackRequested && !this.isPlaying && this.ytPlayer) {
+        try {
+          this.startedMuted = true;
+          this.ytPlayer.mute();
+          this.ytPlayer.playVideo();
+        } catch (err) {
+          // ignore
+        }
+      }
+    }, 150);
   }
 
   /**
-   * Restores audible output after an iOS muted start.
+   * Restores audible output after a muted start.
    */
   unmuteIfNeeded() {
-    if (!this.isIOS || !this.startedMuted || !this.ytPlayer) return;
+    if (!this.startedMuted || !this.ytPlayer) return;
     this.startedMuted = false;
     try {
       this.ytPlayer.unMute();
@@ -552,36 +595,32 @@ class CockpitAppController {
      DIEGETIC RETRO TAPE DECK CONTROLLER (YOUTUBE API ENGINE)
      ========================================================================== */
   initYouTubeAudio() {
-    if (!window.YT) {
-      const tag = document.createElement('script');
-      tag.src = 'https://www.youtube.com/iframe_api';
-      const first = document.getElementsByTagName('script')[0];
-      first.parentNode.insertBefore(tag, first);
-    }
-
-    window.onYouTubeIframeAPIReady = () => {
+    const setupPlayer = () => {
+      if (this.ytPlayer) return;
       const initialChapter = getChapter(1);
       const videoId = initialChapter.soundtrack.youtubeId;
 
       this.ytPlayer = new YT.Player('yt-player-slot', {
-        height: '10',
-        width: '10',
+        height: '100%',
+        width: '100%',
         videoId: videoId,
         playerVars: {
-          autoplay: 0,
+          autoplay: 1,
+          playsinline: 1,
+          playsInline: 1,
           controls: 0,
           loop: 1,
           playlist: videoId,
           enablejsapi: 1,
-          // The YT iframe posts back to THIS origin. Passing the page origin
-          // is what lets the API bridge work over http:// (LAN testing) and
-          // file://; without it the iframe rejects every postMessage.
-          origin: window.location.origin !== 'null' ? window.location.origin : undefined
+          origin: (window.location.origin && window.location.origin !== 'null') ? window.location.origin : undefined
         },
         events: {
           onReady: () => {
             this.ytReady = true;
-            this.ytPlayer.setVolume(80);
+            try {
+              this.ytPlayer.setVolume(80);
+            } catch (e) {}
+
             if (this.pendingTrackId) {
               this.loadTrackIntoPlayer(this.pendingTrackId);
               this.pendingTrackId = null;
@@ -595,18 +634,32 @@ class CockpitAppController {
             if (event.data === YT.PlayerState.PLAYING) {
               this.isPlaying = true;
               this.updateTapeDeckUI(true);
-              // Stream is live: it's safe to lift the iOS mute.
+              // Stream is live: safe to lift any fallback mute.
               this.unmuteIfNeeded();
             } else if (event.data === YT.PlayerState.PAUSED) {
               this.isPlaying = false;
               this.updateTapeDeckUI(false);
             } else if (event.data === YT.PlayerState.ENDED) {
-              this.ytPlayer.playVideo();
+              try {
+                this.ytPlayer.playVideo();
+              } catch (e) {}
             }
           }
         }
       });
     };
+
+    if (window.YT && window.YT.Player) {
+      setupPlayer();
+    } else {
+      window.onYouTubeIframeAPIReady = setupPlayer;
+      if (!window.YT) {
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        const first = document.getElementsByTagName('script')[0];
+        first.parentNode?.insertBefore(tag, first);
+      }
+    }
 
     if (this.dom.tapePlayBtn) {
       this.dom.tapePlayBtn.addEventListener('click', () => {
@@ -623,6 +676,7 @@ class CockpitAppController {
       this.ytPlayer.pauseVideo();
     } else {
       // Manual tap IS a user gesture — safe to unmute straight away.
+      this.playbackRequested = true;
       this.startedMuted = false;
       try {
         this.ytPlayer.unMute();
@@ -648,8 +702,12 @@ class CockpitAppController {
   loadTrackIntoPlayer(videoId) {
     if (!this.ytPlayer || !this.ytPlayer.loadVideoById) return;
 
-    if (this.isPlaying) {
-      this.ytPlayer.loadVideoById({ videoId, suggestedQuality: 'small' });
+    if (this.isPlaying || this.playbackRequested) {
+      try {
+        this.ytPlayer.loadVideoById({ videoId, suggestedQuality: 'small' });
+      } catch (e) {
+        if (this.ytPlayer.cueVideoById) this.ytPlayer.cueVideoById(videoId);
+      }
     } else {
       this.ytPlayer.cueVideoById(videoId);
     }

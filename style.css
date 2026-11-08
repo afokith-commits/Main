@@ -776,7 +776,7 @@ body {
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.85), 0 0 16px var(--harmonic-dim);
   z-index: 500;
   overflow: hidden;
-  transition: width 0.3s var(--ease-cockpit), border-color var(--ease-cockpit);
+  transition: width 0.3s var(--ease-cockpit), max-height 0.3s var(--ease-cockpit), border-color var(--ease-cockpit);
 }
 
 .monitor-header {
@@ -860,24 +860,24 @@ body {
 }
 
 #yt-monitor-deck.collapsed {
-  width: 200px;
+  width: 256px;
+  max-height: 28px;
+  overflow: hidden;
 }
 
 /* Kondisi saat di-minimize.
-   CATATAN: JANGAN pakai display:none di sini. YouTube IFrame API butuh
-   iframe dengan ukuran non-zero untuk terus memutar; display:none membuat
-   iframe jadi 0x0 dan playback mati (terlihat di HP, deck default collapsed).
-   Wrapper diklip tinggi 0 + opacity 0, tapi iframe sendiri tetap 144px. */
+   CATATAN: Iframe dan wrapper dipertahankan pada ukuran layout non-zero (144px / 124px)
+   agar browser mobile (iOS Safari & Chrome Android) tidak mematikan/suspensi playback media iframe.
+   Deck disembunyikan secara visual dengan max-height & opacity. */
 #yt-monitor-deck.collapsed .monitor-screen-wrapper {
-  height: 0;
+  height: 144px;
   opacity: 0;
-  overflow: hidden;
   pointer-events: none;
 }
 
 #yt-monitor-deck.collapsed .monitor-screen-wrapper iframe {
   height: 144px !important;
-  width: 256px !important;
+  width: 100% !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -1135,6 +1135,11 @@ body {
 
   #yt-monitor-deck.collapsed {
     width: auto;
+    max-height: 28px;
+  }
+
+  #yt-monitor-deck.collapsed .monitor-screen-wrapper {
+    height: 124px;
   }
 
   /* --- 6. GM Briefing Drawer --- */
