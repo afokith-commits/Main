@@ -836,6 +836,7 @@ body {
 
 /* Pastikan IFrame mengisi wadah dan bisa diklik tombol iklannya */
 .monitor-screen-wrapper iframe,
+#yt-player-slot,
 #yt-player-slot iframe {
   width: 100% !important;
   height: 100% !important;

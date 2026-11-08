@@ -125,6 +125,16 @@ class CockpitAppController {
     document.getElementById('ignition-btn')?.addEventListener('click', () => {
       this.isEngaged = true; // <-- Flag that cockpit is active
       sound.ensureContext();
+
+      // On mobile engagement, expand monitor deck so user sees live BGM feed & status
+      const monitor = document.getElementById('yt-monitor-deck');
+      const toggleBtn = document.getElementById('monitor-toggle-btn');
+      if (monitor && toggleBtn) {
+        monitor.classList.remove('collapsed');
+        toggleBtn.textContent = '[MINIMIZE]';
+        toggleBtn.setAttribute('aria-expanded', 'true');
+      }
+
       this.requestPlayback();
 
       // START DECRYPTING NOW THAT COCKPIT IS ENGAGED:
@@ -176,9 +186,10 @@ class CockpitAppController {
       if (this.playbackRequested && this.ytReady && this.ytPlayer) {
         try {
           if (this.startedMuted || !this.isPlaying) {
+            this.ytPlayer.mute();
+            this.ytPlayer.playVideo();
             this.ytPlayer.unMute();
             this.ytPlayer.setVolume(80);
-            this.ytPlayer.playVideo();
             this.startedMuted = false;
           }
         } catch (e) {
@@ -198,34 +209,26 @@ class CockpitAppController {
 
   /**
    * Starts the diegetic track.
-   * Handles strict mobile browser autoplay restrictions (iOS Safari / Mobile Chrome)
-   * by trying unmuted playback first, and falling back to muted playback with
-   * user gesture unlock when unmuted playback is blocked.
+   * Mobile Autoplay Strategy:
+   * Initiates play while muted to bypass strict mobile browser autoplay blocks (iOS & Android Chrome),
+   * then immediately calls unMute() within gesture context, falling back to gesture unlock on first touch.
    */
   startPlayback() {
     if (!this.ytReady || !this.ytPlayer) return;
 
     try {
+      this.startedMuted = true;
+      this.ytPlayer.mute();
+      this.ytPlayer.playVideo();
+
+      // Attempt immediate unmute if gesture/document activation permits
       this.ytPlayer.unMute();
       this.ytPlayer.setVolume(80);
-      this.ytPlayer.playVideo();
+      this.startedMuted = false;
     } catch (e) {
-      // Fallback path if browser rejects unmuted direct call
+      // If unMute failed due to gesture policy, startedMuted remains true,
+      // and armUserGestureUnlock listener will unmute on the user's first touch/scroll.
     }
-
-    // If playback did not start (e.g. mobile gesture race), attempt muted start
-    // so stream begins buffering, then unmute on user interaction.
-    setTimeout(() => {
-      if (this.playbackRequested && !this.isPlaying && this.ytPlayer) {
-        try {
-          this.startedMuted = true;
-          this.ytPlayer.mute();
-          this.ytPlayer.playVideo();
-        } catch (err) {
-          // ignore
-        }
-      }
-    }, 150);
   }
 
   /**
