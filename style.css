@@ -859,13 +859,25 @@ body {
   box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.7);
 }
 
-/* Kondisi saat di-minimize */
 #yt-monitor-deck.collapsed {
   width: 200px;
 }
 
+/* Kondisi saat di-minimize.
+   CATATAN: JANGAN pakai display:none di sini. YouTube IFrame API butuh
+   iframe dengan ukuran non-zero untuk terus memutar; display:none membuat
+   iframe jadi 0x0 dan playback mati (terlihat di HP, deck default collapsed).
+   Wrapper diklip tinggi 0 + opacity 0, tapi iframe sendiri tetap 144px. */
 #yt-monitor-deck.collapsed .monitor-screen-wrapper {
-  display: none;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+#yt-monitor-deck.collapsed .monitor-screen-wrapper iframe {
+  height: 144px !important;
+  width: 256px !important;
 }
 
 /* --------------------------------------------------------------------------

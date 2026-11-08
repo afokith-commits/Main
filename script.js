@@ -10,6 +10,7 @@
 import {
   CHAPTER_REGISTRY,
   HARMONIC_PROFILES,
+  CANON,
   getChapter,
   calculateReadingTime
 } from './data.js';
@@ -32,6 +33,13 @@ class CockpitAppController {
     this.ytReady = false;
     this.isPlaying = false;
     this.pendingTrackId = null;
+    // Set when the user asks for playback; may precede ytReady.
+    this.playbackRequested = false;
+    this.playbackRetryTimer = null;
+    // iOS Safari refuses to autoplay an unmuted iframe outside a user gesture.
+    this.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    this.startedMuted = false;
 
     // Full-Scale Diagnostic Oscilloscope State
     this.scopeCanvas = null;
@@ -70,6 +78,7 @@ class CockpitAppController {
       // GM Drawer
       gmDrawer: document.getElementById('gm-briefing-drawer'),
       gmCloseBtn: document.getElementById('gm-drawer-close'),
+      briefingBody: document.getElementById('briefing-body'),
 
       // Reading Stage
       stage: document.getElementById('reading-stage'),
@@ -116,7 +125,7 @@ class CockpitAppController {
     document.getElementById('ignition-btn')?.addEventListener('click', () => {
       this.isEngaged = true; // <-- Flag that cockpit is active
       sound.ensureContext();
-      if (this.ytReady && this.ytPlayer) this.ytPlayer.playVideo();
+      this.requestPlayback();
 
       // START DECRYPTING NOW THAT COCKPIT IS ENGAGED:
       this.decryptEngine.initObserver();
@@ -126,6 +135,68 @@ class CockpitAppController {
       setTimeout(() => gate.remove(), 400);
     });
 
+  }
+
+  /* ==========================================================================
+     PLAYBACK REQUEST GATE
+     The YouTube IFrame API takes 1-3s to become ready, but the ignition gate
+     is tappable immediately. On mobile that race is usually LOST: the tap
+     lands before ytReady, so the original `if (ytReady) playVideo()` was a
+     no-op and BGM never started.
+     Now the tap records the intent, and onReady honours it.
+     ========================================================================== */
+  requestPlayback() {
+    this.playbackRequested = true;
+
+    if (this.ytReady && this.ytPlayer) {
+      this.startPlayback();
+      return;
+    }
+
+    // Player isn't up yet. Arm a retry: the YT API will call onReady later.
+    clearTimeout(this.playbackRetryTimer);
+    this.playbackRetryTimer = setTimeout(() => {
+      if (this.playbackRequested && this.ytReady && this.ytPlayer) {
+        this.startPlayback();
+      }
+    }, 350);
+  }
+
+  /**
+   * Starts the diegetic track.
+   * iOS/Safari blocks unmuted playback without a live user gesture, and a
+   * deferred start (tap landed before the API booted) has no gesture left.
+   * Start muted there, then unmute once the stream is actually running.
+   */
+  startPlayback() {
+    if (!this.ytReady || !this.ytPlayer) return;
+
+    if (this.isIOS && !this.startedMuted) {
+      this.startedMuted = true;
+      try {
+        this.ytPlayer.mute();
+        this.ytPlayer.playVideo();
+        return;
+      } catch (e) {
+        // fall through to the plain path
+      }
+    }
+
+    this.ytPlayer.playVideo();
+  }
+
+  /**
+   * Restores audible output after an iOS muted start.
+   */
+  unmuteIfNeeded() {
+    if (!this.isIOS || !this.startedMuted || !this.ytPlayer) return;
+    this.startedMuted = false;
+    try {
+      this.ytPlayer.unMute();
+      this.ytPlayer.setVolume(80);
+    } catch (e) {
+      // ignore
+    }
   }
 
   init() {
@@ -515,11 +586,17 @@ class CockpitAppController {
               this.loadTrackIntoPlayer(this.pendingTrackId);
               this.pendingTrackId = null;
             }
+            // Honour a tap that landed BEFORE the API was ready.
+            if (this.playbackRequested) {
+              this.startPlayback();
+            }
           },
           onStateChange: (event) => {
             if (event.data === YT.PlayerState.PLAYING) {
               this.isPlaying = true;
               this.updateTapeDeckUI(true);
+              // Stream is live: it's safe to lift the iOS mute.
+              this.unmuteIfNeeded();
             } else if (event.data === YT.PlayerState.PAUSED) {
               this.isPlaying = false;
               this.updateTapeDeckUI(false);
@@ -545,6 +622,14 @@ class CockpitAppController {
     if (this.isPlaying) {
       this.ytPlayer.pauseVideo();
     } else {
+      // Manual tap IS a user gesture — safe to unmute straight away.
+      this.startedMuted = false;
+      try {
+        this.ytPlayer.unMute();
+        this.ytPlayer.setVolume(80);
+      } catch (e) {
+        // ignore
+      }
       this.ytPlayer.playVideo();
     }
   }
@@ -599,6 +684,17 @@ class CockpitAppController {
      GM BRIEFING DRAWER & KEYBOARD SHORTCUTS
      ========================================================================== */
   initGMBriefing() {
+    // The briefing prose lives in data.js (CANON.briefing) — render it here
+    // so the story has exactly one source of truth.
+    if (this.dom.briefingBody && Array.isArray(CANON.briefing)) {
+      this.dom.briefingBody.innerHTML = CANON.briefing.map((text, i) => {
+        const margin = i < CANON.briefing.length - 1
+          ? 'margin-bottom: 0.85rem;'
+          : 'margin-bottom: 0;';
+        return `<p class="briefing-text" style="${margin}">${text}</p>`;
+      }).join('');
+    }
+
     if (this.dom.gmPillBtn && this.dom.gmDrawer) {
       this.dom.gmPillBtn.addEventListener('click', () => {
         sound.ensureContext();

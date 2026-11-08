@@ -65,7 +65,7 @@ class CockpitAudioSynthesizer {
 
       osc.start(now);
       osc.stop(now + duration + 0.01);
-    } catch {
+    } catch (e) {
       // Audio suppression fallback
     }
   }

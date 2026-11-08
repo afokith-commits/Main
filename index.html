@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="description" content="PSYCHO-MONITOR MK-03 // Tri-Harmonic Resonance [Subject 088: Marian Lindemann] — In-cockpit narrative reader for Universal Century Gundam x LANCER setting.">
+  <meta name="description" content="PSYCHO-MONITOR MK-03 // Tri-Harmonic Resonance [Subject 088: Marianne Lindemann] — In-cockpit narrative reader for Universal Century Gundam x LANCER setting.">
   <meta name="theme-color" content="#05070a">
 
   <!-- Home-screen / standalone viewing on iOS & Android -->
@@ -46,8 +46,8 @@
     <header id="cockpit-header" role="banner">
       <!-- Left: Unit-03 Status & Tri-Harmonic Identity Node -->
       <div class="hud-group left">
-        <span class="hud-tag sys-alert">TESTBED: UNIT-03</span>
-        <span class="hud-glitch-badge">UNSHIELDED PSYCHO-FRAME</span>
+        <span class="hud-tag sys-alert" id="hud-testbed">TESTBED: UNIT-03</span>
+        <span class="hud-glitch-badge" id="hud-frame-badge">UNSHIELDED PSYCHO-FRAME</span>
         <span class="hud-separator" aria-hidden="true">//</span>
         <span id="hud-chapter-year" class="hud-data">U.C. 0093</span>
         <span id="hud-chapter-loc" class="hud-data loc-tag">SUNDA STRAIT</span>
@@ -67,7 +67,7 @@
         <button id="gm-pill-btn" class="hud-pill-btn" type="button" title="Toggle GM Mission Briefing">
           [GM BRIEF]
         </button>
-        <span id="hud-read-time" class="hud-data">EST. READ: 5 MIN</span>
+        <span id="hud-read-time" class="hud-data">EST. READ: 3 MIN</span>
         <span id="hud-clock" class="hud-clock">23:42:19</span>
       </div>
     </header>
@@ -79,24 +79,16 @@
       <div class="briefing-inner">
         <div class="briefing-top">
           <div class="briefing-tag-group">
-            <span class="hud-tag sys-alert">EYES ONLY // GAME MASTER</span>
-            <span class="briefing-tag">TRANSMISSION: ANAHEIM / VIST FOUNDATION CIPHER</span>
+            <span class="hud-tag sys-alert" id="briefing-eyebrow">EYES ONLY // GAME MASTER</span>
+            <span class="briefing-tag" id="briefing-cipher">TRANSMISSION: ANAHEIM / VIST FOUNDATION CIPHER</span>
           </div>
           <button id="gm-drawer-close" class="hud-pill-btn close-btn" type="button" aria-label="Dismiss briefing">
             DISMISS [X]
           </button>
         </div>
 
-        <div class="briefing-body">
-          <p class="briefing-text" style="margin-bottom: 0.85rem;">
-            In U.C. 0093, seventeen-year-old Adrian Sagara ("Rian") was a coastal dock mechanic in Southeast Asia until the Axis impact shattered the Sunda Shelf and claimed his life. His soul drifted until U.C. 0095, when a skirmish in the flooded Sunda Sink left rogue ace Lt. Soren Hayes dying inside an experimental Psycho-Frame prototype built by Anaheim under classified commission from the Vist Foundation. The runaway Psycho-Field caused Hayes's cellular dissolution; the cockpit's Augusta bio-amniotic gel pulled in Adrian's consciousness, synthesizing an unspecialized adolescent female baseline.
-          </p>
-          <p class="briefing-text" style="margin-bottom: 0.85rem;">
-            Anaheim Senior Director Dietrich Lindemann arrived to confirm the casualty and secure the black box. Finding the undocumented anomaly, he thermited the wreck, logged Hayes as incinerated, and smuggled the survivor home to the Moon. In Von Braun City, he gave her sovereign legal shelter as his own daughter, "Marian Lindemann."
-          </p>
-          <p class="briefing-text">
-            By U.C. 0099, nineteen-year-old Marian lives a calculated existence in Von Braun, using Dietrich's executive status as a shield against Anaheim's Internal Disposal Bureau ("Cleaners") who hold an active liquidation order on Hayes. When an encrypted summons from the Vist Foundation arrives addressed to Hayes's backdoor frequency, Marian slips away to Colony SF at Side 4 to preserve Dietrich's plausible deniability—ready to step into Hayes's flight suit and buy her permanent civilian freedom.
-          </p>
+        <div class="briefing-body" id="briefing-body">
+          <!-- Story briefing is rendered from CANON.briefing (story module: canon.js, loaded as data.js below) -->
         </div>
       </div>
     </section>
@@ -149,7 +141,7 @@
 
         <!-- Dynamic Prose Stream (Mounted & Declassified via script.js & immersive.js) -->
         <div id="prose-flow" class="prose-content-flow">
-          <!-- Paragraphs and in-line subconscious echoes mount here -->
+          <!-- Paragraphs and in-line subconscious echoes mount here (all prose comes from CHAPTER_REGISTRY) -->
         </div>
 
         <!-- Chapter Pager Navigation -->
@@ -240,6 +232,7 @@
   </script>
 
   <!-- Application Modules in Dependency Order -->
+  <!-- Story module. If you save the new canon.js under its own name, change this src (and the import in script.js / immersive.js) to match. -->
   <script type="module" src="data.js"></script>
   <script type="module" src="immersive.js"></script>
   <script type="module" src="script.js"></script>
