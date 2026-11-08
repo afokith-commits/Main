@@ -239,3 +239,25 @@ body.switching #cockpit-viewport {
     opacity: 0.7 !important;
   }
 }
+
+/* --------------------------------------------------------------------------
+   7. TOUCH-SCREEN & MOBILE PERFORMANCE OPTIMIZATION
+   ----------------------------------------------------------------------- */
+@media (hover: none) and (pointer: coarse) {
+  /* Matikan kursor radial glow di HP untuk menghemat baterai & GPU */
+  .cursor-glow {
+    display: none !important;
+  }
+
+  /* Hilangkan efek filter blur saat scroll di HP agar rendering tetap 60/120 FPS */
+  body.reading-active #cockpit-header,
+  body.reading-active #floating-tape-deck {
+    filter: none !important;
+    opacity: 0.85 !important;
+  }
+
+  /* Haluskan garis scanlines agar tidak silau/buram di layar retina beresolusi tinggi */
+  .crt-scanlines {
+    opacity: 0.45;
+  }
+}

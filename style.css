@@ -842,40 +842,196 @@ body {
   display: none;
 }
 
-/* Responsif untuk Layar HP / Tablet */
-@media (max-width: 860px) {
-  #yt-monitor-deck {
-    bottom: calc(0.75rem + 50px + 8px);
-    right: 0.75rem;
-    width: 210px;
-  }
-  .monitor-screen-wrapper {
-    height: 118px;
-  }
-}
 /* --------------------------------------------------------------------------
-   9. RESPONSIVE MEDIA QUERIES
+   9. MOBILE & TABLET OPTIMIZATIONS (COMPREHENSIVE RESPONSIVE ENGINE)
    ----------------------------------------------------------------------- */
+
+/* Tablet & Medium Screens (<= 860px) */
 @media (max-width: 860px) {
   #cockpit-header .hud-group.center {
-    display: none;
+    display: none; /* Sembunyikan track audio di header */
   }
+}
+
+/* Mobile Screens (<= 640px) */
+@media (max-width: 640px) {
+  /* --- 1. Top HUD Strip Compact Mode --- */
+  #cockpit-header {
+    padding: 0 0.75rem;
+    height: 42px;
+  }
+
+  /* Sembunyikan elemen dekoratif agar tidak overflow di layar sempit */
+  .hud-glitch-badge,
+  .hud-separator,
+  #hud-harmonic-chip,
+  #hud-read-time {
+    display: none !important;
+  }
+
+  .hud-tag.sys-alert {
+    font-size: 0.55rem;
+    padding: 0.12rem 0.35rem;
+  }
+
+  .hud-data {
+    font-size: 0.65rem;
+  }
+
+  .hud-clock {
+    font-size: 0.65rem;
+  }
+
+  .hud-pill-btn {
+    font-size: 0.6rem;
+    padding: 0.25rem 0.5rem;
+    min-height: 32px; /* Lebih mudah ditekan */
+  }
+
+  /* --- 2. Reading Stage & Typography --- */
   #reading-stage {
-    padding: 1.5rem 1.25rem 6rem 1.25rem;
+    padding: 1.25rem 1rem calc(7rem + env(safe-area-inset-bottom, 0px)) 1rem;
+    max-width: 100%;
   }
+
+  .chapter-masthead {
+    margin-bottom: 2rem;
+    padding-bottom: 1.2rem;
+  }
+
+  .chapter-number-display {
+    font-size: 0.7rem;
+  }
+
   .chapter-title-display {
-    font-size: 1.8rem;
+    font-size: 1.65rem; /* Ukuran proporsional untuk judul panjang */
+    line-height: 1.25;
   }
+
+  .chapter-theater-tag {
+    font-size: 0.65rem;
+  }
+
+  /* Teks bacaan: Left-aligned agar tidak ada celah spasi bolong */
+  .prose-paragraph {
+    font-size: 1.05rem;
+    line-height: 1.75;
+    text-align: left;
+    text-justify: auto;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Drop-cap proporsional di HP */
+  .prose-paragraph.first-paragraph.resolved::first-letter {
+    font-size: 2.7rem;
+    line-height: 0.85;
+    margin-right: 0.65rem;
+    margin-top: 0.1rem;
+  }
+
+  /* Anotasi sensoris bawah sadar */
+  .inline-echo {
+    margin: 1.6rem 0;
+    padding: 0.85rem 1rem;
+  }
+
+  .echo-tag {
+    font-size: 0.6rem;
+  }
+
+  .echo-body {
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+
+  /* --- 3. Compact Diagnostic Oscilloscope --- */
+  .oscilloscope-section {
+    margin-bottom: 1.8rem;
+  }
+
+  .scope-card {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  .canvas-wrapper {
+    height: 80px; /* Lebih pendek agar tidak makan tempat */
+  }
+
   .scope-metrics {
-    gap: 10px;
-  }
-  .canvas-legend {
-    gap: 10px;
+    gap: 8px;
     font-size: 0.58rem;
   }
+
+  .canvas-legend {
+    gap: 8px;
+    left: 8px;
+    bottom: 4px;
+    font-size: 0.52rem;
+  }
+
+  #channel-3 {
+    display: none; /* Sembunyikan channel ke-3 agar tidak tumpang tindih */
+  }
+
+  /* --- 4. Chapter Pager (Mobile Layout) --- */
+  .chapter-pager {
+    flex-direction: column;
+    gap: 1.0rem;
+    align-items: stretch;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+  }
+
+  .pager-center-meta {
+    order: -1; /* Pindahkan indikator bab ke atas tombol */
+  }
+
+  .pager-hint {
+    display: none; /* Pintasan keyboard tidak relevan di layar sentuh */
+  }
+
+  .pager-btn {
+    width: 100%;
+    text-align: center;
+    padding: 0.75rem 1rem; /* Area sentuh jempol nyaman (44px) */
+    font-size: 0.8rem;
+  }
+
+  /* --- 5. Floating Cockpit Controls (Bottom Bar) --- */
   #floating-tape-deck {
-    bottom: 0.75rem;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
     right: 0.75rem;
-    padding: 0.45rem 0.65rem;
+    left: 0.75rem; /* Membentang rapi di bagian bawah */
+    width: auto;
+    max-width: none;
+    justify-content: space-between;
+    padding: 0.5rem 0.85rem;
+  }
+
+  .tape-info {
+    max-width: 160px;
+  }
+
+  .tape-track {
+    font-size: 0.68rem;
+  }
+
+  /* Monitor YouTube Mini di HP */
+  #yt-monitor-deck {
+    bottom: calc(3.8rem + env(safe-area-inset-bottom, 0px));
+    right: 0.75rem;
+    left: 0.75rem;
+    width: auto;
+    max-width: 280px;
+    margin-left: auto; /* Rata kanan dengan batas lebar wajar */
+  }
+
+  .monitor-screen-wrapper {
+    height: 140px;
+  }
+
+  #yt-monitor-deck.collapsed {
+    width: auto;
   }
 }
